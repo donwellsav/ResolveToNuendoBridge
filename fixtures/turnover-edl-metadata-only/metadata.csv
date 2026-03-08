@@ -1,0 +1,3 @@
+trackName,role,recordIn,recordOut,sourceIn,sourceOut,recordInFrames,recordOutFrames,sourceInFrames,sourceOutFrames,clipName,sourceFileName,reel,tape,scene,take,eventDescription,clipNotes,channelCount,channelLayout,isPolyWav,hasBwf,hasIXml,isOffline,isNested,isFlattened,hasSpeedEffect,hasFadeIn,hasFadeOut
+DX A,DX,01:00:00:00,01:00:04:00,10:00:00:00,10:00:04:00,0,96,0,96,EDL Event 1,SC15_TK03_20260304.BWF,R4,SR152,15,3,Principal DX,,2,"L,R",false,true,true,false,false,true,false,false,false
+DX A,DX,01:00:06:00,01:00:09:00,10:10:00:00,10:10:03:00,144,216,0,72,EDL Event 2,MISSING_FILE.WAV,R4,SR200,16,1,Alt DX,,2,"L,R",false,false,false,false,false,true,false,false,false

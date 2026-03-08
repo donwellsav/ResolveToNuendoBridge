@@ -1,0 +1,3 @@
+trackName,role,recordIn,recordOut,sourceIn,sourceOut,recordInFrames,recordOutFrames,sourceInFrames,sourceOutFrames,clipName,sourceFileName,reel,tape,scene,take,eventDescription,clipNotes,channelCount,channelLayout,isPolyWav,hasBwf,hasIXml,isOffline,isNested,isFlattened,hasSpeedEffect,hasFadeIn,hasFadeOut
+DX A,DX,01:00:00:01,01:00:05:00,00:00:00:00,00:00:05:00,0,120,0,120,A102C008_230915,SC15_TK03_20260304.BWF,R4,SR152,15,3,Principal DX,Boom and lav blend,6,"L,R,C,LFE,Ls,Rs",true,true,true,false,false,true,false,true,true
+FX A,FX,01:00:06:00,01:00:09:00,00:00:00:00,00:00:03:00,144,216,0,72,BG_STREET_RAIN,RAIN_WILDTRACK_02.WAV,R4,,15,,Exterior rain bed,Missing scene/take metadata,2,"L,R",false,false,false,false,false,true,false,false,true

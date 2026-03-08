@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fcpxml version="1.11">
+  <resources>
+    <format id="r1" frameDuration="1/24s" />
+    <asset id="a1" name="A102C008_230915" src="file:///SC15_TK03_20260304.BWF" reel="R4" tape="SR152" />
+    <asset id="a2" name="BG_STREET_RAIN" src="file:///RAIN_WILDTRACK_02.WAV" reel="R4" />
+  </resources>
+  <library>
+    <event name="Turnover">
+      <project name="RH_E03_R4_LOCK_v13">
+        <sequence format="r1" tcStart="86400/24s" name="RH_E03_R4_LOCK_v13">
+          <spine>
+            <asset-clip ref="a1" name="A102C008_230915" lane="1" start="0s" duration="5s">
+              <marker start="2s" value="ADR cue" />
+            </asset-clip>
+            <asset-clip ref="a2" name="BG_STREET_RAIN" lane="2" start="6s" duration="3s" />
+          </spine>
+        </sequence>
+      </project>
+    </event>
+  </library>
+</fcpxml>

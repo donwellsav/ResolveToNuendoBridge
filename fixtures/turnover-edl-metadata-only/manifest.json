@@ -1,0 +1,10 @@
+{
+  "project": "Red Harbor",
+  "timelineVersion": "RH_E03_EDL_ONLY",
+  "timelineName": "RH_E03_EDL_ONLY",
+  "startTimecode": "01:00:00:00",
+  "durationTimecode": "00:10:00:00",
+  "fps": 24,
+  "sampleRate": 48000,
+  "dropFrame": false
+}

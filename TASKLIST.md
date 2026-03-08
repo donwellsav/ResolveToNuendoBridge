@@ -24,8 +24,10 @@
 - [x] Use realistic Resolve -> Nuendo mock workflow data.
 - [x] Exclude auth, billing, database, and marketing pages.
 
-## Phase 2 — Parser/Exporter Services (Planned)
-- [ ] Implement Resolve intake validation/parsing service for AAF/XML/EDL/CSV contract.
+## Phase 2 — Parser/Exporter Services (Active)
+- [~] Implement Resolve intake validation/parsing service for CSV/manifest/EDL contract (partially real).
+- [~] Make timeline_exchange (`.fcpxml`/`.xml`) the active canonical timeline hydration milestone.
+- [ ] Implement AAF parsing and reconciliation against canonical timeline (next milestone).
 - [ ] Build canonical normalization pipeline with deterministic transform rules.
 - [ ] Implement Nuendo-ready bundle writer for required artifact set.
 - [ ] Add robust validation and warning taxonomy for reconform/preservation issues.

@@ -1,9 +1,12 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import { parseFcpxml } from "../parsers/fcpxml";
+
 import type {
   AnalysisReport,
   AssetOrigin,
+  ClipEvent,
   FileKind,
   FileRole,
   ImportAnalysisResult,
@@ -34,7 +37,6 @@ function splitCsvLine(line: string): string[] {
 
   for (let i = 0; i < line.length; i += 1) {
     const char = line[i];
-
     if (char === '"') {
       if (inQuotes && line[i + 1] === '"') {
         current += '"';
@@ -153,6 +155,54 @@ function parseMarkerEdl(content: string): Marker[] {
   return markers;
 }
 
+function parseEdlTimeline(content: string): TranslationModel["timeline"]["tracks"] {
+  const eventRegex = /^\s*\d+\s+\S+\s+\S\s+\S\s+(\d{2}:\d{2}:\d{2}:\d{2})\s+(\d{2}:\d{2}:\d{2}:\d{2})\s+(\d{2}:\d{2}:\d{2}:\d{2})\s+(\d{2}:\d{2}:\d{2}:\d{2})/;
+  const clips: ClipEvent[] = [];
+
+  content.split(/\r?\n/).forEach((line, index) => {
+    const match = line.match(eventRegex);
+    if (!match) return;
+
+    clips.push({
+      id: `evt-edl-${clips.length + 1}`,
+      sourceIn: match[1],
+      sourceOut: match[2],
+      recordIn: match[3],
+      recordOut: match[4],
+      sourceInFrames: index * 10,
+      sourceOutFrames: index * 10 + 1,
+      recordInFrames: index * 10,
+      recordOutFrames: index * 10 + 1,
+      clipName: `EDL Event ${clips.length + 1}`,
+      sourceFileName: "unknown.wav",
+      reel: "UNKNOWN",
+      sourceAssetId: "unknown-asset",
+      channelCount: 2,
+      channelLayout: "L,R",
+      isPolyWav: false,
+      hasBwf: false,
+      hasIXml: false,
+      isOffline: false,
+      isNested: false,
+      isFlattened: true,
+      hasSpeedEffect: false,
+      hasFadeIn: false,
+      hasFadeOut: false,
+    });
+  });
+
+  return clips.length === 0
+    ? []
+    : [
+        {
+          id: "trk-edl-1",
+          name: "EDL A",
+          role: "DX",
+          clips,
+        },
+      ];
+}
+
 function deriveTimelineFrameRange(tracks: TranslationModel["timeline"]["tracks"]): { startFrame: number; durationFrames: number } {
   const clips = tracks.flatMap((track) => track.clips).filter((clip) => clip.recordOutFrames > clip.recordInFrames);
   if (clips.length === 0) return { startFrame: 0, durationFrames: 0 };
@@ -162,62 +212,7 @@ function deriveTimelineFrameRange(tracks: TranslationModel["timeline"]["tracks"]
   return { startFrame, durationFrames: Math.max(0, endFrame - startFrame) };
 }
 
-export async function importTurnoverFolder(folderPath: string): Promise<ImportAnalysisResult> {
-  const files = await walkFolder(folderPath);
-  const intakeAssets: IntakeAsset[] = [];
-
-  let metadataRows: MetadataRow[] = [];
-  let markerRows: MetadataRow[] = [];
-  let edlMarkers: Marker[] = [];
-  let manifest: ManifestPayload = {};
-
-  for (const filePath of files) {
-    const fileName = path.basename(filePath);
-    const kind = classifyFileKind(fileName);
-    const role = classifyFileRole(fileName, kind);
-    const origin = classifyOrigin(fileName, role);
-    const relativePath = path.relative(folderPath, filePath);
-
-    const asset: IntakeAsset = {
-      id: `in-${relativePath.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}`,
-      stage: "intake",
-      origin,
-      fileKind: kind,
-      fileRole: role,
-      fileName,
-      pathHint: relativePath,
-      status: "ready",
-    };
-
-    if (role === "production_audio") {
-      asset.hasBwf = kind === "bwf";
-      asset.isPolyWav = fileName.toLowerCase().includes("poly") || fileName.toLowerCase().includes("_6ch");
-      asset.hasIXml = false;
-    }
-
-    if (kind === "csv" || kind === "edl" || kind === "json") {
-      const content = await fs.readFile(filePath, "utf8");
-      if (kind === "csv" && fileName.toLowerCase().includes("metadata")) metadataRows = parseCsv(content);
-      if (kind === "csv" && fileName.toLowerCase().includes("marker")) markerRows = parseCsv(content);
-      if (kind === "edl") edlMarkers = parseMarkerEdl(content);
-      if (kind === "json" && fileName.toLowerCase().includes("manifest")) {
-        manifest = JSON.parse(content) as ManifestPayload;
-      }
-    }
-
-    intakeAssets.push(asset);
-  }
-
-  const markersFromCsv: Marker[] = markerRows.map((row, index) => ({
-    id: `mk-csv-${index + 1}`,
-    timelineTc: row.timelineTc || row.timecode || "00:00:00:00",
-    timelineFrame: asInt(row.timelineFrame, index + 1),
-    label: row.label || row.name || `Marker ${index + 1}`,
-    color: (row.color as Marker["color"]) || "blue",
-  }));
-
-  const markers = markersFromCsv.length > 0 ? markersFromCsv : edlMarkers;
-
+function clipsFromMetadata(metadataRows: MetadataRow[], intakeAssets: IntakeAsset[]): TranslationModel["timeline"]["tracks"] {
   const tracksByName = new Map<string, TranslationModel["timeline"]["tracks"][number]>();
   metadataRows.forEach((row, index) => {
     const trackName = row.trackName || row.track || "Unknown Track";
@@ -232,7 +227,7 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
       });
     }
 
-    const clip = {
+    tracksByName.get(trackName)?.clips.push({
       id: `evt-${index + 1}`,
       recordIn: row.recordIn || "00:00:00:00",
       recordOut: row.recordOut || "00:00:00:00",
@@ -262,16 +257,201 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
       hasSpeedEffect: asBool(row.hasSpeedEffect),
       hasFadeIn: asBool(row.hasFadeIn),
       hasFadeOut: asBool(row.hasFadeOut),
-    };
-
-    tracksByName.get(trackName)?.clips.push(clip);
+    });
   });
 
-  const tracks = Array.from(tracksByName.values());
-  const clipCount = tracks.reduce((sum, track) => sum + track.clips.length, 0);
-  const offlineAssetCount = tracks.reduce((sum, track) => sum + track.clips.filter((clip) => clip.isOffline).length, 0);
+  return Array.from(tracksByName.values());
+}
+
+function enrichFromMetadata(tracks: TranslationModel["timeline"]["tracks"], metadataRows: MetadataRow[], intakeAssets: IntakeAsset[]) {
+  const byClipName = new Map(metadataRows.map((row) => [row.clipName, row]));
+  tracks.forEach((track) => {
+    track.clips = track.clips.map((clip) => {
+      const metadata = byClipName.get(clip.clipName) ?? metadataRows.find((row) => row.sourceFileName === clip.sourceFileName);
+      if (!metadata) return clip;
+
+      return {
+        ...clip,
+        tape: metadata.tape || clip.tape,
+        scene: metadata.scene || clip.scene,
+        take: metadata.take || clip.take,
+        reel: metadata.reel || clip.reel,
+        eventDescription: metadata.eventDescription || clip.eventDescription,
+        clipNotes: metadata.clipNotes || clip.clipNotes,
+        sourceAssetId: intakeAssets.find((asset) => asset.fileName === (metadata.sourceFileName || clip.sourceFileName))?.id ?? clip.sourceAssetId,
+        channelCount: metadata.channelCount ? asInt(metadata.channelCount, clip.channelCount) : clip.channelCount,
+        channelLayout: metadata.channelLayout || clip.channelLayout,
+        isPolyWav: metadata.isPolyWav ? asBool(metadata.isPolyWav) : clip.isPolyWav,
+        hasBwf: metadata.hasBwf ? asBool(metadata.hasBwf) : clip.hasBwf,
+        hasIXml: metadata.hasIXml ? asBool(metadata.hasIXml) : clip.hasIXml,
+      };
+    });
+  });
+}
+
+function reconcileFcpxmlWithMetadata(
+  tracks: TranslationModel["timeline"]["tracks"],
+  metadataRows: MetadataRow[],
+  markers: Marker[],
+  markerRows: MetadataRow[],
+  intakeAssets: IntakeAsset[]
+): PreservationIssue[] {
+  const issues: PreservationIssue[] = [];
+
+  if (metadataRows.length > 0 && tracks.length !== new Set(metadataRows.map((row) => row.trackName || row.track || "Unknown Track")).size) {
+    issues.push({
+      id: "issue-track-count-mismatch",
+      category: "manual-review",
+      severity: "warning",
+      scope: "track",
+      title: "Track count mismatch between FCPXML/XML and metadata CSV",
+      description: "Timeline exchange track count does not match metadata CSV track declarations.",
+      sourceLocation: "fcpxml+metadata.csv",
+      recommendedAction: "Verify track mapping and regenerate turnover metadata.",
+    });
+  }
+
+  for (const clip of tracks.flatMap((track) => track.clips)) {
+    const metadata = metadataRows.find((row) => row.clipName === clip.clipName || row.sourceFileName === clip.sourceFileName);
+    if (!metadata) continue;
+
+    if ((metadata.recordIn && metadata.recordIn !== clip.recordIn) || (metadata.recordOut && metadata.recordOut !== clip.recordOut)) {
+      issues.push({
+        id: `issue-clip-timecode-mismatch-${clip.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "clip",
+        title: `Clip timecode mismatch: ${clip.clipName}`,
+        description: `FCPXML/XML record range ${clip.recordIn}-${clip.recordOut} differs from metadata CSV ${metadata.recordIn}-${metadata.recordOut}.`,
+        sourceLocation: "fcpxml+metadata.csv",
+        recommendedAction: "Review editorial timeline and metadata export alignment.",
+      });
+    }
+
+    if (!metadata.reel || !metadata.tape || !metadata.scene || !metadata.take) {
+      issues.push({
+        id: `issue-missing-rst-${clip.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "metadata",
+        title: `Missing reel/tape/scene/take on ${clip.clipName}`,
+        description: "Metadata CSV row is missing one or more of reel/tape/scene/take fields.",
+        sourceLocation: "metadata.csv",
+        recommendedAction: "Backfill production metadata before delivery handoff.",
+      });
+    }
+  }
+
+  if (markerRows.length > 0 && markerRows.length !== markers.length) {
+    issues.push({
+      id: "issue-marker-count-mismatch",
+      category: "manual-review",
+      severity: "warning",
+      scope: "marker",
+      title: "Marker count mismatch",
+      description: `Timeline exchange contains ${markers.length} markers while marker CSV contains ${markerRows.length}.`,
+      sourceLocation: "fcpxml+marker.csv",
+      recommendedAction: "Confirm marker export source and rerun marker extract.",
+    });
+  }
+
+  tracks.flatMap((track) => track.clips).forEach((clip) => {
+    if (!intakeAssets.some((asset) => asset.fileRole === "production_audio" && asset.fileName === clip.sourceFileName)) {
+      issues.push({
+        id: `issue-source-missing-${clip.id}`,
+        category: "manual-review",
+        severity: "critical",
+        scope: "clip",
+        title: `Source file missing from intake bundle: ${clip.sourceFileName}`,
+        description: "Canonical clip references a file that is not present in intake production audio assets.",
+        sourceLocation: "timeline_exchange",
+        recommendedAction: "Add missing source file to turnover bundle.",
+      });
+    }
+  });
+
+  return issues;
+}
+
+export async function importTurnoverFolder(folderPath: string): Promise<ImportAnalysisResult> {
+  const files = await walkFolder(folderPath);
+  const intakeAssets: IntakeAsset[] = [];
+
+  let metadataRows: MetadataRow[] = [];
+  let markerRows: MetadataRow[] = [];
+  let edlMarkers: Marker[] = [];
+  let edlTracks: TranslationModel["timeline"]["tracks"] = [];
+  let manifest: ManifestPayload = {};
+  let parsedFcpxml: ReturnType<typeof parseFcpxml> | undefined;
+
+  for (const filePath of files) {
+    const fileName = path.basename(filePath);
+    const kind = classifyFileKind(fileName);
+    const role = classifyFileRole(fileName, kind);
+    const origin = classifyOrigin(fileName, role);
+    const relativePath = path.relative(folderPath, filePath);
+
+    const asset: IntakeAsset = {
+      id: `in-${relativePath.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}`,
+      stage: "intake",
+      origin,
+      fileKind: kind,
+      fileRole: role,
+      fileName,
+      pathHint: relativePath,
+      status: "ready",
+    };
+
+    if (role === "production_audio") {
+      asset.hasBwf = kind === "bwf";
+      asset.isPolyWav = fileName.toLowerCase().includes("poly") || fileName.toLowerCase().includes("_6ch");
+      asset.hasIXml = false;
+    }
+
+    if (kind === "csv" || kind === "edl" || kind === "json" || kind === "fcpxml" || kind === "xml") {
+      const content = await fs.readFile(filePath, "utf8");
+      if (kind === "csv" && fileName.toLowerCase().includes("metadata")) metadataRows = parseCsv(content);
+      if (kind === "csv" && fileName.toLowerCase().includes("marker")) markerRows = parseCsv(content);
+      if (kind === "edl") {
+        edlMarkers = parseMarkerEdl(content);
+        edlTracks = parseEdlTimeline(content);
+      }
+      if (kind === "json" && fileName.toLowerCase().includes("manifest")) manifest = JSON.parse(content) as ManifestPayload;
+      if ((kind === "fcpxml" || kind === "xml") && role === "timeline_exchange" && !parsedFcpxml) parsedFcpxml = parseFcpxml(content);
+    }
+
+    intakeAssets.push(asset);
+  }
+
+  const markersFromCsv: Marker[] = markerRows.map((row, index) => ({
+    id: `mk-csv-${index + 1}`,
+    timelineTc: row.timelineTc || row.timecode || "00:00:00:00",
+    timelineFrame: asInt(row.timelineFrame, index + 1),
+    label: row.label || row.name || `Marker ${index + 1}`,
+    color: (row.color as Marker["color"]) || "blue",
+  }));
 
   const issues: PreservationIssue[] = [];
+
+  const hasFcpxmlTimeline = Boolean(parsedFcpxml && parsedFcpxml.tracks.length > 0);
+  const timelineSource = hasFcpxmlTimeline ? "fcpxml" : edlTracks.length > 0 ? "edl" : "metadata";
+  let tracks: TranslationModel["timeline"]["tracks"] = [];
+  let markers: Marker[] = [];
+
+  if (timelineSource === "fcpxml") {
+    tracks = parsedFcpxml?.tracks ?? [];
+    enrichFromMetadata(tracks, metadataRows, intakeAssets);
+    markers = (parsedFcpxml?.markers?.length ?? 0) > 0 ? parsedFcpxml?.markers ?? [] : markersFromCsv.length > 0 ? markersFromCsv : edlMarkers;
+    issues.push(...reconcileFcpxmlWithMetadata(tracks, metadataRows, markers, markerRows, intakeAssets));
+  } else if (timelineSource === "edl") {
+    tracks = edlTracks;
+    enrichFromMetadata(tracks, metadataRows, intakeAssets);
+    markers = markersFromCsv.length > 0 ? markersFromCsv : edlMarkers;
+  } else {
+    tracks = clipsFromMetadata(metadataRows, intakeAssets);
+    markers = markersFromCsv.length > 0 ? markersFromCsv : edlMarkers;
+  }
+
   const requiredRoles: FileRole[] = ["timeline_exchange", "metadata_export", "reference_video", "marker_export"];
   requiredRoles.forEach((role) => {
     if (!intakeAssets.some((asset) => asset.fileRole === role)) {
@@ -301,9 +481,12 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
     });
   }
 
+  const clipCount = tracks.reduce((sum, track) => sum + track.clips.length, 0);
+  const offlineAssetCount = tracks.reduce((sum, track) => sum + track.clips.filter((clip) => clip.isOffline).length, 0);
   const unresolvedMetadataCount = tracks
     .flatMap((track) => track.clips)
     .filter((clip) => !clip.reel || !clip.scene || !clip.take || !clip.tape).length;
+
   if (unresolvedMetadataCount > 0) {
     issues.push({
       id: "issue-unresolved-scene-take",
@@ -333,6 +516,17 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
   }
 
   const timelineFrames = deriveTimelineFrameRange(tracks);
+  const nowIso = "2026-03-08T00:00:00.000Z";
+  const sourceBundle = {
+    id: "bundle-imported",
+    stage: "intake" as const,
+    origin: "resolve" as const,
+    bundleName: path.basename(folderPath),
+    resolveProject: manifest.project ?? "Imported Resolve Project",
+    resolveTimelineVersion: manifest.timelineVersion ?? "Imported Timeline v1",
+    importedAtIso: nowIso,
+    intakeAssets,
+  };
 
   const analysis: AnalysisReport = {
     tracksTotal: tracks.length,
@@ -346,32 +540,20 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
     deliveryReadinessSummary: blocked ? "Delivery planning blocked by critical intake issues." : "Intake and canonical analysis complete. Delivery planning ready.",
   };
 
-  const nowIso = "2026-03-08T00:00:00.000Z";
-  const sourceBundle = {
-    id: "bundle-imported",
-    stage: "intake" as const,
-    origin: "resolve" as const,
-    bundleName: path.basename(folderPath),
-    resolveProject: manifest.project ?? "Imported Resolve Project",
-    resolveTimelineVersion: manifest.timelineVersion ?? "Imported Timeline v1",
-    importedAtIso: nowIso,
-    intakeAssets,
-  };
-
   const translationModel: TranslationModel = {
     id: "model-imported",
     stage: "canonical",
     sourceBundleId: sourceBundle.id,
     timeline: {
       id: "timeline-imported",
-      name: manifest.timelineName ?? sourceBundle.resolveTimelineVersion,
-      startTimecode: manifest.startTimecode ?? "01:00:00:00",
+      name: parsedFcpxml?.timelineName ?? manifest.timelineName ?? sourceBundle.resolveTimelineVersion,
+      startTimecode: parsedFcpxml?.startTimecode ?? manifest.startTimecode ?? "01:00:00:00",
       durationTimecode: manifest.durationTimecode ?? "00:00:00:00",
       startFrame: timelineFrames.startFrame,
       durationFrames: timelineFrames.durationFrames,
-      fps: manifest.fps ?? 24,
+      fps: parsedFcpxml?.fps ?? manifest.fps ?? 24,
       sampleRate: manifest.sampleRate ?? 48000,
-      dropFrame: manifest.dropFrame ?? false,
+      dropFrame: parsedFcpxml?.dropFrame ?? manifest.dropFrame ?? false,
       tracks,
       markers,
     },
@@ -381,16 +563,14 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
     sourceBundle,
     translationModel,
     mappingRules: templateMappingRules,
-    fieldRecorderCandidates: tracks
-      .flatMap((track) => track.clips)
-      .map((clip, index) => ({
-        id: `frc-${index + 1}`,
-        clipEventId: clip.id,
-        candidateFile: clip.sourceFileName,
-        matchScore: clip.hasIXml ? 92 : 65,
-        strategy: clip.hasIXml ? "scene_take" : "filename_tc",
-        matched: !clip.isOffline,
-      })),
+    fieldRecorderCandidates: tracks.flatMap((track) => track.clips).map((clip, index) => ({
+      id: `frc-${index + 1}`,
+      clipEventId: clip.id,
+      candidateFile: clip.sourceFileName,
+      matchScore: clip.hasIXml ? 92 : 65,
+      strategy: clip.hasIXml ? "scene_take" : "filename_tc",
+      matched: !clip.isOffline,
+    })),
     preservationIssues: issues,
     reconformChanges: [],
     analysisReport: analysis,

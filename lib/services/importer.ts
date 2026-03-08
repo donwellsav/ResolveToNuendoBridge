@@ -37,7 +37,13 @@ function splitCsvLine(line: string): string[] {
 
   for (let i = 0; i < line.length; i += 1) {
     const char = line[i];
+
     if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i += 1;
+        continue;
+      }
       inQuotes = !inQuotes;
       continue;
     }
@@ -148,6 +154,15 @@ function parseMarkerEdl(content: string): Marker[] {
   }
 
   return markers;
+}
+
+function deriveTimelineFrameRange(tracks: TranslationModel["timeline"]["tracks"]): { startFrame: number; durationFrames: number } {
+  const clips = tracks.flatMap((track) => track.clips).filter((clip) => clip.recordOutFrames > clip.recordInFrames);
+  if (clips.length === 0) return { startFrame: 0, durationFrames: 0 };
+
+  const startFrame = Math.min(...clips.map((clip) => clip.recordInFrames));
+  const endFrame = Math.max(...clips.map((clip) => clip.recordOutFrames));
+  return { startFrame, durationFrames: Math.max(0, endFrame - startFrame) };
 }
 
 function makeDeliveryArtifacts(status: "queued" | "blocked"): DeliveryArtifact[] {
@@ -336,13 +351,13 @@ export async function importTurnoverFolder(folderPath: string): Promise<Translat
   const offlineAssetCount = tracks.reduce((sum, track) => sum + track.clips.filter((clip) => clip.isOffline).length, 0);
 
   const issues: PreservationIssue[] = [];
-  const requiredRoles: FileRole[] = ["timeline_exchange", "metadata_export", "reference_video"];
+  const requiredRoles: FileRole[] = ["timeline_exchange", "metadata_export", "reference_video", "marker_export"];
   requiredRoles.forEach((role) => {
     if (!intakeAssets.some((asset) => asset.fileRole === role)) {
       issues.push({
         id: `issue-missing-${role}`,
         category: "manual-review",
-        severity: "critical",
+        severity: role === "marker_export" ? "warning" : "critical",
         scope: "timeline",
         title: `Missing expected intake file: ${role}`,
         description: `Turnover folder does not include required intake role ${role}.`,
@@ -398,6 +413,8 @@ export async function importTurnoverFolder(folderPath: string): Promise<Translat
     });
   }
 
+  const timelineFrames = deriveTimelineFrameRange(tracks);
+
   const analysis: AnalysisReport = {
     tracksTotal: tracks.length,
     clipsTotal: clipCount,
@@ -431,8 +448,8 @@ export async function importTurnoverFolder(folderPath: string): Promise<Translat
       name: manifest.timelineName ?? sourceBundle.resolveTimelineVersion,
       startTimecode: manifest.startTimecode ?? "01:00:00:00",
       durationTimecode: manifest.durationTimecode ?? "00:00:00:00",
-      startFrame: 0,
-      durationFrames: 0,
+      startFrame: timelineFrames.startFrame,
+      durationFrames: timelineFrames.durationFrames,
       fps: manifest.fps ?? 24,
       sampleRate: manifest.sampleRate ?? 48000,
       dropFrame: manifest.dropFrame ?? false,

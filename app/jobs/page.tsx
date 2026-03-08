@@ -6,10 +6,25 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getTranslationJobs } from "@/lib/job-source";
 
-const primaryJob = translationJobs[0];
-const allClips = primaryJob.translationModel.timeline.tracks.flatMap((track) => track.clips);
+export default async function JobsPage() {
+  const translationJobs = await getTranslationJobs();
+  const primaryJob = translationJobs[0];
 
-export default function JobsPage() {
+  if (!primaryJob) {
+    return (
+      <AppShell title="Jobs">
+        <Card>
+          <CardHeader>
+            <CardTitle>Translation Queue</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted">No translation jobs are available.</CardContent>
+        </Card>
+      </AppShell>
+    );
+  }
+
+  const allClips = primaryJob.translationModel.timeline.tracks.flatMap((track) => track.clips);
+
   return (
     <AppShell title="Jobs">
       <div className="space-y-4">

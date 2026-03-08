@@ -1,36 +1,54 @@
-# Conform Bridge — Product Overview (Phase 1 Scaffold)
+# Conform Bridge — Product Contract (Phase 1)
 
-## Goal
-Conform Bridge is a desktop-first internal operator application for Resolve -> Nuendo translation workflows.
+## Product Intent
+Conform Bridge is an internal, desktop-first operator tool for translating **Resolve editorial bundles** into a **Nuendo-ready handoff bundle**.
 
-Phase 1 is scaffold-only: deterministic UI, realistic domain mock data, and integration-ready interfaces without real parser/export execution.
+Phase 1 is intentionally frontend-only and contract-first:
+- lock product terminology
+- lock data model expectations
+- lock bundle artifact contract
+- scaffold operator routes with deterministic SSR-safe rendering
 
-## Scope
-### Included
-- Next.js App Router scaffold with TypeScript + Tailwind + shadcn/ui-style components.
-- Operator shell (sidebar + top bar) and workflow routes:
+## In Scope (Phase 1)
+- Next.js App Router application shell using TypeScript, Tailwind CSS, and reusable shadcn/ui-style primitives.
+- Operator workflow routes:
   - Dashboard
-  - New Job
   - Jobs
+  - New Job
   - Templates
   - Field Recorder
   - ReConform
   - Settings
-- Domain contracts and realistic mock data for translation workflow modeling.
-- Stub interfaces for importer/exporter/persistence.
+- Typed canonical internal model for translation workflow entities.
+- Realistic, static mock data for Resolve -> Nuendo workflows.
+- Stub service interfaces for importer/exporter/persistence only.
 
-### Explicitly Excluded
-- Real Resolve file parsing.
+## Out of Scope (Phase 1)
+- Real AAF/XML/EDL parsing.
 - Real Nuendo export writing.
-- Auth, billing, database, and marketing/public pages.
+- Auth, billing, database persistence, and marketing/public pages.
+
+## Primary Workflow Contract
+1. Resolve exports (bundle artifacts) are ingested.
+2. Data is normalized into a canonical internal model.
+3. A Nuendo-ready outbound bundle is assembled.
+
+Parser/export execution remains stubbed in this phase; UI and contracts are fixed now so phase 2 can implement services without reshaping the operator shell.
 
 ## UX Direction
-- Dark, technical, restrained visual system.
-- Desktop-first information density.
-- Structured tables, metadata, and operator-focused placeholders.
+- Desktop-first internal operations console.
+- Serious post-production visual tone (dark, technical, restrained accents).
+- Dense but readable information design.
+- Emphasis on tables, badges, structured metadata blocks, and review surfaces.
 
-## Technical Constraints
-- Deterministic SSR-safe rendering only.
-- No browser-only APIs during initial render.
-- No render-time randomness (`Math.random`, `Date.now`, UUID generation in render path).
-- Reusable components over page-specific one-offs.
+## Rendering & Engineering Constraints
+- Deterministic SSR-safe rendering.
+- No browser-only APIs during initial render (`window`, `document`, `localStorage`, etc.).
+- No render-time nondeterminism (`Date.now`, dynamic `new Date()`, `Math.random`, UUID generation).
+- Prefer reusable components over page-specific one-offs.
+
+## Acceptance Criteria (Phase 1)
+- All required operator routes scaffolded and navigable in app shell.
+- Domain model includes all entities listed in `SCHEMA.md`.
+- Bundle artifact contract documented in `BUNDLE_SPEC.md` and represented in mock data.
+- Importer/exporter are explicit stubs and not real implementations.

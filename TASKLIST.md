@@ -1,19 +1,33 @@
 # TASKLIST — Conform Bridge
 
-## Phase 1 (Scaffold)
-- [x] Initialize Next.js App Router + TypeScript + Tailwind scaffold.
-- [x] Build desktop-first app shell with sidebar and top bar.
-- [x] Add routes: Dashboard, New Job, Jobs, Templates, Field Recorder, ReConform, Settings.
-- [x] Define domain model in `lib/types.ts`.
-- [x] Provide realistic mock workflow data in `lib/mock-data.ts`.
-- [x] Build dense placeholder layouts with reusable table-oriented components.
-- [x] Keep import/export service interfaces as stubs only.
-- [x] Keep rendering deterministic and SSR-safe.
-- [x] Keep scope frontend-only (no backend/auth/billing/db/marketing).
+## Phase 1 — Contract Lock + Frontend Operator Shell
+- [x] Lock product contract and scope boundaries in `PRODUCT.md`.
+- [x] Lock canonical data contract in `SCHEMA.md`.
+- [x] Lock bundle artifact contract in `BUNDLE_SPEC.md`.
+- [x] Scaffold desktop-first operator shell with App Router navigation.
+- [x] Scaffold routes: Dashboard, Jobs, New Job, Templates, Field Recorder, ReConform, Settings.
+- [x] Implement typed models for all phase-1 entities:
+  - [x] `TranslationJob`
+  - [x] `SourceBundle`
+  - [x] `SourceAsset`
+  - [x] `Timeline`
+  - [x] `Track`
+  - [x] `ClipEvent`
+  - [x] `Marker`
+  - [x] `FieldRecorderCandidate`
+  - [x] `MappingRule`
+  - [x] `PreservationIssue`
+  - [x] `OutputPreset`
+  - [x] `ExportArtifact`
+- [x] Keep render deterministic and SSR-safe (no browser-only APIs in initial render path).
+- [x] Keep importer/exporter/persistence as stubs only.
+- [x] Use realistic Resolve -> Nuendo mock workflow data.
+- [x] Exclude auth, billing, database, and marketing pages.
 
-## Deferred to Phase 2+
-- [ ] Real Resolve bundle parsing + validation engine.
-- [ ] Real Nuendo export artifact writer.
-- [ ] Interactive job creation with file intake UX.
-- [ ] Persistent storage strategy.
-- [ ] ReConform diff and merge execution logic.
+## Phase 2 — Parser/Exporter Services (Planned)
+- [ ] Implement Resolve intake validation/parsing service for AAF/XML/EDL/CSV contract.
+- [ ] Build canonical normalization pipeline with deterministic transform rules.
+- [ ] Implement Nuendo-ready bundle writer for required artifact set.
+- [ ] Add robust validation and warning taxonomy for reconform/preservation issues.
+- [ ] Add file intake UX and job execution controls around real services.
+- [ ] Add persistence layer once service boundaries stabilize.

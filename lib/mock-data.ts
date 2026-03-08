@@ -39,8 +39,17 @@ const inboundBundle: SourceBundle = {
   assets: [
     { id: "asset-aaf", name: "RH_E03_R4_v12.aaf", assetType: "aaf", pathHint: "incoming/RH_E03_R4_v12.aaf" },
     { id: "asset-edl", name: "RH_E03_R4_markers.edl", assetType: "marker_edl", pathHint: "incoming/markers.edl" },
+    { id: "asset-marker-csv", name: "RH_E03_R4_markers.csv", assetType: "marker_csv", pathHint: "incoming/markers.csv" },
     { id: "asset-meta", name: "RH_E03_R4_metadata.csv", assetType: "metadata_csv", pathHint: "incoming/metadata.csv" },
+    { id: "asset-manifest", name: "manifest.json", assetType: "manifest_json", pathHint: "incoming/manifest.json" },
+    { id: "asset-readme", name: "README_IMPORT.txt", assetType: "readme", pathHint: "incoming/README_IMPORT.txt" },
     { id: "asset-ref", name: "RH_E03_R4_ref.mov", assetType: "reference_video", pathHint: "incoming/ref.mov" },
+    {
+      id: "asset-field-recorder-report",
+      name: "RH_E03_R4_field_recorder_report.csv",
+      assetType: "field_recorder_report",
+      pathHint: "incoming/field_recorder_report.csv",
+    },
   ],
   timeline: {
     id: "tl-rh-e03-r4",
@@ -138,9 +147,18 @@ export const translationJobs: TranslationJob[] = [
     outputPreset: outputPresets[0],
     exportArtifacts: [
       { id: "out-01", artifactType: "aaf", fileName: "RH_E03_R4_NUENDO.aaf", status: "queued" },
-      { id: "out-02", artifactType: "marker_csv", fileName: "RH_E03_R4_MARKERS.csv", status: "queued" },
-      { id: "out-03", artifactType: "manifest_json", fileName: "manifest.json", status: "queued" },
-      { id: "out-04", artifactType: "readme", fileName: "README_IMPORT.txt", status: "queued" },
+      { id: "out-02", artifactType: "marker_edl", fileName: "RH_E03_R4_MARKERS.edl", status: "queued" },
+      { id: "out-08", artifactType: "marker_csv", fileName: "RH_E03_R4_MARKERS.csv", status: "queued" },
+      { id: "out-03", artifactType: "metadata_csv", fileName: "RH_E03_R4_METADATA.csv", status: "queued" },
+      { id: "out-04", artifactType: "manifest_json", fileName: "manifest.json", status: "queued" },
+      { id: "out-05", artifactType: "readme", fileName: "README_IMPORT.txt", status: "queued" },
+      { id: "out-06", artifactType: "reference_video", fileName: "RH_E03_R4_ref.mov", status: "ready" },
+      {
+        id: "out-07",
+        artifactType: "field_recorder_report",
+        fileName: "RH_E03_R4_field_recorder_report.csv",
+        status: "queued",
+      },
     ],
   },
 ];

@@ -15,7 +15,7 @@ export default async function JobsPage() {
       <div className="space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>Translation Queue (Imported or Mock Fallback)</CardTitle>
+            <CardTitle>Translation Queue</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <table className="w-full border-collapse text-xs">

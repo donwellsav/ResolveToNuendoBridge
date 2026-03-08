@@ -14,7 +14,7 @@ export default async function NewJobPage() {
         <Card>
           <CardHeader><CardTitle>Step 1 — Intake Package</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm text-muted">
-            <p>Importer boundary currently loads local fixture turnover from <span className="font-mono">fixtures/turnover-basic</span>.</p>
+            <p>Importer boundary loads local fixture turnover from <span className="font-mono">fixtures/turnover-basic</span>.</p>
             <p>Detected intake assets: <span className="font-mono">{importedJob.sourceBundle.intakeAssets.length}</span> files.</p>
             <p className="font-mono text-xs">{importedJob.analysisReport.intakeCompletenessSummary}</p>
           </CardContent>

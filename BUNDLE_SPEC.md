@@ -35,13 +35,11 @@ Use `stage` + `origin` + `fileRole` together to identify intent and direction.
 - Canonical normalization checks for stable IDs + valid frame/timecode math.
 - Delivery readiness checks for required outbound artifacts and blocked/warning states.
 
-
 ## Phase 2A support (implemented)
 - Intake scanner/classifier for local turnover folder inputs.
 - Parsing for metadata CSV, marker CSV, manifest JSON, and simple EDL marker extraction.
 - Canonical hydration uses known parsed fields and preserves unknowns as explicit defaults.
 - Nuendo export writing remains out of scope in this phase.
-
 
 ## Intake Manifest Handling
 - If `manifest.json` is present in turnover, Phase 2A treats it as intake context for project/timeline defaults.

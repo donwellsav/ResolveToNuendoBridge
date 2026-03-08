@@ -20,7 +20,7 @@
 - [x] Add fixture turnover folder for importer validation.
 - [x] Add parser/importer tests for classification and analysis generation.
 
-## Phase 2B — Next (after merge conflict resolution)
+## Phase 2B — Next
 - [ ] Implement robust AAF ingestion and mapping into canonical timeline events.
 - [ ] Improve timecode/frame math and drop-frame conversion validation.
 - [ ] Add stronger EDL event parsing beyond marker extraction.

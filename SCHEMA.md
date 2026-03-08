@@ -1,4 +1,4 @@
-# Conform Bridge Schema (Phase 1 Contract)
+# Conform Bridge Schema (Phase 1 Contract + Phase 2A Importer)
 
 ## Layer 1 — Intake Package (inbound only)
 

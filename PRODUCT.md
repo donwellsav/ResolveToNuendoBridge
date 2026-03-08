@@ -1,4 +1,4 @@
-# Conform Bridge — Product Contract (Phase 1 + Phase 2A)
+# Conform Bridge — Product Contract (Phase 1, with Phase 2A Intake Analysis)
 
 ## Product Intent
 Conform Bridge is a desktop-first internal operator tool that translates Resolve/editorial intake material into a Nuendo-ready delivery plan.
@@ -8,7 +8,7 @@ Conform Bridge is a desktop-first internal operator tool that translates Resolve
 2. **Canonical Translation Model**: normalized, format-agnostic timeline/clip/marker representation.
 3. **Delivery Package**: planned outbound artifacts for Nuendo handoff.
 
-This separation is contractual in phase 1 to prevent parser/export work from forcing UI rewrites.
+This separation is contractual in phase 1 to prevent parser/export work from forcing UI rewrites while allowing incremental intake analysis improvements.
 
 ## In Scope (Phase 1)
 - Next.js App Router + TypeScript + Tailwind + shadcn/ui-style primitives.

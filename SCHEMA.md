@@ -1,96 +1,104 @@
-# Domain Schema (Phase 1)
+# Conform Bridge Domain Schema (Phase 1)
 
 ## Core Entities
 
-### Job
-- `id: string`
-- `name: string`
-- `status: "draft" | "queued" | "processing" | "needs_review" | "completed" | "failed"`
-- `createdAtIso: string`
-- `updatedAtIso: string`
-- `source: {
-    show: string;
-    reel: string;
-    timelineName: string;
-    frameRate: number;
-    startTc: string;
-  }`
-- `target: {
-    nuendoProject: string;
-    sampleRate: 48000 | 96000;
-    bitDepth: 24 | 32;
-    pullMode: "none" | "pull_up" | "pull_down";
-  }`
-- `templateId: string`
-- `summary: JobSummary`
-- `mappings: ClipMapping[]`
-- `report: PreservationReport`
+### TranslationJob
+- `id`
+- `jobName`
+- `status`
+- `createdAtIso`
+- `updatedAtIso`
+- `sourceBundle: SourceBundle`
+- `mappingRules: MappingRule[]`
+- `fieldRecorderCandidates: FieldRecorderCandidate[]`
+- `preservationIssues: PreservationIssue[]`
+- `outputPreset: OutputPreset`
+- `exportArtifacts: ExportArtifact[]`
 
-### JobSummary
-- `totalEvents: number`
-- `mappedEvents: number`
-- `unmappedEvents: number`
-- `fieldRecorderMatches: number`
-- `conformWarnings: number`
+### SourceBundle
+- `id`
+- `resolveProject`
+- `resolveTimelineVersion`
+- `importedAtIso`
+- `assets: SourceAsset[]`
+- `timeline: Timeline`
 
-### ClipMapping
-- `id: string`
-- `resolveClipName: string`
-- `sourceChannelLayout: string`
-- `timecodeIn: string`
-- `timecodeOut: string`
-- `nuendoTrackName: string`
-- `mappingStatus: "mapped" | "fallback" | "unmapped"`
-- `notes: string`
+### SourceAsset
+- `id`
+- `name`
+- `assetType`
+- `pathHint`
+- `notes?`
 
-### PreservationReport
-- `id: string`
-- `jobId: string`
-- `generatedAtIso: string`
-- `entries: PreservationEntry[]`
+### Timeline
+- `id`
+- `name`
+- `frameRate`
+- `startTc`
+- `tracks: Track[]`
+- `markers: Marker[]`
 
-### PreservationEntry
-- `id: string`
-- `category: "timecode" | "handles" | "channel_layout" | "automation" | "markers" | "metadata"`
-- `item: string`
-- `sourceValue: string`
-- `translatedValue: string`
-- `result: "preserved" | "adjusted" | "dropped"`
-- `reason: string`
+### Track
+- `id`
+- `name`
+- `role (DX/MX/FX/BG/VO)`
+- `clips: ClipEvent[]`
 
-### Template
-- `id: string`
-- `name: string`
-- `description: string`
-- `defaultFrameRate: number`
-- `defaultSampleRate: 48000 | 96000`
-- `trackMappings: Array<{ resolveBus: string; nuendoBus: string }>`
+### ClipEvent
+- `id`
+- `clipName`
+- `sourceAssetId`
+- `timelineTcIn`
+- `timelineTcOut`
+- `sourceTcIn`
+- `sourceTcOut`
+- `reel`
+- `channelLayout`
 
-### FieldRecorderProfile
-- `id: string`
-- `name: string`
-- `matchStrategy: "scene_take" | "soundroll_tc" | "filename_timecode"`
-- `channelsPerPoly: number`
-- `enabled: boolean`
+### Marker
+- `id`
+- `timelineTc`
+- `label`
+- `color`
 
-### ReconformPreset
-- `id: string`
-- `name: string`
-- `changeDetection: "events_only" | "events_and_fades" | "events_fades_markers"`
-- `preserveManualEdits: boolean`
+### FieldRecorderCandidate
+- `id`
+- `clipEventId`
+- `candidateFile`
+- `matchScore`
+- `strategy`
+- `matched`
 
-### AppSettings
-- `theme: "charcoal" | "graphite"`
-- `density: "compact" | "comfortable"`
-- `showFrameCounts: boolean`
-- `defaultPullMode: "none" | "pull_up" | "pull_down"`
+### MappingRule
+- `id`
+- `sourceTrackRole`
+- `targetNuendoTrack`
+- `condition`
 
-## Service Interfaces (stubs in Phase 1)
+### PreservationIssue
+- `id`
+- `category`
+- `severity`
+- `detail`
+- `recommendation`
+
+### OutputPreset
+- `id`
+- `name`
+- `sampleRate`
+- `bitDepth`
+- `pullMode`
+- `includeReferenceVideo`
+
+### ExportArtifact
+- `id`
+- `artifactType`
+- `fileName`
+- `status`
+
+## Service Contracts (Stubs)
 - `ResolveImportService`
-  - `validateBundle(input: unknown): Promise<{ valid: boolean; issues: string[] }>`
-  - `previewBundle(input: unknown): Promise<{ timelineName: string; events: number }>`
 - `NuendoExportService`
-  - `buildExport(job: Job): Promise<{ artifactName: string; warnings: string[] }>`
 - `PersistenceService`
-  - `saveJobs(jobs: Job[]): Promise<void>`
-  - `loadJobs(): Promise<Job[]>`
+
+All services are placeholder-only in phase 1.

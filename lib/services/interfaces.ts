@@ -1,4 +1,4 @@
-import type { Job } from "@/lib/domain";
+import type { TranslationJob } from "@/lib/types";
 
 export interface ResolveImportService {
   validateBundle(input: unknown): Promise<{ valid: boolean; issues: string[] }>;
@@ -6,10 +6,10 @@ export interface ResolveImportService {
 }
 
 export interface NuendoExportService {
-  buildExport(job: Job): Promise<{ artifactName: string; warnings: string[] }>;
+  buildExport(job: TranslationJob): Promise<{ artifactName: string; warnings: string[] }>;
 }
 
 export interface PersistenceService {
-  saveJobs(jobs: Job[]): Promise<void>;
-  loadJobs(): Promise<Job[]>;
+  saveJobs(jobs: TranslationJob[]): Promise<void>;
+  loadJobs(): Promise<TranslationJob[]>;
 }

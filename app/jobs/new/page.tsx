@@ -1,41 +1,41 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { templates } from "@/lib/mock/data";
+import { outputPresets, templateMappingRules } from "@/lib/mock-data";
 
 export default function NewJobPage() {
   return (
-    <AppShell title="New Job Wizard">
+    <AppShell title="New Job">
       <div className="space-y-4">
         <Card>
-          <CardHeader>
-            <CardTitle>Step 1 — Source Selection (Mock)</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Step 1 — Source Bundle Intake</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm text-muted">
-            <p>Resolve bundle input is not implemented in this phase.</p>
-            <p>Use structured mock payload references from the bundle spec contract.</p>
+            <p>Resolve bundle parsing is intentionally stubbed in phase 1.</p>
+            <p>Operator chooses from known asset contract: AAF, marker EDL/CSV, metadata CSV, manifest, README, reference video.</p>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader>
-            <CardTitle>Step 2 — Template + Target</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 text-sm">
-              {templates.map((template) => (
-                <div key={template.id} className="rounded-md border border-border bg-panelAlt px-3 py-2">
-                  <p className="font-medium">{template.name}</p>
-                  <p className="text-xs text-muted">{template.description}</p>
-                </div>
-              ))}
-            </div>
+          <CardHeader><CardTitle>Step 2 — Mapping Rules</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-xs">
+            {templateMappingRules.map((rule) => (
+              <div key={rule.id} className="rounded border border-border bg-panelAlt px-3 py-2 font-mono">
+                {rule.sourceTrackRole} → {rule.targetNuendoTrack} <span className="text-muted">({rule.condition})</span>
+              </div>
+            ))}
           </CardContent>
         </Card>
-
-        <div>
-          <Button variant="default">Create Draft Job</Button>
-        </div>
+        <Card>
+          <CardHeader><CardTitle>Step 3 — Output Preset</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-xs">
+            {outputPresets.map((preset) => (
+              <div key={preset.id} className="rounded border border-border bg-panelAlt px-3 py-2">
+                <p>{preset.name}</p>
+                <p className="font-mono text-muted">{preset.sampleRate} Hz / {preset.bitDepth} bit / {preset.pullMode}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Button variant="default">Create Draft Translation Job</Button>
       </div>
     </AppShell>
   );

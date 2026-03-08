@@ -2,26 +2,32 @@
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
-- [x] Split schema into Intake Package, Canonical Translation Model, and Delivery Package.
-- [x] Split bundle spec into Intake vs Delivery and define shared file-kind rules.
+- [x] Lock canonical data contract in `SCHEMA.md`.
+- [x] Lock bundle artifact contract in `BUNDLE_SPEC.md`.
 - [x] Scaffold desktop-first operator shell with App Router navigation.
 - [x] Scaffold routes: Dashboard, Jobs, New Job, Templates, Field Recorder, ReConform, Settings.
+- [x] Implement typed models for all phase-1 entities:
+  - [x] `TranslationJob`
+  - [x] `SourceBundle`
+  - [x] `SourceAsset`
+  - [x] `Timeline`
+  - [x] `Track`
+  - [x] `ClipEvent`
+  - [x] `Marker`
+  - [x] `FieldRecorderCandidate`
+  - [x] `MappingRule`
+  - [x] `PreservationIssue`
+  - [x] `OutputPreset`
+  - [x] `ExportArtifact`
+- [x] Keep render deterministic and SSR-safe (no browser-only APIs in initial render path).
 - [x] Keep importer/exporter/persistence as stubs only.
-- [x] Keep render deterministic and SSR-safe.
+- [x] Use realistic Resolve -> Nuendo mock workflow data.
 - [x] Exclude auth, billing, database, and marketing pages.
 
-## Phase 2A — Intake Analysis (Current)
-- [x] Implement real intake folder scanner + file classification.
-- [x] Parse metadata CSV, marker CSV, manifest JSON, and simple EDL marker lines.
-- [x] Hydrate canonical timeline/tracks/clips/markers from parsed intake data where available.
-- [x] Generate analysis report counts and delivery readiness summary.
-- [x] Generate preservation issues for missing expected assets and unresolved metadata.
-- [x] Wire New Job/Dashboard/Jobs/Field Recorder routes to importer data with mock fallback.
-- [x] Add fixture turnover folder for importer validation.
-- [x] Add parser/importer tests for classification and analysis generation.
-
-## Phase 2B — Next
-- [ ] Implement robust AAF ingestion and mapping into canonical timeline events.
-- [ ] Improve timecode/frame math and drop-frame conversion validation.
-- [ ] Add stronger EDL event parsing beyond marker extraction.
-- [ ] Keep exporter in planning mode until AAF ingestion stabilizes.
+## Phase 2 — Parser/Exporter Services (Planned)
+- [ ] Implement Resolve intake validation/parsing service for AAF/XML/EDL/CSV contract.
+- [ ] Build canonical normalization pipeline with deterministic transform rules.
+- [ ] Implement Nuendo-ready bundle writer for required artifact set.
+- [ ] Add robust validation and warning taxonomy for reconform/preservation issues.
+- [ ] Add file intake UX and job execution controls around real services.
+- [ ] Add persistence layer once service boundaries stabilize.

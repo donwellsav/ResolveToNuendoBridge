@@ -6,10 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getTranslationJobs } from "@/lib/job-source";
 
-export default async function JobsPage() {
-  const translationJobs = await getTranslationJobs();
-  const primaryJob = translationJobs[0];
-  const allClips = primaryJob.translationModel.timeline.tracks.flatMap((track) => track.clips);
+const primaryJob = translationJobs[0];
+const allClips = primaryJob.translationModel.timeline.tracks.flatMap((track) => track.clips);
+
+export default function JobsPage() {
   return (
     <AppShell title="Jobs">
       <div className="space-y-4">

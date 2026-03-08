@@ -1,7 +1,5 @@
-import type { TranslationJob } from "../types";
-import type { NuendoExportService, PersistenceService, ResolveImportService } from "./interfaces";
-import { planNuendoDelivery } from "./exporter";
-import { importTurnoverFolder } from "./importer";
+import type { TranslationJob } from "@/lib/types";
+import type { NuendoExportService, PersistenceService, ResolveImportService } from "@/lib/services/interfaces";
 
 export const resolveImportStub: ResolveImportService = {
   async importFolder(folderPath) {
@@ -16,14 +14,17 @@ export const resolveImportStub: ResolveImportService = {
   async previewBundle(input) {
     return {
       timelineName: input.resolveTimelineVersion,
-      events: input.intakeAssets.length,
+      events: 0,
     };
   },
 };
 
 export const nuendoExportStub: NuendoExportService = {
-  async buildExport(job, model) {
-    return planNuendoDelivery(job, model);
+  async buildExport(job) {
+    return {
+      packagePlan: job.deliveryPackage,
+      warnings: ["Stub mode: Nuendo export writer is not implemented in Phase 1."],
+    };
   },
 };
 

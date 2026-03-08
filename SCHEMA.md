@@ -1,138 +1,131 @@
-# Conform Bridge Schema (Phase 1 Contract + Phase 2A Importer)
+# Conform Bridge Canonical Schema (Phase 1 Contract)
 
-## Layer 1 — Intake Package (inbound only)
+This schema defines the canonical internal model between Resolve intake and Nuendo export.
+
+## Entity Definitions
+
+### TranslationJob
+Represents one end-to-end translation run.
+- `id: string`
+- `jobName: string`
+- `status: "draft" | "queued" | "processing" | "needs_review" | "completed" | "failed"`
+- `createdAtIso: string`
+- `updatedAtIso: string`
+- `sourceBundle: SourceBundle`
+- `mappingRules: MappingRule[]`
+- `fieldRecorderCandidates: FieldRecorderCandidate[]`
+- `preservationIssues: PreservationIssue[]`
+- `outputPreset: OutputPreset`
+- `exportArtifacts: ExportArtifact[]`
 
 ### SourceBundle
-Intake container received from Resolve/editorial.
-- `id`
-- `stage: "intake"`
-- `origin: "resolve" | "editorial"`
-- `bundleName`
-- `resolveProject`
-- `resolveTimelineVersion`
-- `importedAtIso`
-- `intakeAssets: IntakeAsset[]`
+Operator-provided Resolve payload envelope.
+- `id: string`
+- `resolveProject: string`
+- `resolveTimelineVersion: string`
+- `importedAtIso: string`
+- `assets: SourceAsset[]`
+- `timeline: Timeline`
 
-### IntakeAsset
-Inbound file entry with explicit direction metadata.
-- `id`
-- `stage: "intake"`
-- `origin: AssetOrigin`
-- `fileKind: FileKind`
-- `fileRole: FileRole`
-- `fileName`
-- `pathHint`
-- optional tech metadata: `channelCount`, `channelLayout`, `durationTimecode`, `durationFrames`, `sampleRate`
-- optional audio metadata: `isPolyWav`, `hasBwf`, `hasIXml`
-- optional review metadata: `status`, `note`
+### SourceAsset
+Single source bundle artifact.
+- `id: string`
+- `name: string`
+- `assetType: SourceBundleAssetType`
+- `pathHint: string`
+- `notes?: string`
 
-## Layer 2 — Canonical Normalized Translation Model
-
-### TranslationModel (CanonicalProject)
-- `id`
-- `stage: "canonical"`
-- `sourceBundleId`
-- `timeline: NormalizedTimeline`
-
-### NormalizedTimeline
-- `id`
-- `name`
-- `startTimecode`
-- `durationTimecode`
-- `startFrame`
-- `durationFrames`
-- `fps`
-- `sampleRate`
-- `dropFrame`
-- `tracks: NormalizedTrack[]`
+### Timeline
+Canonical timeline-level metadata.
+- `id: string`
+- `name: string`
+- `frameRate: 23.976 | 24 | 25 | 29.97`
+- `startTc: string`
+- `tracks: Track[]`
 - `markers: Marker[]`
 
-### NormalizedTrack
-- `id`
-- `name`
-- `role`
+### Track
+Logical track container.
+- `id: string`
+- `name: string`
+- `role: "DX" | "MX" | "FX" | "BG" | "VO"`
 - `clips: ClipEvent[]`
 
 ### ClipEvent
-- timing: `recordIn`, `recordOut`, `sourceIn`, `sourceOut`
-- numeric timing: `recordInFrames`, `recordOutFrames`, `sourceInFrames`, `sourceOutFrames`
-- metadata: `clipName`, `sourceFileName`, `reel`, `tape`, `scene`, `take`, `eventDescription`, `clipNotes`, `sourceAssetId`
-- audio metadata: `channelCount`, `channelLayout`, `isPolyWav`, `hasBwf`, `hasIXml`
-- conform flags: `isOffline`, `isNested`, `isFlattened`, `hasSpeedEffect`, `hasFadeIn`, `hasFadeOut`
+Canonical clip event with timeline/source relationships.
+- `id: string`
+- `clipName: string`
+- `sourceAssetId: string`
+- `timelineTcIn: string`
+- `timelineTcOut: string`
+- `sourceTcIn: string`
+- `sourceTcOut: string`
+- `reel: string`
+- `channelLayout: string`
 
 ### Marker
-- `id`
-- `timelineTc`
-- `timelineFrame`
-- `label`
-- `color`
+Timeline marker abstraction.
+- `id: string`
+- `timelineTc: string`
+- `label: string`
+- `color: "blue" | "green" | "yellow" | "red"`
 
-### AnalysisReport
-- totals: `tracksTotal`, `clipsTotal`, `markersTotal`, `offlineAssetsTotal`
-- risk summary: `highRiskCount`, `warningCount`, `blockedCount`
-- summaries: `intakeCompletenessSummary`, `deliveryReadinessSummary`
-
-## Layer 3 — Delivery Package (outbound only)
-
-### DeliveryPackage
-- `id`
-- `stage: "delivery"`
-- `target: "nuendo"`
-- `packageName`
-- `outputPresetId`
-- `artifacts: DeliveryArtifact[]`
-
-### DeliveryArtifact
-- `id`
-- `stage: "delivery"`
-- `origin: AssetOrigin`
-- `fileKind: FileKind`
-- `fileRole: FileRole`
-- `fileName`
-- `pathHint`
-- `status`
-- `note?`
-
-## Cross-Layer Supporting Models
+### FieldRecorderCandidate
+Potential field recorder match candidate per event.
+- `id: string`
+- `clipEventId: string`
+- `candidateFile: string`
+- `matchScore: number`
+- `strategy: "scene_take" | "soundroll_tc" | "filename_tc"`
+- `matched: boolean`
 
 ### MappingRule
-- `id`
-- `sourceTrackRole`
-- `targetNuendoTrack`
-- `condition`
+Rule for source track role -> Nuendo track mapping.
+- `id: string`
+- `sourceTrackRole: Track["role"]`
+- `targetNuendoTrack: string`
+- `condition: string`
 
 ### PreservationIssue
-- `id`
-- `category: "preserved" | "downgraded" | "dropped" | "manual-review"`
-- `severity`
-- `scope`
-- `title`
-- `description`
-- `sourceLocation`
-- `targetArtifactId?`
-- `targetArtifactName?`
-- `recommendedAction`
+Potential data loss / transform warning surfaced to operator.
+- `id: string`
+- `category: "timecode" | "channel_layout" | "metadata" | "automation" | "marker"`
+- `severity: "info" | "warning" | "critical"`
+- `detail: string`
+- `recommendation: string`
 
-### ReConformChange (ConformChangeEvent)
-- `id`
-- `jobId`
-- `changeType: "insert" | "delete" | "move" | "trim" | "replace"`
-- `oldTimecode?`
-- `newTimecode?`
-- `oldFrame?`
-- `newFrame?`
-- `note`
+### OutputPreset
+Operator-selectable output policy.
+- `id: string`
+- `name: string`
+- `sampleRate: 48000 | 96000`
+- `bitDepth: 24 | 32`
+- `pullMode: "none" | "pull_up" | "pull_down"`
+- `includeReferenceVideo: boolean`
 
-### TranslationJob
-Orchestrates all three layers + reporting in one operator-visible unit.
+### ExportArtifact
+Outbound bundle artifact status entry.
+- `id: string`
+- `artifactType: SourceBundleAssetType`
+- `fileName: string`
+- `status: "queued" | "ready"`
 
+## SourceBundleAssetType enum
+- `aaf`
+- `marker_edl`
+- `marker_csv`
+- `metadata_csv`
+- `manifest_json`
+- `readme`
+- `reference_video`
+- `field_recorder_report`
 
-## Service Boundaries (Phase 2A)
-- `importer.ts` is the real intake boundary and is responsible for scanning + lightweight parsing + canonical hydration.
-- `exporter.ts` remains a delivery planning stub and does not write Nuendo artifacts yet.
-
-
-### Importer Hydration Rules (Phase 2A)
-- Populate canonical fields from parsed intake files where values exist.
-- Preserve unknown values explicitly (defaults/empty fields) instead of inventing source data.
-- Emit preservation issues + blocked delivery artifacts when required intake evidence is missing.
+## Phase 1 Service Interfaces (Stub Only)
+- `ResolveImportService`
+  - `validateBundle(input)`
+  - `previewBundle(input)`
+- `NuendoExportService`
+  - `buildExport(job)`
+- `PersistenceService`
+  - `saveJobs(jobs)`
+  - `loadJobs()`

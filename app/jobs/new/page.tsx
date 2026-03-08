@@ -2,8 +2,12 @@ import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { outputPresets, templateMappingRules } from "@/lib/mock-data";
+import { getTranslationJobs } from "@/lib/job-source";
 
-export default function NewJobPage() {
+export default async function NewJobPage() {
+  const translationJobs = await getTranslationJobs();
+  const importedJob = translationJobs[0];
+
   return (
     <AppShell title="New Job">
       <div className="space-y-4">

@@ -1,11 +1,11 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { translationJobs } from "@/lib/mock-data";
+import { getTranslationJobs } from "@/lib/job-source";
 
-const candidates = translationJobs[0].fieldRecorderCandidates;
-
-export default function FieldRecorderPage() {
+export default async function FieldRecorderPage() {
+  const translationJobs = await getTranslationJobs();
+  const candidates = translationJobs[0].fieldRecorderCandidates;
   return (
     <AppShell title="Field Recorder">
       <Card>

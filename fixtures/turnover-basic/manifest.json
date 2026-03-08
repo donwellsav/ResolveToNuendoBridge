@@ -1,0 +1,11 @@
+{
+  "project": "Red Harbor",
+  "timelineVersion": "RH_E03_R4_LOCK_v13",
+  "timelineName": "RH_E03_R4_LOCK_v13",
+  "startTimecode": "01:00:00:00",
+  "durationTimecode": "00:47:33:00",
+  "fps": 23.976,
+  "sampleRate": 48000,
+  "dropFrame": false,
+  "jobName": "Imported E03 Reel 4 Turnover"
+}

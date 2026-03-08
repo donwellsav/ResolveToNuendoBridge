@@ -1,3 +1,4 @@
+// Fallback mock job data used when fixture intake import is unavailable.
 import type {
   AppSettings,
   DeliveryPackage,

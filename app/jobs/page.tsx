@@ -4,7 +4,7 @@ import { JobStatusBadge } from "@/components/domain/job-status-badge";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { translationJobs } from "@/lib/mock-data";
+import { getTranslationJobs } from "@/lib/job-source";
 
 const primaryJob = translationJobs[0];
 const allClips = primaryJob.translationModel.timeline.tracks.flatMap((track) => track.clips);

@@ -1,41 +1,36 @@
-# Resolve -> Nuendo Bundle Specification (Phase 1 Mock Contract)
+# Resolve -> Nuendo Bundle Specification (Phase 1)
 
-## Intent
-Define the expected inbound/outbound bundle envelope for future parser/export implementation while keeping phase 1 frontend-only.
+## Direction Contract
+Direction is explicit and must not be inferred from file extension alone.
+- `stage: "intake"` => inbound package
+- `stage: "delivery"` => outbound package
+- `origin` records source system/owner (`resolve`, `editorial`, `production-audio`, `conform-bridge`, `nuendo`)
 
-## Inbound Resolve Source Bundle (conceptual)
-Expected operator-provided inputs:
-- AAF
+## Intake Package (inbound)
+Typical inbound assets:
+- timeline exchange: AAF, FCPXML/XML, EDL
+- metadata export CSV
+- reference picture MOV/MP4
+- production audio WAV/BWF (mono/polywav)
+
+Intake package does **not** imply delivery planning files by default.
+
+## Delivery Package (outbound plan)
+Planned Nuendo handoff artifacts:
+- Nuendo-ready AAF
 - marker EDL
 - marker CSV
 - metadata CSV
 - manifest.json
 - README import instructions
-- reference video
 - field recorder matching report
+- optional reference video copy/handoff
 
-Conceptual envelope:
-- project and timeline metadata
-- track/clip event ranges
-- marker payloads
-- source/reel references
+## Shared File Kinds
+The same `FileKind` may appear on either side (for example `csv`, `edl`, `aaf`, `json`, `txt`).
+Use `stage` + `origin` + `fileRole` together to identify intent and direction.
 
-## Outbound Nuendo-ready Bundle (conceptual)
-Expected artifacts produced by the bridge pipeline (future implementation):
-- Nuendo-oriented AAF
-- marker EDL and marker CSV
-- metadata CSV
-- manifest.json
-- README import instructions
-- reference video handoff
-- field recorder matching report
-
-## Validation Rules (future parser/export)
-- Explicit bundle version and source application version.
-- Stable unique IDs for timelines, tracks, and clip events.
-- Timecode format `HH:MM:SS:FF` for all timeline/source fields.
-- Supported frame rates only (`23.976`, `24`, `25`, `29.97`).
-- Reject missing required core artifacts (AAF + manifest + metadata CSV).
-
-## Phase 1 Status
-No real file parsing, unpacking, transformation, or export writing is implemented.
+## Validation Targets (Phase 2)
+- Intake completeness checks per required inbound contract.
+- Canonical normalization checks for stable IDs + valid frame/timecode math.
+- Delivery readiness checks for required outbound artifacts and blocked/warning states.

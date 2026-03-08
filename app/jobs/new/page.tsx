@@ -8,10 +8,10 @@ export default function NewJobPage() {
     <AppShell title="New Job">
       <div className="space-y-4">
         <Card>
-          <CardHeader><CardTitle>Step 1 — Source Bundle Intake</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Step 1 — Intake Package</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm text-muted">
             <p>Resolve bundle parsing is intentionally stubbed in phase 1.</p>
-            <p>Operator chooses from known asset contract: AAF, marker EDL/CSV, metadata CSV, manifest, README, reference video.</p>
+            <p>Operator chooses inbound assets only: AAF/XML/EDL, metadata CSV, reference video, and production audio.</p>
           </CardContent>
         </Card>
         <Card>
@@ -25,7 +25,7 @@ export default function NewJobPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Step 3 — Output Preset</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Step 3 — Delivery Package Plan</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-xs">
             {outputPresets.map((preset) => (
               <div key={preset.id} className="rounded border border-border bg-panelAlt px-3 py-2">

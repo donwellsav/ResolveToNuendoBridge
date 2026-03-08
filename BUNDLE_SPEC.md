@@ -37,8 +37,8 @@ Exporter contract targets the same artifact family, emitted in Nuendo-oriented f
 - metadata CSV
 - manifest.json
 - README import instructions
-- reference video handoff
 - field recorder matching report
+- optional reference video copy/handoff
 
 ## Validation Rules (Phase 2 target behavior)
 - Bundle must declare explicit contract version.

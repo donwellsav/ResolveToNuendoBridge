@@ -1,12 +1,12 @@
-import type { TranslationJob } from "@/lib/types";
+import type { DeliveryPackage, SourceBundle, TranslationJob, TranslationModel } from "@/lib/types";
 
 export interface ResolveImportService {
-  validateBundle(input: unknown): Promise<{ valid: boolean; issues: string[] }>;
-  previewBundle(input: unknown): Promise<{ timelineName: string; events: number }>;
+  validateBundle(input: SourceBundle): Promise<{ valid: boolean; issues: string[] }>;
+  previewBundle(input: SourceBundle): Promise<{ timelineName: string; events: number }>;
 }
 
 export interface NuendoExportService {
-  buildExport(job: TranslationJob): Promise<{ artifactName: string; warnings: string[] }>;
+  buildExport(job: TranslationJob, model: TranslationModel): Promise<{ packagePlan: DeliveryPackage; warnings: string[] }>;
 }
 
 export interface PersistenceService {

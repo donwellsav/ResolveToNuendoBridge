@@ -1,10 +1,6 @@
-import type { TranslationJob } from "@/lib/types";
 import type { NuendoExportService, PersistenceService, ResolveImportService } from "@/lib/services/interfaces";
 
 export const resolveImportStub: ResolveImportService = {
-  async importFolder(folderPath) {
-    return importTurnoverFolder(folderPath);
-  },
   async validateBundle(input) {
     return {
       valid: input.intakeAssets.length > 0,

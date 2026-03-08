@@ -1,31 +1,29 @@
-import type { TranslationJob } from "@/lib/types";
-import type {
-  NuendoExportService,
-  PersistenceService,
-  ResolveImportService,
-} from "@/lib/services/interfaces";
+import type { TranslationJob } from "../types";
+import type { NuendoExportService, PersistenceService, ResolveImportService } from "./interfaces";
+import { planNuendoDelivery } from "./exporter";
+import { importTurnoverFolder } from "./importer";
 
 export const resolveImportStub: ResolveImportService = {
-  async validateBundle() {
+  async importFolder(folderPath) {
+    return importTurnoverFolder(folderPath);
+  },
+  async validateBundle(input) {
     return {
-      valid: true,
-      issues: ["Stub mode: Resolve parser is not implemented in Phase 1."],
+      valid: input.intakeAssets.length > 0,
+      issues: input.intakeAssets.length > 0 ? [] : ["No intake assets found."],
     };
   },
-  async previewBundle() {
+  async previewBundle(input) {
     return {
-      timelineName: "Stub Resolve Timeline",
-      events: 0,
+      timelineName: input.resolveTimelineVersion,
+      events: input.intakeAssets.length,
     };
   },
 };
 
 export const nuendoExportStub: NuendoExportService = {
-  async buildExport(job: TranslationJob) {
-    return {
-      artifactName: `${job.id}.nuendo.stub.json`,
-      warnings: ["Stub mode: Nuendo export writer is not implemented in Phase 1."],
-    };
+  async buildExport(job, model) {
+    return planNuendoDelivery(job, model);
   },
 };
 

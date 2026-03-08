@@ -1,19 +1,27 @@
 # TASKLIST — Conform Bridge
 
-## Phase 1 (Scaffold)
-- [x] Initialize Next.js App Router + TypeScript + Tailwind scaffold.
-- [x] Build desktop-first app shell with sidebar and top bar.
-- [x] Add routes: Dashboard, New Job, Jobs, Templates, Field Recorder, ReConform, Settings.
-- [x] Define domain model in `lib/types.ts`.
-- [x] Provide realistic mock workflow data in `lib/mock-data.ts`.
-- [x] Build dense placeholder layouts with reusable table-oriented components.
-- [x] Keep import/export service interfaces as stubs only.
-- [x] Keep rendering deterministic and SSR-safe.
-- [x] Keep scope frontend-only (no backend/auth/billing/db/marketing).
+## Phase 1 — Contract Lock + Frontend Operator Shell
+- [x] Lock product contract and scope boundaries in `PRODUCT.md`.
+- [x] Split schema into Intake Package, Canonical Translation Model, and Delivery Package.
+- [x] Split bundle spec into Intake vs Delivery and define shared file-kind rules.
+- [x] Scaffold desktop-first operator shell with App Router navigation.
+- [x] Scaffold routes: Dashboard, Jobs, New Job, Templates, Field Recorder, ReConform, Settings.
+- [x] Keep importer/exporter/persistence as stubs only.
+- [x] Keep render deterministic and SSR-safe.
+- [x] Exclude auth, billing, database, and marketing pages.
 
-## Deferred to Phase 2+
-- [ ] Real Resolve bundle parsing + validation engine.
-- [ ] Real Nuendo export artifact writer.
-- [ ] Interactive job creation with file intake UX.
-- [ ] Persistent storage strategy.
-- [ ] ReConform diff and merge execution logic.
+## Phase 2A — Intake Analysis (Current)
+- [x] Implement real intake folder scanner + file classification.
+- [x] Parse metadata CSV, marker CSV, manifest JSON, and simple EDL marker lines.
+- [x] Hydrate canonical timeline/tracks/clips/markers from parsed intake data where available.
+- [x] Generate analysis report counts and delivery readiness summary.
+- [x] Generate preservation issues for missing expected assets and unresolved metadata.
+- [x] Wire New Job/Dashboard/Jobs/Field Recorder routes to importer data with mock fallback.
+- [x] Add fixture turnover folder for importer validation.
+- [x] Add parser/importer tests for classification and analysis generation.
+
+## Phase 2B — Next
+- [ ] Implement robust AAF ingestion and mapping into canonical timeline events.
+- [ ] Improve timecode/frame math and drop-frame conversion validation.
+- [ ] Add stronger EDL event parsing beyond marker extraction.
+- [ ] Keep exporter in planning mode until AAF ingestion stabilizes.

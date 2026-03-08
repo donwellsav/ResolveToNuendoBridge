@@ -14,7 +14,7 @@ export function MappingTable({ clips, mappingRules }: { clips: ClipEvent[]; mapp
         <thead className="bg-panelAlt text-muted">
           <tr>
             <th className="px-3 py-2 text-left">Resolve Clip</th>
-            <th className="px-3 py-2 text-left">Timeline In/Out</th>
+            <th className="px-3 py-2 text-left">Record In/Out</th>
             <th className="px-3 py-2 text-left">Reel</th>
             <th className="px-3 py-2 text-left">Channels</th>
             <th className="px-3 py-2 text-left">Nuendo Target</th>
@@ -29,7 +29,7 @@ export function MappingTable({ clips, mappingRules }: { clips: ClipEvent[]; mapp
             return (
               <tr key={clip.id} className="border-t border-border bg-panel">
                 <td className="px-3 py-2">{clip.clipName}</td>
-                <td className="px-3 py-2 font-mono">{clip.timelineTcIn} → {clip.timelineTcOut}</td>
+                <td className="px-3 py-2 font-mono">{clip.recordIn} → {clip.recordOut}</td>
                 <td className="px-3 py-2 font-mono">{clip.reel}</td>
                 <td className="px-3 py-2">{clip.channelLayout}</td>
                 <td className="px-3 py-2">{targetTrack}</td>

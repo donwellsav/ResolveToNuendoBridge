@@ -1,73 +1,99 @@
-# Conform Bridge Domain Schema (Phase 1)
+# Conform Bridge Schema (Phase 1 Contract)
 
-## Core Entities
-
-### TranslationJob
-- `id`
-- `jobName`
-- `status`
-- `createdAtIso`
-- `updatedAtIso`
-- `sourceBundle: SourceBundle`
-- `mappingRules: MappingRule[]`
-- `fieldRecorderCandidates: FieldRecorderCandidate[]`
-- `preservationIssues: PreservationIssue[]`
-- `outputPreset: OutputPreset`
-- `exportArtifacts: ExportArtifact[]`
+## Layer 1 — Intake Package (inbound only)
 
 ### SourceBundle
+Intake container received from Resolve/editorial.
 - `id`
+- `stage: "intake"`
+- `origin: "resolve" | "editorial"`
+- `bundleName`
 - `resolveProject`
 - `resolveTimelineVersion`
 - `importedAtIso`
-- `assets: SourceAsset[]`
-- `timeline: Timeline`
+- `intakeAssets: IntakeAsset[]`
 
-### SourceAsset
+### IntakeAsset
+Inbound file entry with explicit direction metadata.
 - `id`
-- `name`
-- `assetType`
+- `stage: "intake"`
+- `origin: AssetOrigin`
+- `fileKind: FileKind`
+- `fileRole: FileRole`
+- `fileName`
 - `pathHint`
-- `notes?`
+- optional tech metadata: `channelCount`, `channelLayout`, `durationTimecode`, `durationFrames`, `sampleRate`
+- optional audio metadata: `isPolyWav`, `hasBwf`, `hasIXml`
+- optional review metadata: `status`, `note`
 
-### Timeline
+## Layer 2 — Canonical Normalized Translation Model
+
+### TranslationModel (CanonicalProject)
+- `id`
+- `stage: "canonical"`
+- `sourceBundleId`
+- `timeline: NormalizedTimeline`
+
+### NormalizedTimeline
 - `id`
 - `name`
-- `frameRate`
-- `startTc`
-- `tracks: Track[]`
+- `startTimecode`
+- `durationTimecode`
+- `startFrame`
+- `durationFrames`
+- `fps`
+- `sampleRate`
+- `dropFrame`
+- `tracks: NormalizedTrack[]`
 - `markers: Marker[]`
 
-### Track
+### NormalizedTrack
 - `id`
 - `name`
-- `role (DX/MX/FX/BG/VO)`
+- `role`
 - `clips: ClipEvent[]`
 
 ### ClipEvent
-- `id`
-- `clipName`
-- `sourceAssetId`
-- `timelineTcIn`
-- `timelineTcOut`
-- `sourceTcIn`
-- `sourceTcOut`
-- `reel`
-- `channelLayout`
+- timing: `recordIn`, `recordOut`, `sourceIn`, `sourceOut`
+- numeric timing: `recordInFrames`, `recordOutFrames`, `sourceInFrames`, `sourceOutFrames`
+- metadata: `clipName`, `sourceFileName`, `reel`, `tape`, `scene`, `take`, `eventDescription`, `clipNotes`, `sourceAssetId`
+- audio metadata: `channelCount`, `channelLayout`, `isPolyWav`, `hasBwf`, `hasIXml`
+- conform flags: `isOffline`, `isNested`, `isFlattened`, `hasSpeedEffect`, `hasFadeIn`, `hasFadeOut`
 
 ### Marker
 - `id`
 - `timelineTc`
+- `timelineFrame`
 - `label`
 - `color`
 
-### FieldRecorderCandidate
+### AnalysisReport
+- totals: `tracksTotal`, `clipsTotal`, `markersTotal`, `offlineAssetsTotal`
+- risk summary: `highRiskCount`, `warningCount`, `blockedCount`
+- summaries: `intakeCompletenessSummary`, `deliveryReadinessSummary`
+
+## Layer 3 — Delivery Package (outbound only)
+
+### DeliveryPackage
 - `id`
-- `clipEventId`
-- `candidateFile`
-- `matchScore`
-- `strategy`
-- `matched`
+- `stage: "delivery"`
+- `target: "nuendo"`
+- `packageName`
+- `outputPresetId`
+- `artifacts: DeliveryArtifact[]`
+
+### DeliveryArtifact
+- `id`
+- `stage: "delivery"`
+- `origin: AssetOrigin`
+- `fileKind: FileKind`
+- `fileRole: FileRole`
+- `fileName`
+- `pathHint`
+- `status`
+- `note?`
+
+## Cross-Layer Supporting Models
 
 ### MappingRule
 - `id`
@@ -77,28 +103,30 @@
 
 ### PreservationIssue
 - `id`
-- `category`
+- `category: "preserved" | "downgraded" | "dropped" | "manual-review"`
 - `severity`
-- `detail`
-- `recommendation`
+- `scope`
+- `title`
+- `description`
+- `sourceLocation`
+- `targetArtifactId?`
+- `targetArtifactName?`
+- `recommendedAction`
 
-### OutputPreset
+### ReConformChange (ConformChangeEvent)
 - `id`
-- `name`
-- `sampleRate`
-- `bitDepth`
-- `pullMode`
-- `includeReferenceVideo`
+- `jobId`
+- `changeType: "insert" | "delete" | "move" | "trim" | "replace"`
+- `oldTimecode?`
+- `newTimecode?`
+- `oldFrame?`
+- `newFrame?`
+- `note`
 
-### ExportArtifact
-- `id`
-- `artifactType`
-- `fileName`
-- `status`
+### TranslationJob
+Orchestrates all three layers + reporting in one operator-visible unit.
 
-## Service Contracts (Stubs)
-- `ResolveImportService`
-- `NuendoExportService`
-- `PersistenceService`
 
-All services are placeholder-only in phase 1.
+## Service Boundaries (Phase 2A)
+- `importer.ts` is the real intake boundary and is responsible for scanning + lightweight parsing + canonical hydration.
+- `exporter.ts` remains a delivery planning stub and does not write Nuendo artifacts yet.

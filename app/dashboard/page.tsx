@@ -1,13 +1,14 @@
 import { AppShell } from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { translationJobs } from "@/lib/mock-data";
+import { getTranslationJobs } from "@/lib/job-source";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const translationJobs = await getTranslationJobs();
   const totalJobs = translationJobs.length;
   const activeJobs = translationJobs.filter((job) => job.status === "processing" || job.status === "needs_review").length;
   const totalIssues = translationJobs.reduce((sum, job) => sum + job.preservationIssues.length, 0);
   const pendingArtifacts = translationJobs.reduce(
-    (sum, job) => sum + job.exportArtifacts.filter((artifact) => artifact.status === "queued").length,
+    (sum, job) => sum + job.deliveryPackage.artifacts.filter((artifact) => artifact.status === "queued").length,
     0
   );
 

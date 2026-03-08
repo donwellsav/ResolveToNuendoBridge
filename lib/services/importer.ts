@@ -4,17 +4,15 @@ import path from "node:path";
 import type {
   AnalysisReport,
   AssetOrigin,
-  DeliveryArtifact,
-  DeliveryPackage,
   FileKind,
   FileRole,
+  ImportAnalysisResult,
   IntakeAsset,
   Marker,
   PreservationIssue,
-  TranslationJob,
   TranslationModel,
 } from "../types";
-import { outputPresets, templateMappingRules } from "../mock-data";
+import { templateMappingRules } from "../mock-data";
 
 type MetadataRow = Record<string, string>;
 
@@ -27,7 +25,6 @@ type ManifestPayload = {
   fps?: 23.976 | 24 | 25 | 29.97;
   sampleRate?: 48000 | 96000;
   dropFrame?: boolean;
-  jobName?: string;
 };
 
 function splitCsvLine(line: string): string[] {
@@ -165,83 +162,7 @@ function deriveTimelineFrameRange(tracks: TranslationModel["timeline"]["tracks"]
   return { startFrame, durationFrames: Math.max(0, endFrame - startFrame) };
 }
 
-function makeDeliveryArtifacts(status: "queued" | "blocked"): DeliveryArtifact[] {
-  const baseStatus = status;
-  return [
-    {
-      id: "out-aaf",
-      stage: "delivery",
-      origin: "conform-bridge",
-      fileKind: "aaf",
-      fileRole: "timeline_exchange",
-      fileName: "NUENDO_EXPORT.aaf",
-      pathHint: "delivery/NUENDO_EXPORT.aaf",
-      status: baseStatus,
-    },
-    {
-      id: "out-marker-edl",
-      stage: "delivery",
-      origin: "conform-bridge",
-      fileKind: "edl",
-      fileRole: "marker_export",
-      fileName: "MARKERS.edl",
-      pathHint: "delivery/MARKERS.edl",
-      status: baseStatus,
-    },
-    {
-      id: "out-marker-csv",
-      stage: "delivery",
-      origin: "conform-bridge",
-      fileKind: "csv",
-      fileRole: "marker_export",
-      fileName: "MARKERS.csv",
-      pathHint: "delivery/MARKERS.csv",
-      status: baseStatus,
-    },
-    {
-      id: "out-metadata-csv",
-      stage: "delivery",
-      origin: "conform-bridge",
-      fileKind: "csv",
-      fileRole: "metadata_export",
-      fileName: "METADATA.csv",
-      pathHint: "delivery/METADATA.csv",
-      status: baseStatus,
-    },
-    {
-      id: "out-manifest",
-      stage: "delivery",
-      origin: "conform-bridge",
-      fileKind: "json",
-      fileRole: "delivery_manifest",
-      fileName: "manifest.json",
-      pathHint: "delivery/manifest.json",
-      status: baseStatus,
-    },
-    {
-      id: "out-readme",
-      stage: "delivery",
-      origin: "conform-bridge",
-      fileKind: "txt",
-      fileRole: "delivery_readme",
-      fileName: "README_IMPORT.txt",
-      pathHint: "delivery/README_IMPORT.txt",
-      status: baseStatus,
-    },
-    {
-      id: "out-field-recorder",
-      stage: "delivery",
-      origin: "conform-bridge",
-      fileKind: "csv",
-      fileRole: "field_recorder_report",
-      fileName: "FIELD_RECORDER_REPORT.csv",
-      pathHint: "delivery/FIELD_RECORDER_REPORT.csv",
-      status: baseStatus,
-    },
-  ];
-}
-
-export async function importTurnoverFolder(folderPath: string): Promise<TranslationJob> {
+export async function importTurnoverFolder(folderPath: string): Promise<ImportAnalysisResult> {
   const files = await walkFolder(folderPath);
   const intakeAssets: IntakeAsset[] = [];
 
@@ -397,8 +318,6 @@ export async function importTurnoverFolder(folderPath: string): Promise<Translat
   }
 
   const blocked = issues.some((issue) => issue.severity === "critical");
-  const deliveryArtifacts = makeDeliveryArtifacts(blocked ? "blocked" : "queued");
-
   if (blocked) {
     issues.push({
       id: "issue-delivery-blocked",
@@ -422,9 +341,9 @@ export async function importTurnoverFolder(folderPath: string): Promise<Translat
     offlineAssetsTotal: offlineAssetCount,
     highRiskCount: issues.filter((issue) => issue.severity === "critical").length,
     warningCount: issues.filter((issue) => issue.severity === "warning").length,
-    blockedCount: deliveryArtifacts.filter((artifact) => artifact.status === "blocked").length,
+    blockedCount: blocked ? 1 : 0,
     intakeCompletenessSummary: `${intakeAssets.length} intake files scanned; ${issues.filter((issue) => issue.scope !== "delivery").length} intake findings.`,
-    deliveryReadinessSummary: blocked ? "Delivery package blocked by critical intake issues." : "Delivery package planned and queued pending operator review.",
+    deliveryReadinessSummary: blocked ? "Delivery planning blocked by critical intake issues." : "Intake and canonical analysis complete. Delivery planning ready.",
   };
 
   const nowIso = "2026-03-08T00:00:00.000Z";
@@ -458,21 +377,7 @@ export async function importTurnoverFolder(folderPath: string): Promise<Translat
     },
   };
 
-  const deliveryPackage: DeliveryPackage = {
-    id: "delivery-imported",
-    stage: "delivery",
-    target: "nuendo",
-    packageName: `${sourceBundle.resolveTimelineVersion}_NUENDO_PLAN`,
-    outputPresetId: outputPresets[0].id,
-    artifacts: deliveryArtifacts,
-  };
-
   return {
-    id: "job-imported-turnover",
-    jobName: manifest.jobName ?? `Imported ${sourceBundle.resolveTimelineVersion}`,
-    status: blocked ? "needs_review" : "queued",
-    createdAtIso: nowIso,
-    updatedAtIso: nowIso,
     sourceBundle,
     translationModel,
     mappingRules: templateMappingRules,
@@ -489,7 +394,5 @@ export async function importTurnoverFolder(folderPath: string): Promise<Translat
     preservationIssues: issues,
     reconformChanges: [],
     analysisReport: analysis,
-    outputPreset: outputPresets[0],
-    deliveryPackage,
   };
 }

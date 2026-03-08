@@ -238,7 +238,7 @@ const deliveryPackage: DeliveryPackage = {
       fileRole: "timeline_exchange",
       fileName: "RH_E03_R4_NUENDO.aaf",
       pathHint: "delivery/RH_E03_R4_NUENDO.aaf",
-      status: "queued",
+      status: "planned",
     },
     {
       id: "out-marker-edl",
@@ -248,7 +248,7 @@ const deliveryPackage: DeliveryPackage = {
       fileRole: "marker_export",
       fileName: "RH_E03_R4_MARKERS.edl",
       pathHint: "delivery/RH_E03_R4_MARKERS.edl",
-      status: "queued",
+      status: "planned",
     },
     {
       id: "out-marker-csv",
@@ -258,7 +258,7 @@ const deliveryPackage: DeliveryPackage = {
       fileRole: "marker_export",
       fileName: "RH_E03_R4_MARKERS.csv",
       pathHint: "delivery/RH_E03_R4_MARKERS.csv",
-      status: "queued",
+      status: "planned",
     },
     {
       id: "out-meta-csv",
@@ -268,7 +268,7 @@ const deliveryPackage: DeliveryPackage = {
       fileRole: "metadata_export",
       fileName: "RH_E03_R4_METADATA.csv",
       pathHint: "delivery/RH_E03_R4_METADATA.csv",
-      status: "queued",
+      status: "planned",
     },
     {
       id: "out-manifest",
@@ -278,7 +278,7 @@ const deliveryPackage: DeliveryPackage = {
       fileRole: "delivery_manifest",
       fileName: "manifest.json",
       pathHint: "delivery/manifest.json",
-      status: "queued",
+      status: "planned",
     },
     {
       id: "out-readme",
@@ -288,7 +288,7 @@ const deliveryPackage: DeliveryPackage = {
       fileRole: "delivery_readme",
       fileName: "README_IMPORT.txt",
       pathHint: "delivery/README_IMPORT.txt",
-      status: "queued",
+      status: "planned",
     },
     {
       id: "out-field-recorder",
@@ -298,7 +298,7 @@ const deliveryPackage: DeliveryPackage = {
       fileRole: "field_recorder_report",
       fileName: "RH_E03_R4_FIELD_RECORDER_REPORT.csv",
       pathHint: "delivery/RH_E03_R4_FIELD_RECORDER_REPORT.csv",
-      status: "queued",
+      status: "planned",
     },
   ],
 };
@@ -366,7 +366,7 @@ export const translationJobs: TranslationJob[] = [
       warningCount: 2,
       blockedCount: 0,
       intakeCompletenessSummary: "Intake package complete: timeline exchange, markers, metadata, reference video, and production audio present.",
-      deliveryReadinessSummary: "Delivery package can be assembled after manual review of one field recorder metadata fallback.",
+      deliveryReadinessSummary: "Delivery plan can be assembled after manual review of one field recorder metadata fallback.",
     },
     outputPreset: outputPresets[0],
     deliveryPackage,

@@ -103,7 +103,7 @@ export default async function JobsPage() {
                     <tr key={artifact.id} className="border-t border-border">
                       <td className="px-3 py-2 font-mono text-[11px]">{artifact.fileName}</td>
                       <td className="px-3 py-2">{artifact.fileKind} / {artifact.fileRole}</td>
-                      <td className="px-3 py-2"><Badge variant={artifact.status === "ready" ? "success" : artifact.status === "blocked" ? "danger" : "warning"}>{artifact.status}</Badge></td>
+                      <td className="px-3 py-2"><Badge variant={artifact.status === "planned" ? "success" : artifact.status === "blocked" ? "danger" : "warning"}>{artifact.status}</Badge></td>
                     </tr>
                   ))}
                 </tbody>

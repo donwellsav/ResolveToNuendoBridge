@@ -8,7 +8,7 @@ export default async function DashboardPage() {
   const activeJobs = translationJobs.filter((job) => job.status === "processing" || job.status === "needs_review").length;
   const totalIssues = translationJobs.reduce((sum, job) => sum + job.preservationIssues.length, 0);
   const pendingArtifacts = translationJobs.reduce(
-    (sum, job) => sum + job.deliveryPackage.artifacts.filter((artifact) => artifact.status === "queued").length,
+    (sum, job) => sum + job.deliveryPackage.artifacts.filter((artifact) => artifact.status === "planned").length,
     0
   );
 
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
         <Card><CardHeader><CardTitle>Total Jobs</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold">{totalJobs}</p></CardContent></Card>
         <Card><CardHeader><CardTitle>Active Jobs</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold">{activeJobs}</p></CardContent></Card>
         <Card><CardHeader><CardTitle>Preservation Issues</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold text-warning">{totalIssues}</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Queued Artifacts</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold">{pendingArtifacts}</p></CardContent></Card>
+        <Card><CardHeader><CardTitle>Planned Artifacts</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold">{pendingArtifacts}</p></CardContent></Card>
       </div>
     </AppShell>
   );

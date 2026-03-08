@@ -1,0 +1,49 @@
+import path from "node:path";
+
+import { outputPresets, translationJobs as fallbackJobs } from "./mock-data";
+import { planNuendoDelivery } from "./services/exporter";
+import { importTurnoverFolder } from "./services/importer";
+import type { TranslationJob } from "./types";
+
+const fixtureFolder = path.join(process.cwd(), "fixtures", "turnover-basic");
+
+export async function getTranslationJobs(): Promise<TranslationJob[]> {
+  try {
+    const imported = await importTurnoverFolder(fixtureFolder);
+
+    const baseJob: TranslationJob = {
+      id: "job-imported-turnover",
+      jobName: `Imported ${imported.sourceBundle.resolveTimelineVersion}`,
+      status: imported.preservationIssues.some((issue) => issue.severity === "critical") ? "needs_review" : "queued",
+      createdAtIso: imported.sourceBundle.importedAtIso,
+      updatedAtIso: imported.sourceBundle.importedAtIso,
+      sourceBundle: imported.sourceBundle,
+      translationModel: imported.translationModel,
+      mappingRules: imported.mappingRules,
+      fieldRecorderCandidates: imported.fieldRecorderCandidates,
+      preservationIssues: imported.preservationIssues,
+      reconformChanges: imported.reconformChanges,
+      analysisReport: imported.analysisReport,
+      outputPreset: outputPresets[0],
+      deliveryPackage: {
+        id: "delivery-imported-placeholder",
+        stage: "delivery",
+        target: "nuendo",
+        packageName: `${imported.sourceBundle.resolveTimelineVersion}_NUENDO_PLAN`,
+        outputPresetId: outputPresets[0].id,
+        artifacts: [],
+      },
+    };
+
+    const { packagePlan } = await planNuendoDelivery(baseJob, baseJob.translationModel);
+
+    return [
+      {
+        ...baseJob,
+        deliveryPackage: packagePlan,
+      },
+    ];
+  } catch {
+    return fallbackJobs;
+  }
+}

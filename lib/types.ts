@@ -57,7 +57,7 @@ export type DeliveryArtifact = {
   fileRole: FileRole;
   fileName: string;
   pathHint: string;
-  status: "queued" | "ready" | "blocked";
+  status: "planned" | "blocked" | "placeholder";
   note?: string;
 };
 
@@ -226,6 +226,11 @@ export type TranslationJob = {
   outputPreset: OutputPreset;
   deliveryPackage: DeliveryPackage;
 };
+
+export type ImportAnalysisResult = Omit<
+  TranslationJob,
+  "id" | "jobName" | "status" | "createdAtIso" | "updatedAtIso" | "outputPreset" | "deliveryPackage"
+>;
 
 export type AppSettings = {
   density: "compact" | "comfortable";

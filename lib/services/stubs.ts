@@ -1,4 +1,4 @@
-import type { Job } from "@/lib/domain";
+import type { TranslationJob } from "@/lib/types";
 import type {
   NuendoExportService,
   PersistenceService,
@@ -9,22 +9,22 @@ export const resolveImportStub: ResolveImportService = {
   async validateBundle() {
     return {
       valid: true,
-      issues: ["Stub mode: parser not implemented in Phase 1."],
+      issues: ["Stub mode: Resolve parser is not implemented in Phase 1."],
     };
   },
   async previewBundle() {
     return {
-      timelineName: "Stub Timeline",
+      timelineName: "Stub Resolve Timeline",
       events: 0,
     };
   },
 };
 
 export const nuendoExportStub: NuendoExportService = {
-  async buildExport(job: Job) {
+  async buildExport(job: TranslationJob) {
     return {
       artifactName: `${job.id}.nuendo.stub.json`,
-      warnings: ["Stub mode: export writer not implemented in Phase 1."],
+      warnings: ["Stub mode: Nuendo export writer is not implemented in Phase 1."],
     };
   },
 };

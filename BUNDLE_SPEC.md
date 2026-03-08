@@ -1,68 +1,41 @@
-# Bundle Spec (Phase 1 Mock Contract)
+# Resolve -> Nuendo Bundle Specification (Phase 1 Mock Contract)
 
-## Purpose
-Defines the conceptual shape of Resolve-originating bundles used by the bridge. This document does not imply parser implementation in this phase.
+## Intent
+Define the expected inbound/outbound bundle envelope for future parser/export implementation while keeping phase 1 frontend-only.
 
-## Inbound Bundle (Conceptual)
-A Resolve bundle is expected to include:
-- Timeline metadata (`timelineName`, frame rate, start timecode)
-- Event list with clip identifiers and ranges
-- Audio source references (file names, channel layouts, sound roll)
-- Marker and metadata payload for conform guidance
+## Inbound Resolve Source Bundle (conceptual)
+Expected operator-provided inputs:
+- AAF
+- marker EDL
+- marker CSV
+- metadata CSV
+- manifest.json
+- README import instructions
+- reference video
+- field recorder matching report
 
-```ts
-type ResolveBundleDraft = {
-  bundleVersion: "0.1";
-  sourceApp: "resolve";
-  sourceVersion: string;
-  project: {
-    show: string;
-    episode?: string;
-    reel: string;
-    timelineName: string;
-    frameRate: number;
-    startTc: string;
-  };
-  events: Array<{
-    id: string;
-    clipName: string;
-    sourceFile: string;
-    sourceTcIn: string;
-    sourceTcOut: string;
-    timelineTcIn: string;
-    timelineTcOut: string;
-    channels: string;
-    markers?: string[];
-  }>;
-};
-```
+Conceptual envelope:
+- project and timeline metadata
+- track/clip event ranges
+- marker payloads
+- source/reel references
 
-## Outbound Export Artifact (Conceptual)
-A Nuendo-targeting export payload should eventually contain:
-- Track and channel mapping plan
-- Event conform operations
-- Field recorder relink decisions
-- Preservation report summary
+## Outbound Nuendo-ready Bundle (conceptual)
+Expected artifacts produced by the bridge pipeline (future implementation):
+- Nuendo-oriented AAF
+- marker EDL and marker CSV
+- metadata CSV
+- manifest.json
+- README import instructions
+- reference video handoff
+- field recorder matching report
 
-```ts
-type NuendoExportDraft = {
-  exportVersion: "0.1";
-  targetApp: "nuendo";
-  targetVersion: string;
-  jobId: string;
-  timelineName: string;
-  operations: Array<{
-    type: "create_event" | "move_event" | "map_channel" | "attach_metadata";
-    description: string;
-  }>;
-  warnings: string[];
-};
-```
+## Validation Rules (future parser/export)
+- Explicit bundle version and source application version.
+- Stable unique IDs for timelines, tracks, and clip events.
+- Timecode format `HH:MM:SS:FF` for all timeline/source fields.
+- Supported frame rates only (`23.976`, `24`, `25`, `29.97`).
+- Reject missing required core artifacts (AAF + manifest + metadata CSV).
 
-## Validation Rules (Phase 1)
-- Bundle versions must be explicit.
-- Frame rate must be one of internally supported values.
-- Timecode fields must use `HH:MM:SS:FF` format.
-- Event IDs must be stable and unique.
-
-No runtime parser enforcement is included in this phase.
+## Phase 1 Status
+No real file parsing, unpacking, transformation, or export writing is implemented.

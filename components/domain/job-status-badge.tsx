@@ -1,5 +1,5 @@
-import type { JobStatus } from "@/lib/domain";
 import { Badge } from "@/components/ui/badge";
+import type { JobStatus } from "@/lib/types";
 
 const statusVariant: Record<JobStatus, "neutral" | "success" | "warning" | "danger" | "accent"> = {
   draft: "neutral",

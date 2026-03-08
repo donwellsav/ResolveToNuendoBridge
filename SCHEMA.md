@@ -130,3 +130,9 @@ Orchestrates all three layers + reporting in one operator-visible unit.
 ## Service Boundaries (Phase 2A)
 - `importer.ts` is the real intake boundary and is responsible for scanning + lightweight parsing + canonical hydration.
 - `exporter.ts` remains a delivery planning stub and does not write Nuendo artifacts yet.
+
+
+### Importer Hydration Rules (Phase 2A)
+- Populate canonical fields from parsed intake files where values exist.
+- Preserve unknown values explicitly (defaults/empty fields) instead of inventing source data.
+- Emit preservation issues + blocked delivery artifacts when required intake evidence is missing.

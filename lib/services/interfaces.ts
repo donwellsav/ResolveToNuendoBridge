@@ -1,6 +1,7 @@
 import type { DeliveryPackage, SourceBundle, TranslationJob, TranslationModel } from "../types";
 
 export interface ResolveImportService {
+  // Real Phase 2A boundary: scan + parse intake turnover folder.
   importFolder(folderPath: string): Promise<TranslationJob>;
   validateBundle(input: SourceBundle): Promise<{ valid: boolean; issues: string[] }>;
   previewBundle(input: SourceBundle): Promise<{ timelineName: string; events: number }>;

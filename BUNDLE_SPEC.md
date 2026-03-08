@@ -41,3 +41,9 @@ Use `stage` + `origin` + `fileRole` together to identify intent and direction.
 - Parsing for metadata CSV, marker CSV, manifest JSON, and simple EDL marker extraction.
 - Canonical hydration uses known parsed fields and preserves unknowns as explicit defaults.
 - Nuendo export writing remains out of scope in this phase.
+
+
+## Intake Manifest Handling
+- If `manifest.json` is present in turnover, Phase 2A treats it as intake context for project/timeline defaults.
+- Delivery `manifest.json` remains a planned outbound artifact in delivery package.
+- Direction is still determined by `stage` + `origin` + `fileRole`, not filename alone.

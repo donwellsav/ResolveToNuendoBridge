@@ -1,4 +1,4 @@
-# Conform Bridge — Product Contract (Phase 1)
+# Conform Bridge — Product Contract (Phase 1 + Phase 2A)
 
 ## Product Intent
 Conform Bridge is a desktop-first internal operator tool that translates Resolve/editorial intake material into a Nuendo-ready delivery plan.
@@ -20,7 +20,7 @@ This separation is contractual in phase 1 to prevent parser/export work from for
 - Persistence remains stub-only.
 
 ## Out of Scope (Phase 1)
-- Real AAF/XML/EDL parsing.
+- Full-fidelity AAF/XML/EDL ingestion (only lightweight intake parsing is implemented in 2A).
 - Real Nuendo export writing.
 - Auth, billing, DB persistence, marketing/public pages.
 
@@ -33,4 +33,4 @@ This separation is contractual in phase 1 to prevent parser/export work from for
 - Intake package and delivery package are modeled separately.
 - Canonical model contains normalized frame + timecode fields.
 - UI keeps existing shell/routes while labeling intake vs delivery correctly.
-- Stubs accept/return the improved contracts without implementing parser/export logic.
+- Importer performs real intake analysis; exporter remains stub-only without Nuendo write logic.

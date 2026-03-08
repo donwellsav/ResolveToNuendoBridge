@@ -10,7 +10,7 @@ export const resolveImportStub: ResolveImportService = {
   async validateBundle(input) {
     return {
       valid: input.intakeAssets.length > 0,
-      issues: input.intakeAssets.length > 0 ? [] : ["No intake assets found."],
+      issues: input.intakeAssets.length > 0 ? [] : ["No intake assets found. Import cannot proceed."],
     };
   },
   async previewBundle(input) {

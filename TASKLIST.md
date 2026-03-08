@@ -2,26 +2,32 @@
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
-- [x] Split schema into Intake Package, Canonical Translation Model, and Delivery Package.
-- [x] Split bundle spec into Intake vs Delivery and define shared file-kind rules.
+- [x] Lock canonical data contract in `SCHEMA.md`.
+- [x] Lock bundle artifact contract in `BUNDLE_SPEC.md`.
 - [x] Scaffold desktop-first operator shell with App Router navigation.
 - [x] Scaffold routes: Dashboard, Jobs, New Job, Templates, Field Recorder, ReConform, Settings.
-- [x] Keep importer/exporter/persistence as stubs only.
-- [x] Keep render deterministic and SSR-safe.
-- [x] Exclude auth, billing, database, and marketing pages.
-- [x] Define typed model contracts for:
-  - [x] `SourceBundle` + `IntakeAsset`
-  - [x] `TranslationModel` + `NormalizedTimeline` + `NormalizedTrack`
-  - [x] `ClipEvent` + `Marker`
-  - [x] `AnalysisReport`
-  - [x] `DeliveryPackage` + `DeliveryArtifact`
+- [x] Implement typed models for all phase-1 entities:
+  - [x] `TranslationJob`
+  - [x] `SourceBundle`
+  - [x] `SourceAsset`
+  - [x] `Timeline`
+  - [x] `Track`
+  - [x] `ClipEvent`
+  - [x] `Marker`
+  - [x] `FieldRecorderCandidate`
   - [x] `MappingRule`
   - [x] `PreservationIssue`
-  - [x] `ReConformChange`
+  - [x] `OutputPreset`
+  - [x] `ExportArtifact`
+- [x] Keep render deterministic and SSR-safe (no browser-only APIs in initial render path).
+- [x] Keep importer/exporter/persistence as stubs only.
+- [x] Use realistic Resolve -> Nuendo mock workflow data.
+- [x] Exclude auth, billing, database, and marketing pages.
 
 ## Phase 2 — Parser/Exporter Services (Planned)
-- [ ] Implement real intake parser/validator for AAF/XML/EDL/CSV/audio assets.
-- [ ] Build canonical normalization engine with frame/timecode consistency checks.
-- [ ] Implement delivery package writer for Nuendo handoff artifacts.
-- [ ] Add reconform execution logic on top of modeled change events.
-- [ ] Add persistence once service contracts are stable.
+- [ ] Implement Resolve intake validation/parsing service for AAF/XML/EDL/CSV contract.
+- [ ] Build canonical normalization pipeline with deterministic transform rules.
+- [ ] Implement Nuendo-ready bundle writer for required artifact set.
+- [ ] Add robust validation and warning taxonomy for reconform/preservation issues.
+- [ ] Add file intake UX and job execution controls around real services.
+- [ ] Add persistence layer once service boundaries stabilize.

@@ -1,23 +1,37 @@
-# Resolve -> Nuendo Bundle Specification (Phase 1)
+# Resolve -> Nuendo Bundle Specification (Phase 1 Contract)
 
-## Direction Contract
-Direction is explicit and must not be inferred from file extension alone.
-- `stage: "intake"` => inbound package
-- `stage: "delivery"` => outbound package
-- `origin` records source system/owner (`resolve`, `editorial`, `production-audio`, `conform-bridge`, `nuendo`)
+## Purpose
+Define the bundle artifact contract now, while parser/export implementations remain deferred.
 
-## Intake Package (inbound)
-Typical inbound assets:
-- timeline exchange: AAF, FCPXML/XML, EDL
-- metadata export CSV
-- reference picture MOV/MP4
-- production audio WAV/BWF (mono/polywav)
+## Canonical Pipeline
+**Resolve exports in -> canonical internal model -> Nuendo-ready bundle out**
 
-Intake package does **not** imply delivery planning files by default.
+## Required Artifact Set
+The following artifacts are modeled in phase 1 and must remain part of the contract:
+1. `AAF`
+2. `marker EDL`
+3. `marker CSV`
+4. `metadata CSV`
+5. `manifest.json`
+6. `README import instructions`
+7. `reference video`
+8. `field recorder matching report`
 
-## Delivery Package (outbound plan)
-Planned Nuendo handoff artifacts:
-- Nuendo-ready AAF
+## Inbound Bundle (Resolve-side)
+Operator provides a source bundle that includes the required artifact set above.
+
+Expected semantics:
+- AAF provides editorial structure.
+- Marker EDL/CSV provide review and cue references.
+- Metadata CSV carries clip/scene/reel metadata.
+- Manifest declares bundle versioning and required file inventory.
+- README provides intake context/instructions.
+- Reference video supports sync/verification during conform.
+- Field recorder report provides match confidence and fallback details.
+
+## Outbound Bundle (Nuendo-ready)
+Exporter contract targets the same artifact family, emitted in Nuendo-oriented form:
+- translated AAF
 - marker EDL
 - marker CSV
 - metadata CSV
@@ -26,11 +40,16 @@ Planned Nuendo handoff artifacts:
 - field recorder matching report
 - optional reference video copy/handoff
 
-## Shared File Kinds
-The same `FileKind` may appear on either side (for example `csv`, `edl`, `aaf`, `json`, `txt`).
-Use `stage` + `origin` + `fileRole` together to identify intent and direction.
+## Validation Rules (Phase 2 target behavior)
+- Bundle must declare explicit contract version.
+- Required artifacts must all be present.
+- Timecode fields use `HH:MM:SS:FF`.
+- Frame rates limited to `23.976`, `24`, `25`, `29.97`.
+- IDs for timeline/track/clip events must be stable across pipeline stages.
+- Missing AAF, manifest, or metadata CSV is a hard validation failure.
 
-## Validation Targets (Phase 2)
-- Intake completeness checks per required inbound contract.
-- Canonical normalization checks for stable IDs + valid frame/timecode math.
-- Delivery readiness checks for required outbound artifacts and blocked/warning states.
+## Phase 1 Status
+- No real bundle unpacking/parsing.
+- No real transformation engine.
+- No real export writing.
+- UI and schema expose only mock contract + stub service boundaries.

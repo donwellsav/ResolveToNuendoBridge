@@ -2,6 +2,8 @@ import { promises as fs } from "node:fs";
 
 import type { TranslationModel } from "@/lib/types";
 
+import { extractRecordsFromOleContainer, isOleCompoundFile } from "./aaf-ole";
+
 type AdapterClip = {
   trackId?: string;
   track?: string;
@@ -183,18 +185,6 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
   const warnings: string[] = [];
   const sidecarAdapterPath = `${filePath}.adapter.json`;
 
-  try {
-    const sidecar = await fs.readFile(sidecarAdapterPath, "utf8");
-    const payload = JSON.parse(sidecar) as AafExternalAdapterPayload;
-    return {
-      normalizedText: normalizeExternalAdapterPayload(payload),
-      mode: "external-adapter",
-      warnings,
-    };
-  } catch {
-    // No sidecar adapter output available: continue with direct extraction.
-  }
-
   const buffer = await fs.readFile(filePath);
   const utf8 = buffer.toString("utf8");
   const normalizedText = normalizeMaybeTextAaf(utf8);
@@ -207,6 +197,19 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
     };
   }
 
+  if (isOleCompoundFile(buffer)) {
+    const oleRecords = extractRecordsFromOleContainer(buffer);
+    if (oleRecords.length > 0) {
+      return {
+        normalizedText: oleRecords,
+        mode: "binary-container",
+        warnings,
+      };
+    }
+
+    warnings.push("Direct in-repo OLE AAF parser found no recognizable timeline records.");
+  }
+
   const extractedRecords = extractContainerRecords(buffer);
   if (extractedRecords.length > 0) {
     return {
@@ -216,6 +219,19 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
     };
   }
 
+  try {
+    const sidecar = await fs.readFile(sidecarAdapterPath, "utf8");
+    const payload = JSON.parse(sidecar) as AafExternalAdapterPayload;
+    warnings.push("Direct in-repo AAF parsing failed; used external adapter sidecar fallback.");
+    return {
+      normalizedText: normalizeExternalAdapterPayload(payload),
+      mode: "external-adapter",
+      warnings,
+    };
+  } catch {
+    // No sidecar adapter output available.
+  }
+
   warnings.push("Unable to extract recognizable AAF timeline records from file contents.");
   return {
     normalizedText: "",
@@ -223,3 +239,4 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
     warnings,
   };
 }
+

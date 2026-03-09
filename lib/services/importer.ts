@@ -550,6 +550,8 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
   let manifest: ManifestPayload = {};
   let parsedFcpxml: ReturnType<typeof parseFcpxml> | undefined;
   let parsedAaf: ReturnType<typeof parseAaf> | undefined;
+  const aafExtractionWarnings: string[] = [];
+  let aafExtractionMode: "binary-container" | "external-adapter" | "text-fixture" | "unknown" | undefined;
 
   for (const filePath of files) {
     const fileName = path.basename(filePath);
@@ -589,6 +591,8 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
 
     if (kind === "aaf" && !parsedAaf) {
       const extraction = await extractAafTimelineText(filePath);
+      aafExtractionMode = extraction.mode;
+      aafExtractionWarnings.push(...extraction.warnings);
       parsedAaf = parseAaf(extraction.normalizedText);
     }
 
@@ -604,6 +608,32 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
   }));
 
   const issues: PreservationIssue[] = [];
+
+  if (aafExtractionMode === "external-adapter") {
+    issues.push({
+      id: "issue-aaf-direct-parser-fallback",
+      category: "manual-review",
+      severity: "warning",
+      scope: "timeline",
+      title: "Direct in-repo AAF parser fallback used",
+      description: "Direct in-repo AAF parsing did not provide timeline records; compatibility adapter sidecar was used.",
+      sourceLocation: "aaf",
+      recommendedAction: "Review AAF parser diagnostics and keep adapter fallback only as a temporary compatibility path.",
+    });
+  }
+
+  aafExtractionWarnings.forEach((warning, index) => {
+    issues.push({
+      id: `issue-aaf-extraction-warning-${index + 1}`,
+      category: "manual-review",
+      severity: "warning",
+      scope: "timeline",
+      title: "AAF extraction diagnostic",
+      description: warning,
+      sourceLocation: "aaf",
+      recommendedAction: "Inspect AAF extraction diagnostics and verify canonical timeline fidelity.",
+    });
+  });
 
   const hasFcpxmlTimeline = Boolean(parsedFcpxml && parsedFcpxml.tracks.length > 0);
   const hasAafTimeline = Boolean(parsedAaf && parsedAaf.tracks.length > 0);

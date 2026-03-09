@@ -5,7 +5,8 @@
 - ✅ **Phase 2K** complete (AAF compatibility fallback dependence reduced).
 - ✅ **Phase 3A** complete (execution prep boundary landed; planner still separate from writer).
 - ✅ **Phase 3B** complete (staged delivery materialization landed; writer remains deferred).
-- 🧭 Next phase is **Phase 3C** native writer/orchestration on top of staging contracts.
+- ✅ **Phase 3C** complete (deferred writer-input contract hardening + handoff readiness manifests landed).
+- 🧭 Next phase is **Phase 3D** native writer/orchestration on top of handoff contracts.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -60,7 +61,15 @@
 - [x] Surface staged structure/previews/summary in job operator views without redesign.
 - [x] Add tests for deterministic staging, deferred descriptors, summary generation, and review-state overlays.
 
-## Phase 3C — Native Writer/Orchestration (Planned)
+## Phase 3C — Deferred Writer Contract Hardening (Complete)
+- [x] Add deferred-writer contract boundary and deterministic handoff service.
+- [x] Define explicit versioned writer-input/handoff types with dependency/readiness status.
+- [x] Generate handoff manifests (`deferred-writer-inputs.json`, `delivery-handoff-manifest.json`, `delivery-handoff-summary.json`).
+- [x] Add readiness validation for missing/blocked dependencies and known writer gaps.
+- [x] Surface handoff contracts/readiness in job/operator views without redesign.
+- [x] Add deterministic contract/readiness/review-influence tests.
+
+## Phase 3D — Native Writer/Orchestration (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
 - [ ] Implement reference-video binary generation orchestration boundary.
 - [ ] Add execution orchestration controls and persistence-backed execution-state tracking.

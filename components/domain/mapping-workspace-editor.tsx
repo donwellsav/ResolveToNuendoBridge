@@ -10,6 +10,7 @@ import {
   summarizeOperatorProgress,
   type ReviewState,
   buildEffectiveDeliveryStagingPreview,
+  buildEffectiveDeliveryHandoffPreview,
 } from "@/lib/review-state";
 import { useReviewState } from "@/lib/use-review-state";
 import type { NormalizedTrack, TranslationJob } from "@/lib/types";
@@ -38,6 +39,10 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
   const deliveryPreview = useMemo(() => buildEffectiveDeliveryPreview(job, effectiveWorkspace), [job, effectiveWorkspace]);
   const stagingPreview = useMemo(
     () => buildEffectiveDeliveryStagingPreview(job, effectiveWorkspace, reviewState),
+    [job, effectiveWorkspace, reviewState]
+  );
+  const handoffPreview = useMemo(
+    () => buildEffectiveDeliveryHandoffPreview(job, effectiveWorkspace, reviewState),
     [job, effectiveWorkspace, reviewState]
   );
 
@@ -219,6 +224,30 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
           </table>
         ) : null}
       </section>
+
+      <section className="space-y-2">
+        <h4 className="text-sm font-semibold">Deferred Writer Handoff (Phase 3C)</h4>
+        <div className="flex gap-2 text-xs">
+          <Badge variant="success">Ready {handoffPreview.summary.readyForWriter}</Badge>
+          <Badge variant="danger">Blocked {handoffPreview.summary.blocked}</Badge>
+          <Badge variant="warning">Partial {handoffPreview.summary.partial}</Badge>
+          <Badge variant="accent">Known gaps {handoffPreview.summary.deferredWithKnownGaps}</Badge>
+        </div>
+        <table className="w-full border-collapse text-xs">
+          <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Artifact</th><th className="px-2 py-1 text-left">Capability</th><th className="px-2 py-1 text-left">Readiness</th><th className="px-2 py-1 text-left">Blockers</th></tr></thead>
+          <tbody>
+            {handoffPreview.writerInputs.map((input) => (
+              <tr key={input.inputId} className="border-t border-border">
+                <td className="px-2 py-1 font-mono">{input.artifact.plannedOutputPath}</td>
+                <td className="px-2 py-1">{input.artifact.requiredWriterCapability}</td>
+                <td className="px-2 py-1"><Badge variant={input.artifact.readinessStatus === "ready-for-writer" ? "success" : input.artifact.readinessStatus === "blocked" ? "danger" : "warning"}>{input.artifact.readinessStatus}</Badge></td>
+                <td className="px-2 py-1 text-muted">{input.artifact.unresolvedBlockers.join("; ") || "none"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
       <section className="space-y-2">
         <h4 className="text-sm font-semibold">Delivery Preview (effective overlay state)</h4>
         <table className="w-full border-collapse text-xs">

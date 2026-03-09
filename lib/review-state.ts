@@ -1,6 +1,7 @@
 import { prepareDeliveryExecution } from "./services/delivery-execution";
 import { planNuendoDeliveryArtifacts } from "./services/exporter";
 import { summarizeUnresolved } from "./services/mapping-workspace";
+import { buildDeliveryHandoffContracts } from "./services/delivery-handoff";
 import { stageDeliveryBundle } from "./services/delivery-staging";
 import type {
   DeliveryArtifact,
@@ -9,6 +10,7 @@ import type {
   ReConformChange,
   DeliveryExecutionPlan,
   TranslationJob,
+  DeliveryHandoffBundle,
 } from "./types";
 
 export const REVIEW_STATE_VERSION = 1;
@@ -282,6 +284,35 @@ export function buildEffectiveDeliveryStagingPreview(
     },
     packagePlan,
     executionPlan,
+    effectiveWorkspace,
+    reviewState,
+  });
+}
+
+
+export function buildEffectiveDeliveryHandoffPreview(
+  job: TranslationJob,
+  effectiveWorkspace: MappingWorkspace,
+  reviewState: ReviewState
+): DeliveryHandoffBundle {
+  const packagePlan = {
+    ...job.deliveryPackage,
+    artifacts: buildEffectiveDeliveryPreview(job, effectiveWorkspace),
+  };
+  const executionPlan = buildEffectiveDeliveryExecutionPreview(job, effectiveWorkspace);
+  const stagingBundle = buildEffectiveDeliveryStagingPreview(job, effectiveWorkspace, reviewState);
+
+  return buildDeliveryHandoffContracts({
+    job: {
+      ...job,
+      mappingWorkspace: effectiveWorkspace,
+      deliveryPackage: packagePlan,
+      deliveryExecution: executionPlan,
+      deliveryStaging: stagingBundle,
+    },
+    packagePlan,
+    executionPlan,
+    stagingBundle,
     effectiveWorkspace,
     reviewState,
   });

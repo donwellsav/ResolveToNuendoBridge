@@ -34,6 +34,7 @@ export default async function JobsPage() {
   const handoffInputs = primaryJob.deliveryHandoff?.writerInputs ?? [];
   const externalPackageFiles = primaryJob.externalExecutionPackage?.files ?? [];
   const externalPackageEntries = primaryJob.externalExecutionPackage?.index.entries ?? [];
+  const transportBundle = primaryJob.writerRunTransportBundle;
 
   const generatedPayloadPreviews = (primaryJob.deliveryExecution?.artifacts ?? [])
     .filter((artifact) => artifact.generatedPayload)
@@ -258,6 +259,50 @@ export default async function JobsPage() {
                       <td className="px-2 py-1 font-mono text-[11px]">{input.artifact.requiredWriterCapability}</td>
                       <td className="px-2 py-1 text-muted">{input.artifact.dependencies.map((dependency) => `${dependency.reference}:${dependency.status}`).join(", ")}</td>
                       <td className="px-2 py-1 text-muted">{input.artifact.unresolvedBlockers.join("; ") || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        ) : null}
+
+
+        {transportBundle ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Writer Run Transport & Audit (Phase 3G)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-xs">
+              <div className="flex gap-2">
+                <Badge variant="accent">Envelopes {transportBundle.envelopes.length}</Badge>
+                <Badge variant="success">Acknowledged {transportBundle.dispatchRecords.filter((record) => record.status === "acknowledged").length}</Badge>
+                <Badge variant="danger">Blocked {transportBundle.dispatchRecords.filter((record) => record.status === "runner-blocked").length}</Badge>
+                <Badge variant="warning">Failed {transportBundle.dispatchRecords.filter((record) => record.status === "transport-failed").length}</Badge>
+              </div>
+              <table className="w-full border-collapse text-xs">
+                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Request</th><th className="px-2 py-1 text-left">Correlation</th><th className="px-2 py-1 text-left">Dispatch</th><th className="px-2 py-1 text-left">Retry</th><th className="px-2 py-1 text-left">Cancel</th></tr></thead>
+                <tbody>
+                  {transportBundle.dispatchRecords.map((record) => (
+                    <tr key={record.transportId} className="border-t border-border">
+                      <td className="px-2 py-1 font-mono">{record.requestId}</td>
+                      <td className="px-2 py-1 font-mono">{record.correlationId}</td>
+                      <td className="px-2 py-1"><Badge variant={record.status === "acknowledged" ? "success" : record.status === "runner-blocked" || record.status === "transport-failed" ? "danger" : "warning"}>{record.status}</Badge></td>
+                      <td className="px-2 py-1">{record.retryState.nextAction} ({record.retryState.retryCount}/{record.retryState.maxRetries})</td>
+                      <td className="px-2 py-1">{record.cancellationState.state}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <table className="w-full border-collapse text-xs">
+                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Audit</th><th className="px-2 py-1 text-left">Transport</th><th className="px-2 py-1 text-left">Latest</th><th className="px-2 py-1 text-left">Events</th></tr></thead>
+                <tbody>
+                  {transportBundle.auditLog.map((entry) => (
+                    <tr key={entry.auditId} className="border-t border-border">
+                      <td className="px-2 py-1 font-mono">{entry.auditId}</td>
+                      <td className="px-2 py-1 font-mono">{entry.transportId}</td>
+                      <td className="px-2 py-1">{entry.latestStatus}</td>
+                      <td className="px-2 py-1 text-muted">{entry.events.map((event) => event.eventType).join(", ")}</td>
                     </tr>
                   ))}
                 </tbody>

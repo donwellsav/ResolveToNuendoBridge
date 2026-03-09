@@ -6,8 +6,11 @@
 - ✅ **Phase 3A** complete (execution prep boundary landed; planner still separate from writer).
 - ✅ **Phase 3B** complete (staged delivery materialization landed; writer remains deferred).
 - ✅ **Phase 3C** complete (deferred writer-input contract hardening + handoff readiness manifests landed).
+- ✅ **Phase 3D** complete (external execution packaging boundary landed).
 - ✅ **Phase 3E** complete (writer-adapter interfaces + registry/capability matching + dry-run/readiness reporting on external-execution package outputs).
-🧭 Next phase is **Phase 3G** native writer/orchestration execution on top of adapter + runner boundaries.
+- ✅ **Phase 3F** complete (writer-runner request/response/receipt contracts + no-op runner landed).
+- ✅ **Phase 3G** complete (transport envelopes + dispatch/audit/history contracts on top of writer-runner landed).
+🧭 Next phase is **Phase 3H** real transport adapters + orchestration persistence before native writer execution.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -98,7 +101,21 @@
 - [x] Surface runner state in operator job detail without redesign.
 - [x] Add tests for determinism, readiness classification, no-op responses, receipt consistency, and review-state signature influence.
 
-## Phase 3G — Native Writer/Orchestration Execution (Planned)
+## Phase 3G — External Runner Transport + Execution Audit (Complete)
+- [x] Add writer-run transport boundary after writer-runner contracts.
+- [x] Define deterministic transport envelope/dispatch/audit/history types with explicit versioning and linkage.
+- [x] Generate deterministic transport/audit artifacts under handoff (`writer-run-transport-envelopes.json`, `writer-run-dispatch-records.json`, `writer-run-audit-log.json`, `writer-run-history.json`).
+- [x] Implement reference no-op transport acknowledgements and audit events without native writer execution.
+- [x] Add retry/cancel/timeout/superseded state model contracts and visibility.
+- [x] Surface transport and audit visibility in job operator view without redesign.
+- [x] Add tests for envelope determinism, linkage, classification, acknowledgements, audit/history generation, and state transitions.
+
+## Phase 3H — Real Transport/Orchestration Backbone (Planned)
+- [ ] Implement real external transport adapters and queue lifecycle integration.
+- [ ] Add durable/persistence-backed dispatch and audit history storage.
+- [ ] Add orchestration controls for retries, cancellation, timeout handling, and stale/supersede transitions.
+
+## Phase 3I — Native Writer/Orchestration Execution (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
 - [ ] Implement reference-video binary generation orchestration boundary.
-- [ ] Add execution orchestration controls and persistence-backed execution-state tracking.
+- [ ] Keep planner/execution-prep/staging/handoff/package/adapter/runner/transport layers separated while native writing lands.

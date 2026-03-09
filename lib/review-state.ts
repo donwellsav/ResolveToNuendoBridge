@@ -6,6 +6,7 @@ import { stageDeliveryBundle } from "./services/delivery-staging";
 import { buildExternalExecutionPackage } from "./services/external-execution-package";
 import { createDefaultWriterAdapterRegistry } from "./services/writer-adapter-registry";
 import { buildWriterRunBundle } from "./services/writer-runner";
+import { buildWriterRunTransportBundle } from "./services/writer-run-transport-bundle";
 import type {
   DeliveryArtifact,
   MappingWorkspace,
@@ -17,6 +18,7 @@ import type {
   ExternalExecutionPackage,
   WriterAdapterRegistryReport,
   WriterRunBundle,
+  WriterRunTransportBundle,
 } from "./types";
 
 export const REVIEW_STATE_VERSION = 1;
@@ -375,4 +377,15 @@ export function buildEffectiveWriterAdapterReportPreview(
 ): WriterAdapterRegistryReport {
   const pkg = buildEffectiveExternalExecutionPackagePreview(job, effectiveWorkspace, reviewState);
   return createDefaultWriterAdapterRegistry().buildReport(pkg);
+}
+
+export function buildEffectiveWriterRunTransportBundlePreview(
+  job: TranslationJob,
+  effectiveWorkspace: MappingWorkspace,
+  reviewState: ReviewState
+): WriterRunTransportBundle {
+  const pkg = buildEffectiveExternalExecutionPackagePreview(job, effectiveWorkspace, reviewState);
+  const adapterReport = createDefaultWriterAdapterRegistry().buildReport(pkg);
+  const writerRunBundle = buildWriterRunBundle({ pkg, adapterReport });
+  return buildWriterRunTransportBundle({ pkg, writerRunBundle, adapterReport });
 }

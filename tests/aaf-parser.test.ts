@@ -7,6 +7,8 @@ import test from "node:test";
 import { parseAaf } from "../lib/parsers/aaf";
 import { extractAafTimelineText } from "../lib/parsers/aaf-adapter";
 
+import { buildOleWithTimelineRecords } from "./helpers-ole";
+
 const aafMissingMediaFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-207-aaf-missing-media", "timeline.aaf");
 
 test("AAF adapter extracts binary/container records and parser hydrates canonical clip fields", async () => {
@@ -65,6 +67,7 @@ test("AAF adapter normalizes external adapter JSON output into parser contract",
   const parsed = parseAaf(extraction.normalizedText);
 
   assert.equal(extraction.mode, "external-adapter");
+  assert.ok(extraction.warnings.some((warning) => warning.includes("fallback")));
   assert.equal(parsed.timelineName, "RVR_207_LOCK_v2");
   assert.equal(parsed.tracks.length, 1);
   assert.equal(parsed.tracks[0].clips.length, 2);

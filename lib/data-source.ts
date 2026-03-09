@@ -7,7 +7,9 @@ import { stageDeliveryBundle } from "./services/delivery-staging";
 import { materializeStagedDeliveryBundle } from "./services/delivery-staging-materializer";
 import { buildExternalExecutionPackage } from "./services/external-execution-package";
 import { createDefaultWriterAdapterRegistry } from "./services/writer-adapter-registry";
+import { buildWriterRunBundle } from "./services/writer-runner";
 import { materializeExternalExecutionPackage } from "./services/external-execution-package-materializer";
+import { materializeWriterRunBundle } from "./services/writer-runner-materializer";
 import { planNuendoDelivery } from "./services/exporter";
 import { importTurnoverFolder } from "./services/importer";
 import type { TranslationJob } from "./types";
@@ -71,6 +73,8 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
     });
     await materializeExternalExecutionPackage(externalExecutionPackage);
     const writerAdapterReport = createDefaultWriterAdapterRegistry().buildReport(externalExecutionPackage);
+    const writerRunBundle = buildWriterRunBundle({ pkg: externalExecutionPackage, adapterReport: writerAdapterReport });
+    await materializeWriterRunBundle(writerRunBundle, externalExecutionPackage.rootPath);
 
     return [
       {
@@ -81,6 +85,7 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
         deliveryHandoff,
         externalExecutionPackage,
         writerAdapterReport,
+        writerRunBundle,
       },
     ];
   } catch {

@@ -5,6 +5,7 @@ import { buildDeliveryHandoffContracts } from "./services/delivery-handoff";
 import { stageDeliveryBundle } from "./services/delivery-staging";
 import { buildExternalExecutionPackage } from "./services/external-execution-package";
 import { createDefaultWriterAdapterRegistry } from "./services/writer-adapter-registry";
+import { buildWriterRunBundle } from "./services/writer-runner";
 import type {
   DeliveryArtifact,
   MappingWorkspace,
@@ -15,6 +16,7 @@ import type {
   DeliveryHandoffBundle,
   ExternalExecutionPackage,
   WriterAdapterRegistryReport,
+  WriterRunBundle,
 } from "./types";
 
 export const REVIEW_STATE_VERSION = 1;
@@ -354,6 +356,16 @@ export function buildEffectiveExternalExecutionPackagePreview(
     stagingBundle,
     handoffBundle,
   });
+}
+
+export function buildEffectiveWriterRunBundlePreview(
+  job: TranslationJob,
+  effectiveWorkspace: MappingWorkspace,
+  reviewState: ReviewState
+): WriterRunBundle {
+  const pkg = buildEffectiveExternalExecutionPackagePreview(job, effectiveWorkspace, reviewState);
+  const adapterReport = createDefaultWriterAdapterRegistry().buildReport(pkg);
+  return buildWriterRunBundle({ pkg, adapterReport });
 }
 
 export function buildEffectiveWriterAdapterReportPreview(

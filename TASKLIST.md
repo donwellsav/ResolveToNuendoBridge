@@ -7,7 +7,7 @@
 - ✅ **Phase 3B** complete (staged delivery materialization landed; writer remains deferred).
 - ✅ **Phase 3C** complete (deferred writer-input contract hardening + handoff readiness manifests landed).
 - ✅ **Phase 3E** complete (writer-adapter interfaces + registry/capability matching + dry-run/readiness reporting on external-execution package outputs).
-🧭 Next phase is **Phase 3F** native writer/orchestration execution on top of adapter boundary.
+🧭 Next phase is **Phase 3G** native writer/orchestration execution on top of adapter + runner boundaries.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -90,7 +90,15 @@
 - [x] Surface adapter readiness and unsupported reasons in operator views without redesigning UI.
 - [x] Add tests for normalization, matching, readiness, dry-run, unsupported reasons, and review-state influence.
 
-## Phase 3F — Native Writer/Orchestration Execution (Planned)
+## Phase 3F — Writer Runner Contracts + Receipts (Complete)
+- [x] Add writer-runner boundary after adapter dry-runs to normalize runnable requests and blocked/unsupported records.
+- [x] Define explicit writer-runner types: request, response, receipt, runner readiness/capability, attempts, and blocked/unsupported reasons.
+- [x] Generate deterministic `handoff/writer-run-requests.json`, `handoff/writer-run-responses.json`, and `handoff/writer-run-receipts.json`.
+- [x] Implement reference no-op runner proving execution boundary without writing Nuendo/session binaries.
+- [x] Surface runner state in operator job detail without redesign.
+- [x] Add tests for determinism, readiness classification, no-op responses, receipt consistency, and review-state signature influence.
+
+## Phase 3G — Native Writer/Orchestration Execution (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
 - [ ] Implement reference-video binary generation orchestration boundary.
 - [ ] Add execution orchestration controls and persistence-backed execution-state tracking.

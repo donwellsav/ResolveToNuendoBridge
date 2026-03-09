@@ -7,7 +7,7 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Status | Phase | Focus | State |
 |---|---|---|---|
 | Past | Phase 1 | Contract lock + frontend operator shell | ✅ Complete |
-| Current | Phase 2A–2H | Real intake parsing + canonical hydration/reconciliation | 🚧 Active |
+| Current | Phase 2A–2I | Real intake parsing + canonical hydration/reconciliation | 🚧 Active |
 | Planned | Phase 3 | Canonical normalization + delivery writing + execution UX/persistence | 🗓️ Next |
 
 ## Phase History and Plan (Past / Current / Planned)
@@ -26,52 +26,55 @@ Completed outcomes:
 ### Current — Phase 2 (Active implementation series)
 Phase 2 incrementally replaces fixture-only paths with real intake parsing and canonical hydration while preserving the phase-1 contract.
 
-#### Phase 2 progress so far
-- **2A/2B foundation**
+#### Completed/landed Phase 2 steps
+- **2A / 2B — Intake + metadata foundations**
   - Intake scanning and file-role classification.
-  - Real manifest + metadata CSV parsing.
+  - Manifest + metadata CSV parsing.
   - Marker CSV/EDL parsing and baseline preservation issue reporting.
-- **2C timeline exchange milestone**
+- **2C — Timeline exchange milestone**
   - FCPXML/XML parser path wired into canonical timeline hydration.
   - FCPXML/XML set as primary timeline source when present.
-- **2D AAF baseline**
-  - First-pass AAF parser integrated.
+- **2D — AAF baseline**
+  - First-pass AAF parser integration.
   - AAF enrichment against canonical timeline plus AAF-only fallback hydration.
-- **2E deeper AAF ingestion**
+- **2E — Deeper AAF ingestion**
   - Richer AAF token handling for composition/event-style records.
   - Improved extraction for source identity, reel/tape, in/out ranges, channels/layout.
   - Explicit offline/missing-reference signals preserved.
   - Inferable fade/speed metadata carried into canonical events.
-  - Reconciliation issues expanded for AAF vs FCPXML/XML mismatches (counts/timing/source/reel/tape/missing media).
-- **2F binary/container-aware AAF ingestion**
-  - Added a binary/container-aware extraction boundary for real `.aaf` files.
-  - Supports direct container record extraction plus a stable external-adapter normalization path.
-  - Preserves fallback text-fixture compatibility for controlled fixture workflows.
-  - Keeps FCPXML/XML primary when present, uses AAF for enrich/reconcile, and falls back to AAF-primary only when FCPXML/XML is absent.
+  - Reconciliation issues expanded for AAF vs FCPXML/XML mismatches.
+- **2F — Binary/container-aware AAF ingestion**
+  - Binary/container extraction boundary for real `.aaf` files.
+  - Direct container record extraction + adapter-normalization compatibility path.
+  - Fallback compatibility retained for controlled fixture workflows.
+- **2G / 2H — Expanded direct parser traversal + diagnostics**
+  - Broader direct traversal coverage across composition/mob-slot/source-mob/source-clip style records.
+  - Added locator/comment + media-descriptor/effect-hint extraction.
+  - Preserved explicit fallback diagnostics when adapter compatibility path is required.
+  - Expanded reconciliation taxonomy (identity/timing/reel-tape/media-reference/marker coverage).
+- **2I — Mapping editors + validation workflow (latest)**
+  - Added richer operator mapping editors for track, marker, metadata, and field-recorder review with practical bulk actions.
+  - Added mapping workspace state to the canonical job model.
+  - Surfaced unresolved mapping/validation summaries on Dashboard and Jobs.
+  - Kept exporter planning-only while consuming richer mapping decisions (no Nuendo file writing).
 
-- **2H expanded direct AAF graph traversal (latest)**
-  - Extended direct parser coverage for broader AAF/OLE-style graph records (composition, mob slots, source mobs/source clips).
-  - Added locator/comment + media-descriptor/effect-hint extraction into canonical markers/clip notes.
-  - Preserved compatibility fallback path with explicit diagnostics when adapter fallback was required.
-  - Expanded reconciliation taxonomy for source clip identity, timing (record+source), reel/tape, media reference, and marker/locator coverage mismatches.
-
-#### What remains in current phase
+#### In-progress / remaining within current phase
 - Deterministic canonical normalization pass across all ingest paths.
-- Surface AAF extraction diagnostics/modes as explicit preservation issues where useful.
-- Broader warning taxonomy and conflict diagnostics.
-- Keep exporter planning unchanged except benefiting from richer canonical inputs.
+- Broader warning taxonomy and conflict diagnostics where import sources disagree.
+- Surface importer extraction/compatibility modes as explicit operator-facing diagnostics where useful.
+- Keep exporter planning unchanged in write behavior while improving planning signals from canonical + mapping state.
 
 ### Planned — Next Phases
 
 #### Phase 3 (planned)
-- Implement deterministic canonical normalization pipeline.
+- Implement deterministic canonical normalization pipeline end-to-end.
 - Add deeper validation/reconciliation diagnostics for operator triage.
-- Implement Nuendo-ready bundle writing (actual artifact output; still intentionally not implemented today).
-- Add intake execution controls/job orchestration in UI.
+- Implement Nuendo-ready bundle writing for required artifacts (currently intentionally not implemented).
+- Add intake execution controls/job orchestration UX around real services.
 - Add persistence once service boundaries stabilize.
 
 #### Later (post-Phase 3)
-- Hardening/perf on large turnovers.
+- Hardening/performance for large turnovers.
 - Additional interchange adapters as needed.
 - Operational reporting around preservation/reconform outcomes.
 

@@ -24,7 +24,7 @@
 - [x] Use realistic Resolve -> Nuendo mock workflow data.
 - [x] Exclude auth, billing, database, and marketing pages.
 
-## Phase 2 — Parser/Exporter Services (Active, through 2H)
+## Phase 2 — Parser/Exporter Services (Active, through 2I)
 - [~] Implement Resolve intake validation/parsing service for CSV/manifest/EDL contract (partially real).
 - [x] Make timeline_exchange (`.fcpxml`/`.xml`) the active canonical timeline hydration milestone.
 - [x] Implement direct in-repo OLE/container AAF graph parsing + reconciliation against canonical timeline (FCPXML precedence + AAF-only hydration + adapter compatibility fallback + mismatch issue taxonomy).
@@ -36,3 +36,11 @@
 - [~] Add robust validation and warning taxonomy for reconform/preservation issues (AAF mismatch/media-reference coverage + direct-parser/fallback diagnostics expanded).
 - [ ] Add file intake UX and job execution controls around real services.
 - [ ] Add persistence layer once service boundaries stabilize.
+
+
+## Phase 2I — Mapping + Validation Workflow
+- [x] Add richer mapping editors (track, marker, metadata, field recorder) with bulk actions where practical.
+- [x] Surface unresolved mapping/validation counts on Dashboard and Jobs pages.
+- [x] Keep exporter planner-only while consuming mapping workspace decisions.
+- [x] Add tests for mapping state updates, validation rule generation, and fixture-to-planning integration path.
+- [x] Update docs for 2I scope/progress.

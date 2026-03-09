@@ -140,6 +140,49 @@ export type MappingRule = {
   condition: string;
 };
 
+export type TrackMappingDecision = {
+  trackId: string;
+  sourceRole: NormalizedTrack["role"];
+  sourceName: string;
+  targetNuendoTrack: string;
+  state: "mapped" | "needs_review";
+};
+
+export type MarkerMappingDecision = {
+  markerId: string;
+  sourceLabel: string;
+  exportLabel: string;
+  includeInEdl: boolean;
+  includeInCsv: boolean;
+  state: "mapped" | "needs_review";
+};
+
+export type MetadataMappingDecision = {
+  clipId: string;
+  sourceFileName: string;
+  reel: string;
+  tape: string;
+  scene: string;
+  take: string;
+  state: "resolved" | "unresolved";
+};
+
+export type FieldRecorderDecision = {
+  candidateId: string;
+  clipEventId: string;
+  candidateFile: string;
+  strategy: FieldRecorderCandidate["strategy"];
+  selected: boolean;
+  state: "matched" | "needs_review";
+};
+
+export type MappingWorkspace = {
+  trackMappings: TrackMappingDecision[];
+  markerMappings: MarkerMappingDecision[];
+  metadataMappings: MetadataMappingDecision[];
+  fieldRecorderMappings: FieldRecorderDecision[];
+};
+
 export type PreservationIssue = {
   id: string;
   category: "preserved" | "downgraded" | "dropped" | "manual-review";
@@ -219,6 +262,7 @@ export type TranslationJob = {
   sourceBundle: SourceBundle;
   translationModel: TranslationModel;
   mappingRules: MappingRule[];
+  mappingWorkspace: MappingWorkspace;
   fieldRecorderCandidates: FieldRecorderCandidate[];
   preservationIssues: PreservationIssue[];
   reconformChanges: ReConformChange[];

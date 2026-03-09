@@ -11,6 +11,7 @@ import type {
   ClipEvent,
   FileKind,
   FileRole,
+  FieldRecorderCandidate,
   ImportAnalysisResult,
   IntakeAsset,
   Marker,
@@ -18,6 +19,7 @@ import type {
   TranslationModel,
 } from "../types";
 import { templateMappingRules } from "../mock-data";
+import { buildMappingWorkspace, workspaceIssues } from "./mapping-workspace";
 
 type MetadataRow = Record<string, string>;
 
@@ -781,6 +783,17 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
     deliveryReadinessSummary: blocked ? "Delivery planning blocked by critical intake issues." : "Intake and canonical analysis complete. Delivery planning ready.",
   };
 
+  const fieldRecorderCandidates: FieldRecorderCandidate[] = tracks.flatMap((track) => track.clips).map((clip, index) => ({
+    id: `frc-${index + 1}`,
+    clipEventId: clip.id,
+    candidateFile: clip.sourceFileName,
+    matchScore: clip.hasIXml ? 92 : 65,
+    strategy: clip.hasIXml ? "scene_take" : "filename_tc",
+    matched: !clip.isOffline,
+  }));
+  const mappingWorkspace = buildMappingWorkspace(tracks, markers, tracks.flatMap((track) => track.clips), templateMappingRules, fieldRecorderCandidates);
+  issues.push(...workspaceIssues(mappingWorkspace));
+
   const translationModel: TranslationModel = {
     id: "model-imported",
     stage: "canonical",
@@ -804,14 +817,8 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
     sourceBundle,
     translationModel,
     mappingRules: templateMappingRules,
-    fieldRecorderCandidates: tracks.flatMap((track) => track.clips).map((clip, index) => ({
-      id: `frc-${index + 1}`,
-      clipEventId: clip.id,
-      candidateFile: clip.sourceFileName,
-      matchScore: clip.hasIXml ? 92 : 65,
-      strategy: clip.hasIXml ? "scene_take" : "filename_tc",
-      matched: !clip.isOffline,
-    })),
+    mappingWorkspace,
+    fieldRecorderCandidates,
     preservationIssues: issues,
     reconformChanges: [],
     analysisReport: analysis,

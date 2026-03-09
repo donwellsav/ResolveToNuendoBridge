@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { MappingWorkspaceEditor } from "@/components/domain/mapping-workspace-editor";
 import { PreservationReportTable } from "@/components/domain/preservation-report-table";
-import { JobStatusBadge } from "@/components/domain/job-status-badge";
+import { ReviewAwareJobTable } from "@/components/domain/review-aware-job-table";
 import { AppShell } from "@/components/layout/app-shell";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,30 +31,7 @@ export default async function JobsPage() {
             <CardTitle>Translation Queue</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <table className="w-full border-collapse text-xs">
-              <thead className="bg-panelAlt text-muted">
-                <tr>
-                  <th className="px-3 py-2 text-left">Job</th>
-                  <th className="px-3 py-2 text-left">Resolve Timeline</th>
-                  <th className="px-3 py-2 text-left">Preset</th>
-                  <th className="px-3 py-2 text-left">Status</th>
-                  <th className="px-3 py-2 text-right">Unresolved</th>
-                  <th className="px-3 py-2 text-right">Artifacts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {translationJobs.map((job) => (
-                  <tr key={job.id} className="border-t border-border">
-                    <td className="px-3 py-2"><Link className="underline decoration-border underline-offset-2" href={`/jobs/${job.id}`}>{job.jobName}</Link></td>
-                    <td className="px-3 py-2 font-mono text-[11px]">{job.sourceBundle.resolveTimelineVersion}</td>
-                    <td className="px-3 py-2">{job.outputPreset.name}</td>
-                    <td className="px-3 py-2"><JobStatusBadge status={job.status} /></td>
-                    <td className="px-3 py-2 text-right font-mono">{job.analysisReport.warningCount + job.analysisReport.highRiskCount}</td>
-                    <td className="px-3 py-2 text-right font-mono">{job.deliveryPackage.artifacts.length}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <ReviewAwareJobTable jobs={translationJobs} />
           </CardContent>
         </Card>
 
@@ -118,7 +94,7 @@ export default async function JobsPage() {
             <CardTitle>Mapping Inspector — {primaryJob.jobName}</CardTitle>
           </CardHeader>
           <CardContent>
-            <MappingWorkspaceEditor workspace={primaryJob.mappingWorkspace} fieldRecorderCandidates={primaryJob.fieldRecorderCandidates} />
+            <MappingWorkspaceEditor job={primaryJob} />
           </CardContent>
         </Card>
 

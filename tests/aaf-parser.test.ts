@@ -101,3 +101,19 @@ test("direct AAF parser traverses broader SOURCECLIP/LOCATOR/COMMENT descriptors
   assert.equal(parsed.markers.length, 3);
   assert.ok(parsed.markers.some((marker) => marker.label.includes("Missing line pickup")));
 });
+
+test("direct parser accepts broader record/token alias variants used by messier AAF exports", () => {
+  const parsed = parseAaf([
+    'CompositionMob name="AliasTimeline" fps=24 start=01:00:00:00',
+    'Track id=t1 name="DX A" role=DX',
+    'MasterMob id=mob1 sourceFile="SCX.BWF" reel=R1 tapeId=SR1 descriptorClassId="WaveDescriptor"',
+    'SourceClip trackId=t1 sourcePackageID=mob1 sourcePackageClipID=SRCALIAS1 name="AliasClip" timelineInFrames=0 timelineOutFrames=96 srcInFrames=100 srcOutFrames=196 mediaRefStatus=offline',
+    'Locator tc=01:00:01:00 frame=24 label="Alias locator"',
+  ].join("\n"));
+
+  assert.equal(parsed.timelineName, "AliasTimeline");
+  assert.equal(parsed.tracks.length, 1);
+  assert.equal(parsed.tracks[0].clips[0].sourceAssetId, "in-SRCALIAS1");
+  assert.equal(parsed.tracks[0].clips[0].isOffline, true);
+  assert.equal(parsed.markers[0].label, "Alias locator");
+});

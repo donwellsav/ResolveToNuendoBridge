@@ -7,7 +7,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Phase 1 contract lock + operator shell is complete.
 - Phase 2A–2J implementation is complete.
 - Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
-- Next implementation target is **Phase 2K** (reduce remaining AAF adapter fallback dependence).
+- Current implementation target is **Phase 2K** (reduce remaining AAF adapter fallback dependence).
 - Phase 3 delivery execution starts only after planning/review stability is achieved.
 
 ## Primary Workflow Contract
@@ -25,7 +25,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
   2. `aaf`
   3. `edl`
   4. metadata-only fallback
-- AAF reconciliation/enrichment against canonical timeline, including explicit fallback diagnostics.
+- AAF reconciliation/enrichment against canonical timeline, including explicit fallback diagnostics and richer mismatch taxonomy.
 - Mapping/editor workflow for track/marker/metadata/field-recorder decisions.
 - Browser-local persisted review-state overlays for operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job and intake source signature.
 - Validation workflow surfacing `PreservationIssue` summaries and unresolved mapping counts, including acknowledgement state.
@@ -39,11 +39,11 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 
 ## Known Limitations
 - Export execution remains planner-only (Nuendo writing intentionally unimplemented).
-- AAF direct parser coverage is broad but not full-fidelity for all interchange variants.
-- Adapter sidecar compatibility fallback still appears in some AAF edge cases.
+- AAF direct parser coverage now includes broader record/token aliases and clip-bearing graph extraction from messier OLE/text layouts.
+- Adapter sidecar compatibility fallback still appears in partial/unsupported AAF graph shapes and remains intentionally enabled.
 
 ## Next Recommended Work
-1. **Phase 2K**: reduce compatibility fallback dependence by extending direct AAF extraction/traversal coverage.
+1. **Post-2K**: continue reducing compatibility fallback dependence by extending direct OLE stream/object graph decoding coverage.
 2. Continue deterministic canonical normalization and warning taxonomy hardening.
 3. Begin Phase 3 delivery execution prep only when planner/review behavior remains stable.
 

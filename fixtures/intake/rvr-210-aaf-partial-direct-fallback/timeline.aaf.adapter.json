@@ -1,0 +1,40 @@
+{
+  "timeline": {
+    "name": "RVR_210_LOCK_v1",
+    "fps": 24,
+    "startTimecode": "01:00:00:00"
+  },
+  "tracks": [
+    {
+      "id": "t1",
+      "name": "DX A",
+      "role": "DX",
+      "clips": [
+        {
+          "name": "DX_210_001",
+          "sourceFile": "SC10_TK01.BWF",
+          "recordIn": "01:00:00:00",
+          "recordOut": "01:00:03:00",
+          "sourceIn": "10:00:00:00",
+          "sourceOut": "10:00:03:00",
+          "recordInFrames": 0,
+          "recordOutFrames": 72,
+          "sourceInFrames": 864000,
+          "sourceOutFrames": 864072,
+          "reel": "R210",
+          "tape": "SR210A",
+          "channels": 2,
+          "layout": "L,R",
+          "offline": false
+        }
+      ]
+    }
+  ],
+  "markers": [
+    {
+      "tc": "01:00:01:00",
+      "frame": 24,
+      "label": "Fallback marker"
+    }
+  ]
+}

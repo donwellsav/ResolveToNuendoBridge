@@ -1,8 +1,8 @@
-# Resolve -> Nuendo Bundle Specification (Phase 3G Baseline)
+# Resolve -> Nuendo Bundle Specification (Phase 3I Baseline)
 
 ## Purpose
 Define and maintain the full artifact contract across the deterministic pipeline:
-**intake -> canonical -> delivery planning -> execution prep -> staging -> handoff -> external package -> writer-adapter -> writer-runner -> transport/audit**.
+**intake -> canonical -> delivery planning -> execution prep -> staging -> handoff -> external package -> writer-adapter -> writer-runner -> transport -> receipt compatibility/ingestion**.
 
 Nuendo native/session writing remains intentionally deferred in this phase.
 
@@ -50,7 +50,7 @@ Delivery planning targets the same artifact family in Nuendo-oriented form:
 - Frame rates are constrained to known supported values.
 - Missing critical intake artifacts surface `PreservationIssue` warnings/blocks.
 
-## Implemented Boundaries (through Phase 3G)
+## Implemented Boundaries (through Phase 3I)
 - Intake parsing + canonical hydration/reconciliation.
 - Delivery planner (deterministic planning only; no native writer).
 - Execution prep payload generation for safe text/JSON/CSV/EDL artifacts.
@@ -59,24 +59,40 @@ Delivery planning targets the same artifact family in Nuendo-oriented form:
 - External execution package under `exports/<job>_<sequence>/...` with checksums/index/summary.
 - Writer-adapter dry-run/capability matching contracts (no native writing).
 - Writer-runner request/response/receipt contracts with reference no-op runner.
-- Writer-run transport/audit envelopes, dispatch records, audit events, and history with reference no-op transport.
+- Writer-run transport envelopes/dispatch/audit/history artifacts.
+- Filesystem transport dispatch materialization (`envelope.json`, `dispatch-summary.json`, `READY.marker`, `receipt-compatibility.json`).
+- Deterministic receipt normalization + compatibility schema/profile matching + replay-safe ingestion outcomes.
 
-## External Execution Package Layout (Phase 3D+)
+## External Execution Package Layout
 Deterministic export package boundary layers on top of staged + handoff outputs:
 - `exports/<job>_<sequence>/staged/...` (preserved staged payload layout)
-- `exports/<job>_<sequence>/handoff/...` (handoff contracts + runner + transport/audit outputs)
+- `exports/<job>_<sequence>/handoff/...` (handoff + runner + transport/receipt artifacts)
 - `exports/<job>_<sequence>/package/...` (manifest/index/summary/checksums/deferred-input index)
 
-### Generated Now
-- Text/JSON/CSV/EDL staged payloads from execution prep
-- Deferred descriptor JSON for AAF/reference-video binaries
-- Handoff manifests + deferred writer input contracts
-- Writer-runner requests/responses/receipts
-- Writer-run transport envelopes/dispatch/audit/history artifacts
-- Package-level index/summary/checksum manifests for external executor intake
+## Receipt Compatibility Profiles (Phase 3I)
+Profiles are explicit and versioned:
+- `canonical-filesystem-transport-v1`
+- `compatibility-filesystem-receipt-v1`
+- `future-service-transport-placeholder`
 
-### Still Deferred
-- Native Nuendo project/session writing
-- Binary AAF writing via real Nuendo writer adapter
-- Real external transport adapters / persistent queue orchestration
-- Binary reference video writing/copy orchestration
+Each profile declares:
+- expected outbound/inbound files
+- required vs optional fields
+- supported versions
+- normalization rules
+- unsupported reasons
+
+## Generated Now
+- Text/JSON/CSV/EDL staged payloads from execution prep.
+- Deferred descriptor JSON for AAF/reference-video binaries.
+- Handoff manifests + deferred writer input contracts.
+- Writer-runner requests/responses/receipts.
+- Writer-run transport envelopes/dispatch/audit/history artifacts.
+- Dispatch compatibility metadata + deterministic receipt import classifications.
+- Package-level index/summary/checksum manifests for external executor intake.
+
+## Still Deferred
+- Native Nuendo project/session writing.
+- Binary AAF writing via real Nuendo writer adapter.
+- Persistent backend queue/orchestration services.
+- Binary reference video writing/copy orchestration.

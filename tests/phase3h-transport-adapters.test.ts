@@ -44,6 +44,7 @@ test("filesystem adapter writes deterministic outbound layout", () => {
   assert.equal(existsSync(path.join(outboundRoot, "envelope.json")), true);
   assert.equal(existsSync(path.join(outboundRoot, "dispatch-summary.json")), true);
   assert.equal(existsSync(path.join(outboundRoot, "READY.marker")), true);
+  assert.equal(existsSync(path.join(outboundRoot, "receipt-compatibility.json")), true);
 });
 
 test("registry resolves preferred adapter and fallback", () => {
@@ -58,7 +59,7 @@ test("receipt ingestion handles valid duplicate stale invalid and unmatched rece
   const state = createEmptyReviewState(buildReviewStateKey(job));
   const workspace = overlayMappingWorkspace(job.mappingWorkspace, state);
   const bundle = buildEffectiveWriterRunTransportBundlePreview(job, workspace, state);
-  const envelope = bundle.envelopes[0]!;
+  const envelope = bundle.envelopes.find((item) => item.runnerPath.runnerReadiness === "ready") ?? bundle.envelopes[0]!;
   const valid: WriterRunReceiptEnvelope = {
     receiptId: "receipt-001",
     receiptVersion: "phase3h.v1",
@@ -89,9 +90,9 @@ test("receipt ingestion handles valid duplicate stale invalid and unmatched rece
     dispatchRecords: bundle.dispatchRecords,
   });
 
-  assert.equal(ingested.some((item) => item.status === "receipt-imported"), true);
+  assert.equal(ingested.some((item) => item.status === "receipt-imported" || item.status === "receipt-partial"), true);
   assert.equal(ingested.some((item) => item.status === "receipt-duplicate"), true);
   assert.equal(ingested.some((item) => item.status === "receipt-stale"), true);
-  assert.equal(ingested.some((item) => item.status === "receipt-invalid"), true);
+  assert.equal(ingested.some((item) => item.status === "receipt-invalid" || item.status === "receipt-incompatible"), true);
   assert.equal(ingested.some((item) => item.status === "receipt-unmatched"), true);
 });

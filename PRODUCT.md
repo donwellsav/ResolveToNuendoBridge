@@ -1,4 +1,4 @@
-# Conform Bridge — Product Contract (Phase 3H Baseline)
+# Conform Bridge — Product Contract (Phase 3I Baseline)
 
 ## Product Intent
 Conform Bridge is an internal, desktop-first operator tool for translating **Resolve editorial bundles** into a **Nuendo-ready handoff bundle**.
@@ -8,7 +8,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Phase 2A–2J implementation is complete.
 - Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
 - Phase 2K fallback-reduction work is complete.
-- Current implementation baseline is **Phase 3H** real filesystem transport adapter + deterministic receipt-ingestion on top of writer transport/audit contracts (planner + execution-prep + staging + handoff + packaging + adapter + runner + transport/audit remain separate).
+- Current implementation baseline is **Phase 3I** filesystem transport interoperability + receipt compatibility normalization/matching on top of writer transport/audit contracts (planner + execution-prep + staging + handoff + packaging + adapter + runner + transport/audit + receipt compatibility remain separate).
 
 ## Primary Workflow Contract
 1. **SourceBundle / intake** ingests Resolve turnover artifacts.
@@ -38,7 +38,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Writer transport/audit boundary that consumes writer-run requests/responses/receipts to emit deterministic transport envelopes, dispatch records, acknowledgements, audit event logs, and attempt history for external executor handoff visibility.
 
 ## Out of Scope (Current State)
-- Nuendo project/session writing / binary file generation (still deferred; Phase 3H adds external filesystem handoff + receipt ingestion only).
+- Nuendo project/session writing / binary file generation (still deferred; Phase 3I deepens external filesystem handoff compatibility only).
 - Backend persistence services (state remains browser-local in this phase).
 - Eliminating all AAF adapter fallback paths in this phase.
 - Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.
@@ -49,13 +49,16 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Adapter sidecar compatibility fallback still appears in partial/unsupported AAF graph shapes and remains intentionally enabled.
 
 ## Next Recommended Work
-1. **Post-2K**: continue reducing compatibility fallback dependence by extending direct OLE stream/object graph decoding coverage.
-2. Continue deterministic canonical normalization and warning taxonomy hardening.
-3. Phase 3E: formalize writer-adapter interfaces + registry + capability dry-run against external-execution packages (without implementing binary writer outputs).
-4. Phase 3F: formalize writer-runner contracts (requests/responses/receipts) on top of adapter dry-runs with a deterministic no-op runner.
-5. Phase 3G: formalize external transport/audit contracts on top of writer-runner contracts with deterministic no-op transport acknowledgements.
-6. Phase 3H: implement real filesystem transport adapter + deterministic receipt-ingestion flow (no queue/backend).
-7. Phase 3I: implement binary writer/orchestration against the external-execution package + adapter + runner + transport contracts (without collapsing planner/execution-prep responsibilities).
+1. **Phase 3J**: implement native writer/orchestration execution behind existing package -> adapter -> runner -> transport boundaries.
+2. Keep planner/execution-prep/staging/handoff/package/adapter/runner/transport/receipt-compatibility responsibilities separated.
+3. Continue reducing remaining AAF compatibility fallback dependence in intake while preserving deterministic canonical behavior.
+4. Preserve deterministic receipt normalization and warning taxonomy as new transport profiles are introduced.
+
+
+## Phase 3I Operator Visibility
+- Dispatch now declares compatibility expectations for inbound receipts.
+- Job transport view surfaces profile/version, match/validation status, and drift/problem reasons.
+- Audit/history include partial, superseded, and incompatible receipt transitions in deterministic order.
 
 ## UX Direction
 - Desktop-first internal operations console.
@@ -93,3 +96,10 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Receipts summarize runnable vs blocked vs unsupported outcomes and preserve adapter match + dry-run plan context at run time.
 - Transport envelopes include deterministic transport IDs/correlation IDs, explicit dispatch statuses, package/signature linkage, retry/cancel/timeout/stale state, and machine-readable failures.
 - Audit log/history capture status transitions and human-readable explanations separately from runner receipts.
+
+
+## Phase 3I Baseline
+- Receipt compatibility profiles are explicit (`canonical-filesystem-transport-v1`, `compatibility-filesystem-receipt-v1`, `future-service-transport-placeholder`) with required/optional fields and supported versions.
+- Receipt normalization/migration is deterministic and isolated from transport dispatch.
+- Receipt matching now evaluates correlation id, dispatch/transport id, package/source/review signatures, artifact identity, and adapter/runner path to classify matched/duplicate/stale/superseded/partial/incompatible/invalid states.
+- Filesystem transport dispatch exports compatibility metadata and validates inbound receipts against declared profile expectations before ingesting outcomes.

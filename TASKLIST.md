@@ -11,7 +11,7 @@
 - ✅ **Phase 3F** complete (writer-runner request/response/receipt contracts + no-op runner landed).
 - ✅ **Phase 3G** complete (transport envelopes + dispatch/audit/history contracts on top of writer-runner landed).
 - ✅ **Phase 3H** complete (real filesystem transport adapter + deterministic receipt-ingestion flow landed).
-🧭 Next phase is **Phase 3I** native writer orchestration execution before any backend queue/persistence.
+🧭 Next phase is **Phase 3J** native writer orchestration execution before any backend queue/persistence.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -116,7 +116,16 @@
 - [x] Add deterministic outbound dispatch materialization and inbound receipt ingestion/matching/validation flow.
 - [x] Extend audit/history transitions for imported/duplicate/stale/unmatched/invalid/completed/failed/partial receipt outcomes.
 
-## Phase 3I — Native Writer/Orchestration Execution (Planned)
+## Phase 3I — External Execution Interoperability + Receipt Compatibility (Complete)
+- [x] Add receipt compatibility schema/profile registry and deterministic normalization/migration layer.
+- [x] Define explicit compatibility/normalization/fingerprint/signature/correlation types with versioned linkage to dispatch/package/source/review signatures.
+- [x] Harden dispatch/receipt matching for duplicate, replay, stale, superseded, partial drift, invalid, and incompatible outcomes.
+- [x] Export compatibility metadata with filesystem dispatch bundles and validate inbound receipts against declared profile expectations.
+- [x] Extend audit/history/UI state visibility for receipt-normalized, migrated, partial, superseded, and incompatible transitions without redesign.
+- [x] Add regression tests for canonical/compatibility normalization, migrations, replay safety, and deterministic matching.
+- [x] Align README/PRODUCT/SCHEMA/BUNDLE_SPEC documentation with Phase 3I compatibility and deferred-writer constraints.
+
+## Phase 3J — Native Writer/Orchestration Execution (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
 - [ ] Implement reference-video binary generation orchestration boundary.
 - [ ] Keep planner/execution-prep/staging/handoff/package/adapter/runner/transport layers separated while native writing lands.

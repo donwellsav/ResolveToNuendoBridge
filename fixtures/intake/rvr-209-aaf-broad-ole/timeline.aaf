@@ -1,0 +1,14 @@
+# AAF_TEXT_EXTRACT v2
+COMPOSITION name="RVR_209_LOCK_v3" fps=24 start=01:00:00:00
+TRACK id=dx1 name="DX A" role=DX
+TRACK id=fx1 name="FX A" role=FX
+MOBSLOT id=slot-1 track=dx1
+MOBSLOT id=slot-2 track=fx1
+SOURCEMOB id=mob-101 sourceFile="SC09_TK01.BWF" reel=R209 tape=SR209A mediaDescriptor="WaveDescriptor" descriptorClass="AIFCDescriptor"
+SOURCEMOB id=mob-102 sourceFile="SC09_TK77.BWF" reel=R209 tape=SR209A mediaDescriptor="FileDescriptor" mediaStatus=missing
+SOURCECLIP slotId=slot-1 sourceMobId=mob-101 sourceClipId=SRC209A name="DX_209_001" recordIn=01:00:00:00 recordOut=01:00:04:00 sourceIn=10:00:00:00 sourceOut=10:00:04:00 recordInFrames=0 recordOutFrames=96 sourceInFrames=864000 sourceOutFrames=864096 channels=4 layout="L,R,Ls,Rs" transition="crossfade" effectHint="gain-automation" offline=false
+SOURCECLIP slotId=slot-1 sourceMobId=mob-102 sourceClipId=SRC209B name="DX_209_002" recordIn=01:00:04:00 recordOut=01:00:08:00 sourceIn=10:00:04:00 sourceOut=10:00:08:00 recordInFrames=96 recordOutFrames=192 sourceInFrames=864096 sourceOutFrames=864192 channels=2 layout="L,R" mediaMissing=true comment="alt take missing" fadeInFrames=8 fadeOutFrames=0
+CLIP track=fx1 name="FX_209_001" sourceFile="CITY_TONE.wav" reel=R209 tape=SR209A recordIn=01:00:08:00 recordOut=01:00:12:00 sourceIn=11:00:00:00 sourceOut=11:00:04:00 recordInFrames=192 recordOutFrames=288 sourceInFrames=950400 sourceOutFrames=950496 channels=2 layout="L,R" speedRatio=1.0 offline=false
+LOCATOR tc=01:00:02:00 frame=48 label="Check room tone"
+COMMENT tc=01:00:06:00 frame=144 comment="Missing line pickup"
+MARKER tc=01:00:10:00 frame=240 label="FX swell"

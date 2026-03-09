@@ -162,7 +162,7 @@ function extractContainerRecords(buffer: Buffer): string {
 
   if (current.length >= 8) asciiSegments.push(current);
 
-  const recordRegex = /(TIMELINE|COMPOSITION|TRACK|CLIP|EVENT|MARKER)\b[^\r\n]*/;
+  const recordRegex = /(TIMELINE|COMPOSITION|TRACK|MOBSLOT|SOURCEMOB|SOURCECLIP|CLIP|EVENT|MARKER|LOCATOR|COMMENT)\b[^\r\n]*/;
   const extractedRecords = asciiSegments
     .map((segment) => segment.match(recordRegex)?.[0])
     .filter((record): record is string => Boolean(record));
@@ -171,7 +171,7 @@ function extractContainerRecords(buffer: Buffer): string {
 }
 
 function normalizeMaybeTextAaf(content: string): string {
-  const knownRecordRegex = /^(TIMELINE|COMPOSITION|TRACK|CLIP|EVENT|MARKER)\b/;
+  const knownRecordRegex = /^(TIMELINE|COMPOSITION|TRACK|MOBSLOT|SOURCEMOB|SOURCECLIP|CLIP|EVENT|MARKER|LOCATOR|COMMENT)\b/;
   const lines = content
     .split(/\r?\n/)
     .map((line) => line.trim())

@@ -7,9 +7,8 @@ import test from "node:test";
 import { parseAaf } from "../lib/parsers/aaf";
 import { extractAafTimelineText } from "../lib/parsers/aaf-adapter";
 
-import { buildOleWithTimelineRecords } from "./helpers-ole";
-
 const aafMissingMediaFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-207-aaf-missing-media", "timeline.aaf");
+const aafBroadFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-209-aaf-broad-ole", "timeline.aaf");
 
 test("AAF adapter extracts binary/container records and parser hydrates canonical clip fields", async () => {
   const tempFile = path.join(os.tmpdir(), "aaf-binary-container-test.aaf");
@@ -80,4 +79,25 @@ test("AAF adapter normalizes external adapter JSON output into parser contract",
   assert.equal(secondClip.hasFadeOut, false);
   assert.equal(secondClip.isOffline, true);
   assert.equal(secondClip.eventDescription, "DXMob207_2");
+});
+
+test("direct AAF parser traverses broader SOURCECLIP/LOCATOR/COMMENT descriptors", async () => {
+  const text = await fs.readFile(aafBroadFixture, "utf8");
+  const parsed = parseAaf(text);
+
+  assert.equal(parsed.timelineName, "RVR_209_LOCK_v3");
+  assert.equal(parsed.tracks.length, 2);
+  assert.equal(parsed.tracks[0].clips.length, 2);
+
+  const clip = parsed.tracks[0].clips[0];
+  assert.equal(clip.sourceAssetId, "in-SRC209A");
+  assert.equal(clip.channelLayout, "L,R,Ls,Rs");
+  assert.ok((clip.eventDescription ?? "").includes("crossfade"));
+  assert.ok((clip.clipNotes ?? "").includes("WaveDescriptor"));
+
+  const offlineClip = parsed.tracks[0].clips[1];
+  assert.equal(offlineClip.isOffline, true);
+
+  assert.equal(parsed.markers.length, 3);
+  assert.ok(parsed.markers.some((marker) => marker.label.includes("Missing line pickup")));
 });

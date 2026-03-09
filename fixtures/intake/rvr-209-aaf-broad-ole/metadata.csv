@@ -1,0 +1,4 @@
+trackName,role,recordIn,recordOut,sourceIn,sourceOut,recordInFrames,recordOutFrames,sourceInFrames,sourceOutFrames,clipName,sourceFileName,reel,tape,scene,take,eventDescription,clipNotes,channelCount,channelLayout,isPolyWav,hasBwf,hasIXml,isOffline,isNested,isFlattened,hasSpeedEffect,hasFadeIn,hasFadeOut
+DX A,DX,01:00:00:00,01:00:04:00,10:00:00:00,10:00:04:00,0,96,864000,864096,DX_209_001,SC09_TK01.BWF,R209,SR209A,9,1,Dialog line 1,Main take,4,"L,R,Ls,Rs",false,true,false,false,false,true,false,false,false
+DX A,DX,01:00:04:00,01:00:08:00,10:00:04:00,10:00:08:00,96,192,864096,864192,DX_209_002,SC09_TK77.BWF,R209,SR209A,9,2,Dialog line 2,Missing alt,2,"L,R",false,true,false,true,false,true,false,true,false
+FX A,FX,01:00:08:00,01:00:12:00,11:00:00:00,11:00:04:00,192,288,950400,950496,FX_209_001,CITY_TONE.wav,R209,SR209A,9,3,FX bed,City tone,2,"L,R",false,false,false,false,false,true,false,false,false

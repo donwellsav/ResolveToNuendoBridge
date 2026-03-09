@@ -480,14 +480,16 @@ function reconcileFcpxmlWithAaf(
       aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName);
     if (!fromAaf) return;
 
-    if (clip.recordIn !== fromAaf.recordIn || clip.recordOut !== fromAaf.recordOut) {
+    const recordMismatch = clip.recordIn !== fromAaf.recordIn || clip.recordOut !== fromAaf.recordOut;
+    const sourceMismatch = clip.sourceIn !== fromAaf.sourceIn || clip.sourceOut !== fromAaf.sourceOut;
+    if (recordMismatch || sourceMismatch) {
       issues.push({
         id: `issue-aaf-timing-mismatch-${clip.id}`,
         category: "manual-review",
         severity: "warning",
         scope: "clip",
         title: `Clip timing mismatch against AAF: ${clip.clipName}`,
-        description: `FCPXML/XML ${clip.recordIn}-${clip.recordOut} differs from AAF ${fromAaf.recordIn}-${fromAaf.recordOut}.`,
+        description: `FCPXML/XML rec/src ${clip.recordIn}-${clip.recordOut} / ${clip.sourceIn}-${clip.sourceOut} differs from AAF ${fromAaf.recordIn}-${fromAaf.recordOut} / ${fromAaf.sourceIn}-${fromAaf.sourceOut}.`,
         sourceLocation: "fcpxml+xml+aaf",
         recommendedAction: "Inspect record/source in-out values and resolve timeline version drift.",
       });
@@ -506,6 +508,19 @@ function reconcileFcpxmlWithAaf(
       });
     }
 
+    if (clip.sourceAssetId !== fromAaf.sourceAssetId && !fromAaf.sourceAssetId.includes("unknown")) {
+      issues.push({
+        id: `issue-aaf-source-clip-mismatch-${clip.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "clip",
+        title: `Source clip identity mismatch against AAF: ${clip.clipName}`,
+        description: `FCPXML/XML source identity ${clip.sourceAssetId} differs from AAF source identity ${fromAaf.sourceAssetId}.`,
+        sourceLocation: "fcpxml+xml+aaf",
+        recommendedAction: "Verify source clip lineage/mob identity and regenerate turnover exports from a locked timeline.",
+      });
+    }
+
     if ((fromAaf.reel !== "UNKNOWN" && clip.reel !== fromAaf.reel) || (fromAaf.tape && clip.tape !== fromAaf.tape)) {
       issues.push({
         id: `issue-aaf-reel-tape-mismatch-${clip.id}`,
@@ -519,18 +534,31 @@ function reconcileFcpxmlWithAaf(
       });
     }
 
+    const aafSourceExists = intakeAssets.some((asset) => asset.fileRole === "production_audio" && asset.fileName === fromAaf.sourceFileName);
+    if (fromAaf.isOffline || fromAaf.sourceFileName === "UNKNOWN" || !aafSourceExists) {
+      issues.push({
+        id: `issue-aaf-missing-media-reference-${clip.id}`,
+        category: "manual-review",
+        severity: "critical",
+        scope: "clip",
+        title: `AAF media reference missing/unresolved: ${clip.clipName}`,
+        description: `AAF clip indicates offline or unresolved media reference (${fromAaf.sourceFileName}).`,
+        sourceLocation: "fcpxml+xml+aaf+intake/audio",
+        recommendedAction: "Restore expected source media and validate AAF source package references.",
+      });
+    }
   });
 
-  if (aafMarkers.length > 0 && aafMarkers.length !== markers.length) {
+  if (aafMarkers.length !== markers.length) {
     issues.push({
       id: "issue-aaf-marker-coverage-mismatch",
       category: "manual-review",
       severity: "warning",
       scope: "marker",
-      title: "Marker coverage mismatch between FCPXML/XML and AAF",
+      title: "Marker/locator coverage mismatch between FCPXML/XML and AAF",
       description: `FCPXML/XML exposes ${markers.length} markers while AAF exposes ${aafMarkers.length}.`,
       sourceLocation: "fcpxml+xml+aaf",
-      recommendedAction: "Confirm marker export source and merge strategy before delivery.",
+      recommendedAction: "Confirm marker/locator export source and merge strategy before delivery.",
     });
   }
 
@@ -538,6 +566,7 @@ function reconcileFcpxmlWithAaf(
 
   return issues;
 }
+
 
 export async function importTurnoverFolder(folderPath: string): Promise<ImportAnalysisResult> {
   const files = await walkFolder(folderPath);

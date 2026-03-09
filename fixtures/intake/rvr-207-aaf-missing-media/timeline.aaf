@@ -1,6 +1,1 @@
-# AAF_TEXT_EXTRACT v2
-COMPOSITION name="RVR_207_LOCK_v2" fps=24 start=01:00:00:00
-TRACK id=t1 name="DX A" role=DX
-EVENT track=t1 name="DX_207_001" sourceFile="SC07_TK01.BWF" mobName="DXMob207_1" recordIn=01:00:00:00 recordOut=01:00:04:00 sourceIn=10:00:00:00 sourceOut=10:00:04:00 recordInFrames=0 recordOutFrames=96 sourceInFrames=864000 sourceOutFrames=864096 channels=2 channelLayout="L,R" reel=R207 tape=SR207A speed=1.0 fadeInFrames=0 fadeOutFrames=0 offline=false
-EVENT track=t1 name="DX_207_002" sourceFile="SC07_TK99.BWF" mobName="DXMob207_2" recordIn=01:00:04:00 recordOut=01:00:08:00 sourceIn=10:00:04:00 sourceOut=10:00:08:00 recordInFrames=96 recordOutFrames=192 sourceInFrames=864096 sourceOutFrames=864192 channels=2 channelLayout="L,R" reel=R207 tape=SR207A speed=0.96 fadeInFrames=8 fadeOutFrames=0 mediaStatus=missing missingRef=true
-MARKER tc=01:00:05:00 frame=120 label="Missing clip check"
+# AAF_BINARY_PAYLOAD_PLACEHOLDER

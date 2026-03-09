@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 import { parseAaf } from "../parsers/aaf";
+import { extractAafTimelineText } from "../parsers/aaf-adapter";
 import { parseFcpxml } from "../parsers/fcpxml";
 
 import type {
@@ -584,7 +585,11 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
       }
       if (kind === "json" && fileName.toLowerCase().includes("manifest")) manifest = JSON.parse(content) as ManifestPayload;
       if ((kind === "fcpxml" || kind === "xml") && role === "timeline_exchange" && !parsedFcpxml) parsedFcpxml = parseFcpxml(content);
-      if (kind === "aaf" && !parsedAaf) parsedAaf = parseAaf(content);
+    }
+
+    if (kind === "aaf" && !parsedAaf) {
+      const extraction = await extractAafTimelineText(filePath);
+      parsedAaf = parseAaf(extraction.normalizedText);
     }
 
     intakeAssets.push(asset);

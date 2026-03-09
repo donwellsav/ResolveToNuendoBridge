@@ -1,6 +1,7 @@
 import { prepareDeliveryExecution } from "./services/delivery-execution";
 import { planNuendoDeliveryArtifacts } from "./services/exporter";
 import { summarizeUnresolved } from "./services/mapping-workspace";
+import { stageDeliveryBundle } from "./services/delivery-staging";
 import type {
   DeliveryArtifact,
   MappingWorkspace,
@@ -261,6 +262,31 @@ export function buildEffectiveDeliveryExecutionPreview(
     effectiveWorkspace,
   });
 }
+export function buildEffectiveDeliveryStagingPreview(
+  job: TranslationJob,
+  effectiveWorkspace: MappingWorkspace,
+  reviewState: ReviewState
+) {
+  const executionPlan = buildEffectiveDeliveryExecutionPreview(job, effectiveWorkspace);
+  const packagePlan = {
+    ...job.deliveryPackage,
+    artifacts: buildEffectiveDeliveryPreview(job, effectiveWorkspace),
+  };
+
+  return stageDeliveryBundle({
+    job: {
+      ...job,
+      mappingWorkspace: effectiveWorkspace,
+      deliveryPackage: packagePlan,
+      deliveryExecution: executionPlan,
+    },
+    packagePlan,
+    executionPlan,
+    effectiveWorkspace,
+    reviewState,
+  });
+}
+
 export function summarizeOperatorProgress(job: TranslationJob, reviewState: ReviewState) {
   const effectiveWorkspace = overlayMappingWorkspace(job.mappingWorkspace, reviewState);
   const unresolvedMappings = summarizeUnresolved(effectiveWorkspace).totalUnresolved;

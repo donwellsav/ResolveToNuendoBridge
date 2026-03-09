@@ -27,6 +27,10 @@ export default async function JobsPage() {
     (primaryJob.deliveryExecution?.artifacts ?? []).map((artifact) => [artifact.artifact.id, artifact])
   );
 
+
+  const stagedFiles = primaryJob.deliveryStaging?.files ?? [];
+  const deferredDescriptors = primaryJob.deliveryStaging?.deferredArtifacts ?? [];
+
   const generatedPayloadPreviews = (primaryJob.deliveryExecution?.artifacts ?? [])
     .filter((artifact) => artifact.generatedPayload)
     .map((artifact) => ({
@@ -144,6 +148,38 @@ export default async function JobsPage() {
                   <pre className="overflow-x-auto text-[11px] text-muted">{payload.preview}</pre>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {stagedFiles.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Staged Delivery Bundle</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-xs">
+              <div className="font-mono text-muted">{primaryJob.deliveryStaging?.rootPath}</div>
+              <table className="w-full border-collapse text-xs">
+                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Path</th><th className="px-2 py-1 text-left">Category</th></tr></thead>
+                <tbody>
+                  {stagedFiles.map((file) => (
+                    <tr key={file.relativePath} className="border-t border-border">
+                      <td className="px-2 py-1 font-mono">{file.relativePath}</td>
+                      <td className="px-2 py-1"><Badge variant={file.category === "generated" ? "success" : "warning"}>{file.category}</Badge></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {deferredDescriptors.length > 0 ? (
+                <div className="space-y-1">
+                  {deferredDescriptors.map((artifact) => (
+                    <div key={artifact.artifactId} className="rounded border border-border p-2">
+                      <div className="font-mono">{artifact.deferredPath}</div>
+                      <div className="text-muted">{artifact.deferredReason}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </CardContent>
           </Card>
         ) : null}

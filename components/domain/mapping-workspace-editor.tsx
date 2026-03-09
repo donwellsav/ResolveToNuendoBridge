@@ -9,6 +9,7 @@ import {
   overlayMappingWorkspace,
   summarizeOperatorProgress,
   type ReviewState,
+  buildEffectiveDeliveryStagingPreview,
 } from "@/lib/review-state";
 import { useReviewState } from "@/lib/use-review-state";
 import type { NormalizedTrack, TranslationJob } from "@/lib/types";
@@ -35,6 +36,10 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
   const unresolved = useMemo(() => summarizeUnresolved(effectiveWorkspace), [effectiveWorkspace]);
   const progress = useMemo(() => summarizeOperatorProgress(job, reviewState), [job, reviewState]);
   const deliveryPreview = useMemo(() => buildEffectiveDeliveryPreview(job, effectiveWorkspace), [job, effectiveWorkspace]);
+  const stagingPreview = useMemo(
+    () => buildEffectiveDeliveryStagingPreview(job, effectiveWorkspace, reviewState),
+    [job, effectiveWorkspace, reviewState]
+  );
 
   const filteredReconformChanges = useMemo(() => {
     return job.reconformChanges.filter((change) => {
@@ -179,6 +184,41 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
         </table>
       </section>
 
+
+      <section className="space-y-2">
+        <h4 className="text-sm font-semibold">Staged Delivery Bundle (Phase 3B)</h4>
+        <div className="flex gap-2 text-xs">
+          <Badge variant="success">Generated {stagingPreview.summary.generatedArtifacts}</Badge>
+          <Badge variant="warning">Deferred {stagingPreview.summary.deferredArtifacts}</Badge>
+          <Badge variant="danger">Unavailable {stagingPreview.summary.unavailableArtifacts}</Badge>
+        </div>
+        <table className="w-full border-collapse text-xs">
+          <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Path</th><th className="px-2 py-1 text-left">Category</th><th className="px-2 py-1 text-left">Preview</th></tr></thead>
+          <tbody>
+            {stagingPreview.files.map((file) => (
+              <tr key={file.relativePath} className="border-t border-border">
+                <td className="px-2 py-1 font-mono">{stagingPreview.rootPath}/{file.relativePath}</td>
+                <td className="px-2 py-1"><Badge variant={file.category === "generated" ? "success" : "warning"}>{file.category}</Badge></td>
+                <td className="px-2 py-1"><pre className="max-h-24 overflow-auto text-[10px] text-muted">{file.contentPreview.slice(0, 200)}</pre></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {stagingPreview.deferredArtifacts.length > 0 ? (
+          <table className="w-full border-collapse text-xs">
+            <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Deferred Artifact</th><th className="px-2 py-1 text-left">Writer Boundary</th><th className="px-2 py-1 text-left">Reason</th></tr></thead>
+            <tbody>
+              {stagingPreview.deferredArtifacts.map((artifact) => (
+                <tr key={artifact.artifactId} className="border-t border-border">
+                  <td className="px-2 py-1 font-mono">{artifact.deferredPath}</td>
+                  <td className="px-2 py-1">{artifact.writerBoundary}</td>
+                  <td className="px-2 py-1">{artifact.deferredReason}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : null}
+      </section>
       <section className="space-y-2">
         <h4 className="text-sm font-semibold">Delivery Preview (effective overlay state)</h4>
         <table className="w-full border-collapse text-xs">

@@ -1,0 +1,6 @@
+# AAF_TEXT_EXTRACT v1
+TIMELINE name="RVR_205_LOCK_v5" fps=24 start=01:00:00:00
+TRACK id=t1 name="DX A" role=DX
+CLIP track=t1 name="DX_205_001" sourceFile="SC05_TK01.BWF" mob="DXMob001" recordIn=01:00:00:00 recordOut=01:00:04:00 sourceIn=10:00:00:00 sourceOut=10:00:04:00 recordInFrames=0 recordOutFrames=96 sourceInFrames=864000 sourceOutFrames=864096 channels=6 layout="L,R,C,LFE,Ls,Rs" reel=R205 tape=SR205A fadeIn=true fadeOut=false offline=false
+CLIP track=t1 name="DX_205_002" sourceFile="SC05_TK02.BWF" mob="DXMob002" recordIn=01:00:04:00 recordOut=01:00:08:00 sourceIn=10:00:04:00 sourceOut=10:00:08:00 recordInFrames=96 recordOutFrames=192 sourceInFrames=864096 sourceOutFrames=864192 channels=2 layout="L,R" reel=R205 tape=SR205A fadeIn=false fadeOut=true offline=true
+MARKER tc=01:00:02:00 frame=48 label="ADR candidate"

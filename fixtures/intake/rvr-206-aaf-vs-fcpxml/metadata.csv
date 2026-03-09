@@ -1,0 +1,3 @@
+trackName,role,recordIn,recordOut,sourceIn,sourceOut,recordInFrames,recordOutFrames,sourceInFrames,sourceOutFrames,clipName,sourceFileName,reel,tape,scene,take,eventDescription,clipNotes,channelCount,channelLayout,isPolyWav,hasBwf,hasIXml,isOffline,isNested,isFlattened,hasSpeedEffect,hasFadeIn,hasFadeOut
+DX A,DX,01:00:00:00,01:00:04:00,10:00:00:00,10:00:04:00,0,96,864000,864096,DX_206_001,SC06_TK01.BWF,R206,SR206A,6,1,Dialog,Expected clip,2,"L,R",false,true,false,false,false,true,false,false,false
+FX A,FX,01:00:05:00,01:00:09:00,11:00:00:00,11:00:04:00,120,216,950400,950496,FX_206_001,CITY_TONE.wav,R206,SR206A,6,1,BG,City tone,2,"L,R",false,false,false,false,false,true,false,false,true

@@ -407,10 +407,22 @@ export type DeferredWriterInputVersion = "phase3c.v1";
 
 export type WriterDependencyStatus = "satisfied" | "missing" | "blocked";
 
+export type WriterDependencyKind =
+  | "canonical"
+  | "staged-artifact"
+  | "intake-asset"
+  | "review-decision"
+  | "preservation"
+  | "execution-prerequisite"
+  | "writer-capability";
+
+export type WriterCapability = "nuendo_writer.aaf" | "video_writer.reference" | "nuendo_writer.session";
+
 export type WriterReadinessStatus = "ready-for-writer" | "blocked" | "partial" | "deferred-with-known-gaps";
 
 export type WriterDependency = {
   id: string;
+  kind: WriterDependencyKind;
   reference: string;
   status: WriterDependencyStatus;
   reason?: string;
@@ -441,7 +453,7 @@ export type DeferredWriterArtifact = {
   artifactKind: "nuendo_ready_aaf" | "reference_video_binary" | "nuendo_session";
   plannedOutputPath: string;
   stagedDescriptorPath: string;
-  requiredWriterCapability: "nuendo_writer.aaf" | "video_writer.reference" | "nuendo_writer.session";
+  requiredWriterCapability: WriterCapability;
   dependencies: WriterDependency[];
   unresolvedBlockers: string[];
   readinessStatus: WriterReadinessStatus;
@@ -481,6 +493,8 @@ export type DeliveryHandoffSummary = {
   partial: number;
   deferredWithKnownGaps: number;
   unresolvedBlockers: string[];
+  blockedArtifacts: string[];
+  supportedCapabilities: WriterCapability[];
 };
 
 export type DeliveryHandoffManifest = {

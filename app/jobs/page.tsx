@@ -197,6 +197,7 @@ export default async function JobsPage() {
                 <Badge variant="success">Ready {primaryJob.deliveryHandoff?.summary.readyForWriter ?? 0}</Badge>
                 <Badge variant="danger">Blocked {primaryJob.deliveryHandoff?.summary.blocked ?? 0}</Badge>
                 <Badge variant="warning">Partial {primaryJob.deliveryHandoff?.summary.partial ?? 0}</Badge>
+                <Badge variant="accent">Known gaps {primaryJob.deliveryHandoff?.summary.deferredWithKnownGaps ?? 0}</Badge>
               </div>
               <table className="w-full border-collapse text-xs">
                 <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Handoff file</th><th className="px-2 py-1 text-left">Path</th></tr></thead>
@@ -210,13 +211,15 @@ export default async function JobsPage() {
                 </tbody>
               </table>
               <table className="w-full border-collapse text-xs">
-                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Deferred Artifact</th><th className="px-2 py-1 text-left">Readiness</th><th className="px-2 py-1 text-left">Dependencies</th></tr></thead>
+                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Deferred Artifact</th><th className="px-2 py-1 text-left">Readiness</th><th className="px-2 py-1 text-left">Capability</th><th className="px-2 py-1 text-left">Dependencies</th><th className="px-2 py-1 text-left">Blockers</th></tr></thead>
                 <tbody>
                   {handoffInputs.map((input) => (
                     <tr key={input.inputId} className="border-t border-border">
                       <td className="px-2 py-1 font-mono">{input.artifact.plannedOutputPath}</td>
                       <td className="px-2 py-1">{input.artifact.readinessStatus}</td>
+                      <td className="px-2 py-1 font-mono text-[11px]">{input.artifact.requiredWriterCapability}</td>
                       <td className="px-2 py-1 text-muted">{input.artifact.dependencies.map((dependency) => `${dependency.reference}:${dependency.status}`).join(", ")}</td>
+                      <td className="px-2 py-1 text-muted">{input.artifact.unresolvedBlockers.join("; ") || "—"}</td>
                     </tr>
                   ))}
                 </tbody>

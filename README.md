@@ -25,7 +25,7 @@ Importer timeline precedence is currently:
 3. `edl`
 4. metadata-only fallback (when no timeline exchange parse is available)
 
-## Implemented Coverage (through Phase 3B)
+## Implemented Coverage (through Phase 3C)
 - Real intake scanning + role classification for fixture turnover folders.
 - Parsing for `manifest.json`, metadata CSV, marker CSV/EDL, FCPXML/XML, and broadened direct in-repo AAF extraction/parsing.
 - Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only and EDL fallbacks.
@@ -34,6 +34,7 @@ Importer timeline precedence is currently:
 - Delivery artifact planner consumes canonical + mapping decisions without writing Nuendo files.
 - Delivery execution-prep layer converts planned artifacts into deterministic payloads for manifest/README/marker EDL+CSV/metadata CSV/field-recorder report, while writer-only binaries remain deferred records.
 - Delivery staging layer now materializes deterministic staged bundle structure and file-path contract on disk under `staging/<job>_<sequence>/` (manifest, README, marker/metadata/report files + deferred binary descriptor JSON + staging summary).
+- Delivery handoff layer now emits deterministic future-writer contracts (`handoff/deferred-writer-inputs.json`, `handoff/delivery-handoff-manifest.json`, `handoff/delivery-handoff-summary.json`) with dependency/readiness validation and blocked/partial/known-gap states.
 - Browser-local review-state persistence layer stores only operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job + source signature with schema versioning/migration handling.
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 

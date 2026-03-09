@@ -32,9 +32,10 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Delivery planner that consumes canonical + mapping decisions and produces artifact readiness statuses.
 - Delivery execution-prep boundary that converts planned artifacts into deterministic serialized payloads for safe text/CSV/JSON outputs and marks binary writer-only artifacts as deferred.
 - Delivery staging boundary that materializes deterministic staged bundle layout with generated payload files, explicit deferred descriptor files, and staging-summary output.
+- Delivery handoff boundary that formalizes versioned deferred-writer input contracts, dependency/readiness validation, and deterministic handoff manifests without generating native binaries.
 
 ## Out of Scope (Current State)
-- Nuendo project/session writing / binary file generation (still deferred past 3B).
+- Nuendo project/session writing / binary file generation (still deferred; Phase 3C only formalizes writer-input/handoff contracts).
 - Backend persistence services (state remains browser-local in this phase).
 - Eliminating all AAF adapter fallback paths in this phase.
 - Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.

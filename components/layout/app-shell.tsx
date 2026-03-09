@@ -41,7 +41,7 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
       <main className="p-5">
         <header className="mb-5 flex items-center justify-between border-b border-border pb-3">
           <h2 className="text-lg font-semibold">{title}</h2>
-          <p className="text-xs text-muted">Mode: Mock Data / Stub Services</p>
+          <p className="text-xs text-muted">Mode: Intake + Canonical Planning (Nuendo writer pending)</p>
         </header>
         {children}
       </main>

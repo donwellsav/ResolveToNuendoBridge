@@ -5,12 +5,12 @@ const reconformPlaceholders = [
   {
     id: "rc-pass-1",
     title: "Change List Intake",
-    note: "EDL/ALE diff ingestion planned for phase 2. Placeholder displays expected review gate.",
+    note: "EDL/ALE diff ingestion is the next reconform-focused planning step; this panel shows the upcoming review gate.",
   },
   {
     id: "rc-pass-2",
     title: "Conflict Resolution",
-    note: "Manual editor change preservation matrix will land after parser/export plumbing.",
+    note: "Manual editor change preservation matrix remains planned while persistence and review tooling mature.",
   },
 ];
 

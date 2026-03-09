@@ -1,144 +1,112 @@
-# Conform Bridge Canonical Schema (Phase 1 Contract)
+# Conform Bridge Canonical Schema (Phase 2 Baseline)
 
-This schema defines the canonical internal model between Resolve intake and Nuendo export.
+Canonical data contract for the intake -> canonical -> delivery pipeline.
 
-## Entity Definitions
+## Pipeline Vocabulary
+- **SourceBundle**: intake envelope and discovered turnover assets.
+- **TranslationModel**: canonical timeline representation derived from intake.
+- **DeliveryPackage**: delivery planning output for Nuendo handoff artifacts.
+- **PreservationIssue**: validation/review signal surfaced to operators.
 
-### TranslationJob
-Represents one end-to-end translation run.
+## Core Entity Definitions
+
+### SourceBundle (intake)
 - `id: string`
-- `jobName: string`
-- `status: "draft" | "queued" | "processing" | "needs_review" | "completed" | "failed"`
-- `createdAtIso: string`
-- `updatedAtIso: string`
-- `sourceBundle: SourceBundle`
-- `mappingRules: MappingRule[]`
-- `mappingWorkspace: MappingWorkspace`
-- `fieldRecorderCandidates: FieldRecorderCandidate[]`
-- `preservationIssues: PreservationIssue[]`
-- `outputPreset: OutputPreset`
-- `exportArtifacts: ExportArtifact[]`
-
-### SourceBundle
-Operator-provided Resolve payload envelope.
-- `id: string`
+- `stage: "intake"`
+- `origin: "resolve" | "editorial"`
+- `bundleName: string`
 - `resolveProject: string`
 - `resolveTimelineVersion: string`
 - `importedAtIso: string`
-- `assets: SourceAsset[]`
-- `timeline: Timeline`
+- `intakeAssets: IntakeAsset[]`
 
-### SourceAsset
-Single source bundle artifact.
+### IntakeAsset
 - `id: string`
-- `name: string`
-- `assetType: SourceBundleAssetType`
+- `stage: "intake"`
+- `origin: "resolve" | "editorial" | "production-audio" | "conform-bridge" | "nuendo"`
+- `fileKind: "aaf" | "fcpxml" | "xml" | "edl" | "csv" | "wav" | "bwf" | "mov" | "mp4" | "json" | "txt" | "otio" | "otioz"`
+- `fileRole: "timeline_exchange" | "marker_export" | "metadata_export" | "reference_video" | "production_audio" | "delivery_manifest" | "delivery_readme" | "field_recorder_report"`
+- `fileName: string`
 - `pathHint: string`
-- `notes?: string`
+- Optional media metadata (`channelCount`, `channelLayout`, `sampleRate`, `durationTimecode`, etc.)
 
-### Timeline
-Canonical timeline-level metadata.
+### TranslationModel (canonical)
+- `id: string`
+- `stage: "canonical"`
+- `sourceBundleId: string`
+- `timeline: NormalizedTimeline`
+
+### NormalizedTimeline
 - `id: string`
 - `name: string`
-- `frameRate: 23.976 | 24 | 25 | 29.97`
-- `startTc: string`
-- `tracks: Track[]`
+- `startTimecode: string`
+- `durationTimecode: string`
+- `startFrame: number`
+- `durationFrames: number`
+- `fps: 23.976 | 24 | 25 | 29.97`
+- `sampleRate: 48000 | 96000`
+- `dropFrame: boolean`
+- `tracks: NormalizedTrack[]`
 - `markers: Marker[]`
 
-### Track
-Logical track container.
+### NormalizedTrack
 - `id: string`
 - `name: string`
 - `role: "DX" | "MX" | "FX" | "BG" | "VO"`
 - `clips: ClipEvent[]`
 
 ### ClipEvent
-Canonical clip event with timeline/source relationships.
-- `id: string`
-- `clipName: string`
-- `sourceAssetId: string`
-- `timelineTcIn: string`
-- `timelineTcOut: string`
-- `sourceTcIn: string`
-- `sourceTcOut: string`
-- `reel: string`
-- `channelLayout: string`
+- Timeline/source ranges: `recordIn`, `recordOut`, `sourceIn`, `sourceOut` (+ frame variants)
+- Identity/media: `clipName`, `sourceFileName`, `sourceAssetId`, `reel`, optional `tape/scene/take`
+- Audio/media flags: `channelCount`, `channelLayout`, `isPolyWav`, `hasBwf`, `hasIXml`, `isOffline`
+- Editorial flags: `isNested`, `isFlattened`, `hasSpeedEffect`, `hasFadeIn`, `hasFadeOut`
 
 ### Marker
-Timeline marker abstraction.
 - `id: string`
 - `timelineTc: string`
+- `timelineFrame: number`
 - `label: string`
 - `color: "blue" | "green" | "yellow" | "red"`
 
-### FieldRecorderCandidate
-Potential field recorder match candidate per event.
-- `id: string`
-- `clipEventId: string`
-- `candidateFile: string`
-- `matchScore: number`
-- `strategy: "scene_take" | "soundroll_tc" | "filename_tc"`
-- `matched: boolean`
-
-### MappingRule
-Rule for source track role -> Nuendo track mapping.
-- `id: string`
-- `sourceTrackRole: Track["role"]`
-- `targetNuendoTrack: string`
-- `condition: string`
-
-### PreservationIssue
-Potential data loss / transform warning surfaced to operator.
-- `id: string`
-- `category: "timecode" | "channel_layout" | "metadata" | "automation" | "marker"`
-- `severity: "info" | "warning" | "critical"`
-- `detail: string`
-- `recommendation: string`
-
-### OutputPreset
-Operator-selectable output policy.
-- `id: string`
-- `name: string`
-- `sampleRate: 48000 | 96000`
-- `bitDepth: 24 | 32`
-- `pullMode: "none" | "pull_up" | "pull_down"`
-- `includeReferenceVideo: boolean`
-
-### ExportArtifact
-Outbound bundle artifact status entry.
-- `id: string`
-- `artifactType: SourceBundleAssetType`
-- `fileName: string`
-- `status: "queued" | "ready"`
-
-## SourceBundleAssetType enum
-- `aaf`
-- `marker_edl`
-- `marker_csv`
-- `metadata_csv`
-- `manifest_json`
-- `readme`
-- `reference_video`
-- `field_recorder_report`
-
-## Phase 1 Service Interfaces (Stub Only)
-- `ResolveImportService`
-  - `validateBundle(input)`
-  - `previewBundle(input)`
-- `NuendoExportService`
-  - `buildExport(job)`
-- `PersistenceService`
-  - `saveJobs(jobs)`
-  - `loadJobs()`
-
-
-## Phase 2 Extensions
-
 ### MappingWorkspace
-Operator-editable decision layer derived from canonical import analysis.
+Operator-editable decision layer consumed by validation + delivery planning.
 - `trackMappings: TrackMappingDecision[]`
 - `markerMappings: MarkerMappingDecision[]`
 - `metadataMappings: MetadataMappingDecision[]`
 - `fieldRecorderMappings: FieldRecorderDecision[]`
 
-These decisions are consumed by delivery planning and preservation issue synthesis; exporter remains planning-only in phase 2I.
+### PreservationIssue
+- `id: string`
+- `category: "preserved" | "downgraded" | "dropped" | "manual-review"`
+- `severity: "info" | "warning" | "critical"`
+- `scope: "timeline" | "track" | "clip" | "marker" | "metadata" | "delivery"`
+- `title: string`
+- `description: string`
+- `sourceLocation: string`
+- Optional target metadata (`targetArtifactId`, `targetArtifactName`)
+- `recommendedAction: string`
+
+### DeliveryPackage (delivery)
+- `id: string`
+- `stage: "delivery"`
+- `target: "nuendo"`
+- `packageName: string`
+- `outputPresetId: string`
+- `artifacts: DeliveryArtifact[]`
+
+### DeliveryArtifact
+- `id: string`
+- `stage: "delivery"`
+- `origin: "resolve" | "editorial" | "production-audio" | "conform-bridge" | "nuendo"`
+- `fileKind: FileKind`
+- `fileRole: FileRole`
+- `fileName: string`
+- `pathHint: string`
+- `status: "planned" | "blocked" | "placeholder"`
+- `note?: string`
+
+## Runtime Status Notes
+- Importer coverage includes manifest, metadata CSV, marker CSV/EDL, FCPXML/XML, and direct AAF extraction/parsing.
+- Timeline source precedence is `fcpxml/xml` -> `aaf` -> `edl` -> metadata-only fallback.
+- Delivery remains planner-only (Nuendo writer not yet implemented).
+- Persistence beyond current in-memory review session is not implemented yet.

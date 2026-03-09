@@ -19,7 +19,7 @@ export const nuendoExportStub: NuendoExportService = {
   async buildExport(job) {
     return {
       packagePlan: job.deliveryPackage,
-      warnings: ["Stub mode: Nuendo export writer is not implemented in Phase 1."],
+      warnings: ["Planner mode: Nuendo export writer is not implemented in the current phase."],
     };
   },
 };

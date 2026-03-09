@@ -20,6 +20,7 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
       sourceBundle: imported.sourceBundle,
       translationModel: imported.translationModel,
       mappingRules: imported.mappingRules,
+      mappingWorkspace: imported.mappingWorkspace,
       fieldRecorderCandidates: imported.fieldRecorderCandidates,
       preservationIssues: imported.preservationIssues,
       reconformChanges: imported.reconformChanges,

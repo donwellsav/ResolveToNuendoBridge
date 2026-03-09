@@ -8,6 +8,7 @@ import type {
   TranslationJob,
   TranslationModel,
 } from "../types";
+import { summarizeUnresolved } from "./mapping-workspace";
 
 type PlanInputs = {
   job: TranslationJob;
@@ -44,6 +45,7 @@ export function planNuendoDeliveryArtifacts({
   preservationIssues,
 }: PlanInputs): DeliveryArtifact[] {
   const hasCriticalIssue = preservationIssues.some((issue) => issue.severity === "critical");
+  const unresolved = summarizeUnresolved(job.mappingWorkspace);
   const hasMarkers = model.timeline.markers.length > 0;
   const hasMetadata = model.timeline.tracks.some((track) => track.clips.length > 0);
   const matchedFieldRecorderCount = job.fieldRecorderCandidates.filter((candidate) => candidate.matched).length;
@@ -66,7 +68,7 @@ export function planNuendoDeliveryArtifacts({
 
   const metadataStatus = artifactStatus(
     hasCriticalIssue,
-    !hasMetadata,
+    !hasMetadata || unresolved.unresolvedMetadataMappings > 0,
     "Metadata CSV blocked because delivery cannot proceed.",
     "No canonical clips available for metadata rows."
   );
@@ -82,7 +84,7 @@ export function planNuendoDeliveryArtifacts({
 
   const fieldRecorderStatus = artifactStatus(
     hasCriticalIssue,
-    !hasFieldRecorderMatches,
+    !hasFieldRecorderMatches || unresolved.unresolvedFieldRecorderMappings > 0,
     "Field recorder report blocked because delivery cannot proceed.",
     "No matched field recorder candidates available."
   );
@@ -183,6 +185,7 @@ export async function planNuendoDelivery(
   job: TranslationJob,
   model: TranslationModel
 ): Promise<{ packagePlan: DeliveryPackage; warnings: string[] }> {
+  const unresolved = summarizeUnresolved(job.mappingWorkspace);
   const artifacts = planNuendoDeliveryArtifacts({
     job,
     model,
@@ -208,7 +211,7 @@ export async function planNuendoDelivery(
     packagePlan,
     warnings: [
       "Planner mode: Nuendo export writing remains unimplemented in this phase.",
-      `Planner summary: ${job.analysisReport.blockedCount} intake blocks, ${blockedCount} blocked artifacts, ${placeholderCount} placeholders, ${job.mappingRules.length} mapping rules evaluated.`,
+      `Planner summary: ${job.analysisReport.blockedCount} intake blocks, ${blockedCount} blocked artifacts, ${placeholderCount} placeholders, ${job.mappingRules.length} mapping rules evaluated, ${unresolved.totalUnresolved} unresolved mapping decisions.`,
     ],
   };
 }

@@ -8,6 +8,7 @@ import type {
   TranslationJob,
   TranslationModel,
 } from "@/lib/types";
+import { buildMappingWorkspace } from "./services/mapping-workspace";
 
 export const outputPresets: OutputPreset[] = [
   {
@@ -28,7 +29,7 @@ export const outputPresets: OutputPreset[] = [
   },
 ];
 
-const baseMappingRules: MappingRule[] = [
+export const templateMappingRules: MappingRule[] = [
   { id: "map-dx", sourceTrackRole: "DX", targetNuendoTrack: "DX_MAIN", condition: "Preserve production dialogue layout" },
   { id: "map-mx", sourceTrackRole: "MX", targetNuendoTrack: "MX_STEM", condition: "Map music stems by role" },
   { id: "map-fx", sourceTrackRole: "FX", targetNuendoTrack: "FX_STEM", condition: "Retain effects editorial ordering" },
@@ -312,7 +313,31 @@ export const translationJobs: TranslationJob[] = [
     updatedAtIso: "2026-03-05T09:51:00.000Z",
     sourceBundle: intakeBundle,
     translationModel,
-    mappingRules: baseMappingRules,
+    mappingRules: templateMappingRules,
+    mappingWorkspace: buildMappingWorkspace(
+      translationModel.timeline.tracks,
+      translationModel.timeline.markers,
+      translationModel.timeline.tracks.flatMap((track) => track.clips),
+      templateMappingRules,
+      [
+        {
+          id: "frc-01",
+          clipEventId: "evt-001",
+          candidateFile: "SC15_TK03_20260304.BWF",
+          matchScore: 98,
+          strategy: "scene_take",
+          matched: true,
+        },
+        {
+          id: "frc-02",
+          clipEventId: "evt-002",
+          candidateFile: "RAIN_WILDTRACK_02.WAV",
+          matchScore: 61,
+          strategy: "filename_tc",
+          matched: false,
+        },
+      ]
+    ),
     fieldRecorderCandidates: [
       {
         id: "frc-01",
@@ -373,7 +398,6 @@ export const translationJobs: TranslationJob[] = [
   },
 ];
 
-export const templateMappingRules: MappingRule[] = baseMappingRules;
 
 export const appSettings: AppSettings = {
   density: "compact",

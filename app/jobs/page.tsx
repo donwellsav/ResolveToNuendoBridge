@@ -1,4 +1,5 @@
-import { MappingTable } from "@/components/domain/mapping-table";
+import Link from "next/link";
+import { MappingWorkspaceEditor } from "@/components/domain/mapping-workspace-editor";
 import { PreservationReportTable } from "@/components/domain/preservation-report-table";
 import { JobStatusBadge } from "@/components/domain/job-status-badge";
 import { AppShell } from "@/components/layout/app-shell";
@@ -23,8 +24,6 @@ export default async function JobsPage() {
     );
   }
 
-  const allClips = primaryJob.translationModel.timeline.tracks.flatMap((track) => track.clips);
-
   return (
     <AppShell title="Jobs">
       <div className="space-y-4">
@@ -40,16 +39,18 @@ export default async function JobsPage() {
                   <th className="px-3 py-2 text-left">Resolve Timeline</th>
                   <th className="px-3 py-2 text-left">Preset</th>
                   <th className="px-3 py-2 text-left">Status</th>
+                  <th className="px-3 py-2 text-right">Unresolved</th>
                   <th className="px-3 py-2 text-right">Artifacts</th>
                 </tr>
               </thead>
               <tbody>
                 {translationJobs.map((job) => (
                   <tr key={job.id} className="border-t border-border">
-                    <td className="px-3 py-2">{job.jobName}</td>
+                    <td className="px-3 py-2"><Link className="underline decoration-border underline-offset-2" href={`/jobs/${job.id}`}>{job.jobName}</Link></td>
                     <td className="px-3 py-2 font-mono text-[11px]">{job.sourceBundle.resolveTimelineVersion}</td>
                     <td className="px-3 py-2">{job.outputPreset.name}</td>
                     <td className="px-3 py-2"><JobStatusBadge status={job.status} /></td>
+                    <td className="px-3 py-2 text-right font-mono">{job.analysisReport.warningCount + job.analysisReport.highRiskCount}</td>
                     <td className="px-3 py-2 text-right font-mono">{job.deliveryPackage.artifacts.length}</td>
                   </tr>
                 ))}
@@ -117,7 +118,7 @@ export default async function JobsPage() {
             <CardTitle>Mapping Inspector — {primaryJob.jobName}</CardTitle>
           </CardHeader>
           <CardContent>
-            <MappingTable clips={allClips} mappingRules={primaryJob.mappingRules} />
+            <MappingWorkspaceEditor workspace={primaryJob.mappingWorkspace} fieldRecorderCandidates={primaryJob.fieldRecorderCandidates} />
           </CardContent>
         </Card>
 

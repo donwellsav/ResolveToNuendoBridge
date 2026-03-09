@@ -13,6 +13,7 @@ Represents one end-to-end translation run.
 - `updatedAtIso: string`
 - `sourceBundle: SourceBundle`
 - `mappingRules: MappingRule[]`
+- `mappingWorkspace: MappingWorkspace`
 - `fieldRecorderCandidates: FieldRecorderCandidate[]`
 - `preservationIssues: PreservationIssue[]`
 - `outputPreset: OutputPreset`
@@ -129,3 +130,15 @@ Outbound bundle artifact status entry.
 - `PersistenceService`
   - `saveJobs(jobs)`
   - `loadJobs()`
+
+
+## Phase 2 Extensions
+
+### MappingWorkspace
+Operator-editable decision layer derived from canonical import analysis.
+- `trackMappings: TrackMappingDecision[]`
+- `markerMappings: MarkerMappingDecision[]`
+- `metadataMappings: MetadataMappingDecision[]`
+- `fieldRecorderMappings: FieldRecorderDecision[]`
+
+These decisions are consumed by delivery planning and preservation issue synthesis; exporter remains planning-only in phase 2I.

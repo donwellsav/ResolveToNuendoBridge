@@ -381,11 +381,15 @@ function enrichFromAaf(
 ) {
   const aafClips = aafTracks.flatMap((track) => track.clips);
 
+  const findAafClip = (clip: ClipEvent) =>
+    aafClips.find((candidate) => candidate.clipName === clip.clipName && candidate.recordInFrames === clip.recordInFrames) ??
+    aafClips.find((candidate) => candidate.clipName === clip.clipName) ??
+    aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName && candidate.recordInFrames === clip.recordInFrames) ??
+    aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName);
+
   tracks.forEach((track) => {
     track.clips = track.clips.map((clip) => {
-      const fromAaf =
-        aafClips.find((candidate) => candidate.clipName === clip.clipName) ??
-        aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName);
+      const fromAaf = findAafClip(clip);
       if (!fromAaf) return clip;
 
       return {
@@ -405,6 +409,29 @@ function enrichFromAaf(
       };
     });
   });
+}
+
+function reconcileAafMediaReferences(tracks: TranslationModel["timeline"]["tracks"], intakeAssets: IntakeAsset[]): PreservationIssue[] {
+  const issues: PreservationIssue[] = [];
+  tracks
+    .flatMap((track) => track.clips)
+    .forEach((clip) => {
+      const hasSourceFile = intakeAssets.some((asset) => asset.fileRole === "production_audio" && asset.fileName === clip.sourceFileName);
+      if (clip.isOffline || !hasSourceFile) {
+        issues.push({
+          id: `issue-aaf-expected-media-missing-${clip.id}`,
+          category: "manual-review",
+          severity: "critical",
+          scope: "clip",
+          title: `AAF indicates missing expected media: ${clip.sourceFileName}`,
+          description: "AAF clip is marked offline or references media not found in the intake production audio set.",
+          sourceLocation: "aaf+intake/audio",
+          recommendedAction: "Restore or provide expected media and regenerate turnover package.",
+        });
+      }
+    });
+
+  return issues;
 }
 
 function reconcileFcpxmlWithAaf(
@@ -446,7 +473,9 @@ function reconcileFcpxmlWithAaf(
 
   fcpxmlClips.forEach((clip) => {
     const fromAaf =
+      aafClips.find((candidate) => candidate.clipName === clip.clipName && candidate.recordInFrames === clip.recordInFrames) ??
       aafClips.find((candidate) => candidate.clipName === clip.clipName) ??
+      aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName && candidate.recordInFrames === clip.recordInFrames) ??
       aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName);
     if (!fromAaf) return;
 
@@ -489,18 +518,6 @@ function reconcileFcpxmlWithAaf(
       });
     }
 
-    if (fromAaf.isOffline || !intakeAssets.some((asset) => asset.fileRole === "production_audio" && asset.fileName === fromAaf.sourceFileName)) {
-      issues.push({
-        id: `issue-aaf-expected-media-missing-${clip.id}`,
-        category: "manual-review",
-        severity: "critical",
-        scope: "clip",
-        title: `AAF indicates missing expected media: ${fromAaf.sourceFileName}`,
-        description: "AAF clip is marked offline or references media not found in the intake production audio set.",
-        sourceLocation: "aaf+intake/audio",
-        recommendedAction: "Restore or provide expected media and regenerate turnover package.",
-      });
-    }
   });
 
   if (aafMarkers.length > 0 && aafMarkers.length !== markers.length) {
@@ -515,6 +532,8 @@ function reconcileFcpxmlWithAaf(
       recommendedAction: "Confirm marker export source and merge strategy before delivery.",
     });
   }
+
+  issues.push(...reconcileAafMediaReferences(aafTracks, intakeAssets));
 
   return issues;
 }
@@ -600,6 +619,7 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
     tracks = parsedAaf?.tracks ?? [];
     enrichFromMetadata(tracks, metadataRows, intakeAssets);
     markers = (parsedAaf?.markers?.length ?? 0) > 0 ? parsedAaf?.markers ?? [] : markersFromCsv.length > 0 ? markersFromCsv : edlMarkers;
+    issues.push(...reconcileAafMediaReferences(tracks, intakeAssets));
   } else if (timelineSource === "edl") {
     tracks = edlTracks;
     enrichFromMetadata(tracks, metadataRows, intakeAssets);

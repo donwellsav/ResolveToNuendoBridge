@@ -1,13 +1,13 @@
-# Resolve -> Nuendo Bundle Specification (Phase 1 Contract)
+# Resolve -> Nuendo Bundle Specification (Phase 2 Contract Baseline)
 
 ## Purpose
-Define the bundle artifact contract now, while parser/export implementations remain deferred.
+Define and maintain the bundle artifact contract while intake parsing deepens and exporter writing remains pending.
 
 ## Canonical Pipeline
 **Resolve exports in -> canonical internal model -> Nuendo-ready bundle out**
 
 ## Required Artifact Set
-The following artifacts are modeled in phase 1 and must remain part of the contract:
+The following artifacts are modeled in the active phase and remain required in the contract:
 1. `AAF`
 2. `marker EDL`
 3. `marker CSV`
@@ -48,8 +48,8 @@ Exporter contract targets the same artifact family, emitted in Nuendo-oriented f
 - IDs for timeline/track/clip events must be stable across pipeline stages.
 - Missing AAF, manifest, or metadata CSV is a hard validation failure.
 
-## Phase 1 Status
-- No real bundle unpacking/parsing.
-- No real transformation engine.
-- No real export writing.
-- UI and schema expose only mock contract + stub service boundaries.
+## Current Status
+- Real intake scanning/parsing is implemented for manifest, metadata CSV, marker CSV/EDL, FCPXML/XML, and AAF-derived timeline sources.
+- Canonical hydration supports FCPXML-first with AAF enrichment/reconciliation, plus AAF-only fallback.
+- Delivery planning remains contract-driven and unchanged; Nuendo project writing is still deferred.
+- Export artifact writing is not yet implemented.

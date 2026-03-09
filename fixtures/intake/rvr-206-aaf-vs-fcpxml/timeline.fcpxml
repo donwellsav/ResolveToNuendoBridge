@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fcpxml version="1.11">
+  <resources>
+    <format id="r1" frameDuration="1/24s" />
+    <asset id="a1" name="DX_206_001" src="file:///SC06_TK01.BWF" reel="R206" tape="SR206A" />
+    <asset id="a2" name="FX_206_001" src="file:///CITY_TONE.wav" reel="R206" />
+  </resources>
+  <library>
+    <event name="Turnover">
+      <project name="RVR_206_LOCK_v8">
+        <sequence format="r1" tcStart="86400/24s" name="RVR_206_LOCK_v8">
+          <spine>
+            <asset-clip ref="a1" name="DX_206_001" lane="1" start="0s" duration="4s" />
+            <asset-clip ref="a2" name="FX_206_001" lane="2" start="5s" duration="4s" />
+          </spine>
+        </sequence>
+      </project>
+    </event>
+  </library>
+</fcpxml>

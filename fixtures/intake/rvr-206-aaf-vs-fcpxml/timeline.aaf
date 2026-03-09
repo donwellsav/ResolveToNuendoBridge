@@ -1,0 +1,10 @@
+# AAF_TEXT_EXTRACT v1
+TIMELINE name="RVR_206_LOCK_v8" fps=24 start=01:00:00:00
+TRACK id=t1 name="DX A" role=DX
+TRACK id=t2 name="FX A" role=FX
+TRACK id=t3 name="MX A" role=MX
+CLIP track=t1 name="DX_206_001" sourceFile="SC06_TK99.BWF" mob="DXMob206" recordIn=01:00:00:00 recordOut=01:00:05:00 sourceIn=10:00:00:00 sourceOut=10:00:05:00 recordInFrames=0 recordOutFrames=120 sourceInFrames=864000 sourceOutFrames=864120 channels=2 layout="L,R" reel=R999 tape=SR999 offline=false fadeIn=true fadeOut=false
+CLIP track=t2 name="FX_206_001" sourceFile="CITY_TONE.wav" mob="FXMob206" recordIn=01:00:05:00 recordOut=01:00:09:00 sourceIn=11:00:00:00 sourceOut=11:00:04:00 recordInFrames=120 recordOutFrames=216 sourceInFrames=950400 sourceOutFrames=950496 channels=2 layout="L,R" reel=R206 tape=SR206A offline=false fadeIn=false fadeOut=true
+CLIP track=t3 name="MX_206_001" sourceFile="MUSIC_STEM.wav" mob="MXMob206" recordIn=01:00:10:00 recordOut=01:00:14:00 sourceIn=12:00:00:00 sourceOut=12:00:04:00 recordInFrames=240 recordOutFrames=336 sourceInFrames=1036800 sourceOutFrames=1036896 channels=2 layout="L,R" reel=R206 tape=SR206B offline=true fadeIn=false fadeOut=false
+MARKER tc=01:00:07:00 frame=168 label="AAF only marker"
+MARKER tc=01:00:12:00 frame=288 label="Offline cue"

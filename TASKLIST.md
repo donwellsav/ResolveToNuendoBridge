@@ -26,8 +26,8 @@
 
 ## Phase 2 — Parser/Exporter Services (Active)
 - [~] Implement Resolve intake validation/parsing service for CSV/manifest/EDL contract (partially real).
-- [~] Make timeline_exchange (`.fcpxml`/`.xml`) the active canonical timeline hydration milestone.
-- [ ] Implement AAF parsing and reconciliation against canonical timeline (next milestone).
+- [x] Make timeline_exchange (`.fcpxml`/`.xml`) the active canonical timeline hydration milestone.
+- [x] Implement AAF parsing and reconciliation against canonical timeline (FCPXML precedence + AAF-only fallback).
 - [ ] Build canonical normalization pipeline with deterministic transform rules.
 - [ ] Implement Nuendo-ready bundle writer for required artifact set.
 - [ ] Add robust validation and warning taxonomy for reconform/preservation issues.

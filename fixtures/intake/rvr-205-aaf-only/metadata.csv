@@ -1,0 +1,3 @@
+trackName,role,recordIn,recordOut,sourceIn,sourceOut,recordInFrames,recordOutFrames,sourceInFrames,sourceOutFrames,clipName,sourceFileName,reel,tape,scene,take,eventDescription,clipNotes,channelCount,channelLayout,isPolyWav,hasBwf,hasIXml,isOffline,isNested,isFlattened,hasSpeedEffect,hasFadeIn,hasFadeOut
+DX A,DX,01:00:00:00,01:00:04:00,10:00:00:00,10:00:04:00,0,96,864000,864096,DX_205_001,SC05_TK01.BWF,R205,SR205A,5,1,Dialog line 1,Good,6,"L,R,C,LFE,Ls,Rs",true,true,false,false,false,true,false,false,false
+DX A,DX,01:00:04:00,01:00:08:00,10:00:04:00,10:00:08:00,96,192,864096,864192,DX_205_002,SC05_TK02.BWF,R205,SR205A,5,2,Dialog line 2,Roomier take,2,"L,R",false,true,false,true,false,true,false,false,true

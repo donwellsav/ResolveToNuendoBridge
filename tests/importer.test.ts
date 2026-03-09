@@ -6,6 +6,8 @@ import { importTurnoverFolder } from "../lib/services/importer";
 
 const fcpxmlFixture = path.join(process.cwd(), "fixtures", "turnover-fcpxml-rich");
 const edlFixture = path.join(process.cwd(), "fixtures", "turnover-edl-metadata-only");
+const aafOnlyFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-205-aaf-only");
+const aafVsFcpxmlFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-206-aaf-vs-fcpxml");
 
 test("importer prefers FCPXML/XML as primary timeline source when present", async () => {
   const imported = await importTurnoverFolder(fcpxmlFixture);
@@ -37,4 +39,32 @@ test("metadata enrichment preserves quoted channel layouts", async () => {
 
   assert.equal(clip.channelLayout, "L,R,C,LFE,Ls,Rs");
   assert.equal(clip.channelCount, 6);
+});
+
+test("importer hydrates canonical timeline from AAF when AAF is the only structured timeline source", async () => {
+  const imported = await importTurnoverFolder(aafOnlyFixture);
+
+  assert.equal(imported.translationModel.timeline.name, "RVR_205_LOCK_v5");
+  assert.equal(imported.translationModel.timeline.tracks.length, 1);
+  assert.equal(imported.translationModel.timeline.tracks[0].clips.length, 2);
+  assert.equal(imported.translationModel.timeline.tracks[0].clips[0].clipName, "DX_205_001");
+  assert.equal(imported.translationModel.timeline.tracks[0].clips[0].channelLayout, "L,R,C,LFE,Ls,Rs");
+  assert.equal(imported.translationModel.timeline.tracks[0].clips[1].isOffline, true);
+});
+
+test("importer keeps FCPXML/XML as primary timeline and reconciles mismatches with AAF", async () => {
+  const imported = await importTurnoverFolder(aafVsFcpxmlFixture);
+
+  assert.equal(imported.translationModel.timeline.name, "RVR_206_LOCK_v8");
+  assert.equal(imported.translationModel.timeline.tracks.length, 2);
+  assert.equal(imported.translationModel.timeline.tracks[0].clips[0].clipName, "DX_206_001");
+
+  const issueIds = imported.preservationIssues.map((issue) => issue.id);
+  assert.ok(issueIds.includes("issue-aaf-track-count-mismatch"));
+  assert.ok(issueIds.includes("issue-aaf-clip-count-mismatch"));
+  assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-timing-mismatch-")));
+  assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-source-file-mismatch-")));
+  assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-reel-tape-mismatch-")));
+  assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-expected-media-missing-")));
+  assert.ok(issueIds.includes("issue-aaf-marker-coverage-mismatch"));
 });

@@ -93,3 +93,38 @@ test("staging deferred artifacts and handoff writer inputs stay consistent", () 
     staging.deferredArtifacts.map((artifact) => artifact.artifactId).sort()
   );
 });
+
+test("handoff summary exposes blocked artifacts and supported capabilities", () => {
+  const job = translationJobs[0];
+  const state = createEmptyReviewState(buildReviewStateKey(job));
+  const workspace = overlayMappingWorkspace(job.mappingWorkspace, state);
+  const handoff = buildEffectiveDeliveryHandoffPreview(job, workspace, state);
+
+  assert.equal(Array.isArray(handoff.summary.blockedArtifacts), true);
+  assert.deepEqual(handoff.summary.supportedCapabilities, ["nuendo_writer.aaf", "video_writer.reference"]);
+});
+
+test("missing staged deferred descriptor drives partial readiness", () => {
+  const job = translationJobs[0];
+  const state = createEmptyReviewState(buildReviewStateKey(job));
+  const workspace = overlayMappingWorkspace(job.mappingWorkspace, state);
+  const executionPlan = buildEffectiveDeliveryExecutionPreview(job, workspace);
+  const stagingBundle = buildEffectiveDeliveryStagingPreview(job, workspace, state);
+  const trimmedStaging = {
+    ...stagingBundle,
+    files: stagingBundle.files.filter((file) => !file.relativePath.endsWith("out-aaf.deferred.json")),
+  };
+
+  const handoff = buildDeliveryHandoffContracts({
+    job: { ...job, deliveryExecution: executionPlan, deliveryStaging: trimmedStaging },
+    packagePlan: job.deliveryPackage,
+    executionPlan,
+    stagingBundle: trimmedStaging,
+    effectiveWorkspace: workspace,
+    reviewState: state,
+  });
+
+  const aaf = handoff.writerInputs.find((input) => input.artifact.artifactId === "out-aaf");
+  assert.ok(aaf);
+  assert.equal(aaf.artifact.readinessStatus, "partial");
+});

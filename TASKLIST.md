@@ -66,6 +66,7 @@
 - [x] Define explicit versioned writer-input/handoff types with dependency/readiness status.
 - [x] Generate handoff manifests (`deferred-writer-inputs.json`, `delivery-handoff-manifest.json`, `delivery-handoff-summary.json`).
 - [x] Add readiness validation for missing/blocked dependencies and known writer gaps.
+- [x] Capture handoff summary capability support + blocked artifact ids for explicit future writer orchestration inputs.
 - [x] Surface handoff contracts/readiness in job/operator views without redesign.
 - [x] Add deterministic contract/readiness/review-influence tests.
 

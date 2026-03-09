@@ -10,6 +10,7 @@ import type {
   DeliveryStagingBundle,
   MappingWorkspace,
   TranslationJob,
+  WriterCapability,
   WriterDependency,
   WriterReadinessStatus,
 } from "../types";
@@ -31,6 +32,7 @@ type DeliveryHandoffInputs = {
 };
 
 const WRITER_INPUT_VERSION: DeferredWriterInputVersion = "phase3c.v1";
+const SUPPORTED_CAPABILITIES: WriterCapability[] = ["nuendo_writer.aaf", "video_writer.reference"];
 
 function stableStringify(value: unknown): string {
   if (value === null || typeof value !== "object") {
@@ -92,7 +94,7 @@ function classifyDeferredKind(artifact: DeliveryArtifact): DeferredWriterArtifac
   return "nuendo_session";
 }
 
-function resolveWriterCapability(kind: DeferredWriterArtifact["artifactKind"]): DeferredWriterArtifact["requiredWriterCapability"] {
+function resolveWriterCapability(kind: DeferredWriterArtifact["artifactKind"]): WriterCapability {
   switch (kind) {
     case "nuendo_ready_aaf":
       return "nuendo_writer.aaf";
@@ -109,28 +111,50 @@ function buildDependencies(
   stagedPathSet: Set<string>,
   effectiveWorkspace: MappingWorkspace
 ): WriterDependency[] {
+  const metadataStaged = Array.from(stagedPathSet).some((path) => path.includes("_METADATA.csv"));
+  const descriptorStaged = stagedPathSet.has(`deferred/${artifact.id}.deferred.json`);
+  const hasSelectedFieldRecorder = effectiveWorkspace.fieldRecorderMappings.some((mapping) => mapping.selected);
+  const unresolvedTrackMapping = effectiveWorkspace.trackMappings.some((mapping) => mapping.state === "needs_review");
+
   const dependencies: WriterDependency[] = [
     {
       id: `${artifact.id}:canonical-timeline`,
+      kind: "canonical",
       reference: "canonical.timeline",
       status: job.translationModel.timeline.tracks.length > 0 ? "satisfied" : "missing",
       reason: job.translationModel.timeline.tracks.length > 0 ? undefined : "Canonical timeline has no normalized tracks.",
     },
     {
       id: `${artifact.id}:metadata-csv`,
+      kind: "staged-artifact",
       reference: "staging:metadata/*_METADATA.csv",
-      status: Array.from(stagedPathSet).some((path) => path.includes("_METADATA.csv")) ? "satisfied" : "missing",
-      reason: Array.from(stagedPathSet).some((path) => path.includes("_METADATA.csv"))
-        ? undefined
-        : "Metadata CSV prerequisite is missing from staged output.",
+      status: metadataStaged ? "satisfied" : "missing",
+      reason: metadataStaged ? undefined : "Metadata CSV prerequisite is missing from staged output.",
+    },
+    {
+      id: `${artifact.id}:deferred-descriptor`,
+      kind: "staged-artifact",
+      reference: `staging:deferred/${artifact.id}.deferred.json`,
+      status: descriptorStaged ? "satisfied" : "missing",
+      reason: descriptorStaged ? undefined : "Deferred artifact descriptor is missing from staged handoff prerequisites.",
     },
     {
       id: `${artifact.id}:field-recorder`,
+      kind: "review-decision",
       reference: "mappingWorkspace.fieldRecorderMappings",
-      status: effectiveWorkspace.fieldRecorderMappings.some((mapping) => mapping.selected) ? "satisfied" : "blocked",
-      reason: effectiveWorkspace.fieldRecorderMappings.some((mapping) => mapping.selected)
+      status: hasSelectedFieldRecorder ? "satisfied" : "blocked",
+      reason: hasSelectedFieldRecorder
         ? undefined
         : "No selected field recorder matches are available for deferred writer handoff.",
+    },
+    {
+      id: `${artifact.id}:track-mappings`,
+      kind: "review-decision",
+      reference: "mappingWorkspace.trackMappings",
+      status: unresolvedTrackMapping ? "blocked" : "satisfied",
+      reason: unresolvedTrackMapping
+        ? "One or more track mapping decisions remain in needs_review state."
+        : undefined,
     },
   ];
 
@@ -138,6 +162,7 @@ function buildDependencies(
     const refInIntake = job.sourceBundle.intakeAssets.some((asset) => asset.fileRole === "reference_video" && asset.status === "ready");
     dependencies.push({
       id: `${artifact.id}:intake-reference-video`,
+      kind: "intake-asset",
       reference: "intake.reference_video",
       status: refInIntake ? "satisfied" : "missing",
       reason: refInIntake ? undefined : "Reference video dependency was not present/ready in intake bundle.",
@@ -147,28 +172,32 @@ function buildDependencies(
   return dependencies;
 }
 
-function buildBlockers(job: TranslationJob, artifactId: string, dependencies: WriterDependency[]): string[] {
-  const blockers = dependencies
-    .filter((dependency) => dependency.status !== "satisfied")
-    .map((dependency) => `${dependency.reference}: ${dependency.reason ?? dependency.status}`);
-
-  const criticalIssues = job.preservationIssues
+function buildPreservationBlockers(job: TranslationJob, artifactId: string): WriterDependency[] {
+  return job.preservationIssues
     .filter((issue) => issue.severity === "critical" && (!issue.targetArtifactId || issue.targetArtifactId === artifactId))
-    .map((issue) => `${issue.id}: ${issue.title}`);
-
-  return [...blockers, ...criticalIssues];
+    .map((issue) => ({
+      id: `${artifactId}:preservation:${issue.id}`,
+      kind: "preservation" as const,
+      reference: `preservation:${issue.id}`,
+      status: "blocked" as const,
+      reason: `${issue.title} (${issue.scope})`,
+    }));
 }
 
 function resolveReadinessStatus(
-  artifact: DeliveryArtifact,
   dependencies: WriterDependency[],
-  unresolvedBlockers: string[]
+  requiredWriterCapability: WriterCapability,
+  artifactKind: DeferredWriterArtifact["artifactKind"]
 ): WriterReadinessStatus {
-  if (artifact.fileKind !== "aaf" && artifact.fileRole !== "reference_video") {
+  if (artifactKind === "nuendo_session") {
     return "deferred-with-known-gaps";
   }
 
-  if (dependencies.some((dependency) => dependency.status === "blocked") || unresolvedBlockers.length > 0) {
+  if (!SUPPORTED_CAPABILITIES.includes(requiredWriterCapability)) {
+    return "deferred-with-known-gaps";
+  }
+
+  if (dependencies.some((dependency) => dependency.status === "blocked")) {
     return "blocked";
   }
 
@@ -224,17 +253,34 @@ export function buildDeliveryHandoffContracts({
       stagingBundle.deferredArtifacts.find((descriptor) => descriptor.artifactId === artifact.id)?.deferredPath ??
       `deferred/${artifact.id}.deferred.json`;
 
-    const dependencies = buildDependencies(job, artifact, stagedPathSet, effectiveWorkspace);
-    const unresolvedBlockers = buildBlockers(job, artifact.id, dependencies);
-    const readinessStatus = resolveReadinessStatus(artifact, dependencies, unresolvedBlockers);
     const artifactKind = classifyDeferredKind(artifact);
+    const requiredWriterCapability = resolveWriterCapability(artifactKind);
+    const dependencyCapabilitySupported = SUPPORTED_CAPABILITIES.includes(requiredWriterCapability);
+    const dependencies: WriterDependency[] = [
+      ...buildDependencies(job, artifact, stagedPathSet, effectiveWorkspace),
+      ...buildPreservationBlockers(job, artifact.id),
+      {
+        id: `${artifact.id}:writer-capability`,
+        kind: "writer-capability",
+        reference: `writer.capability.${requiredWriterCapability}`,
+        status: dependencyCapabilitySupported ? "satisfied" : "blocked",
+        reason: dependencyCapabilitySupported
+          ? undefined
+          : "Deferred artifact requires a writer capability not supported in current phase.",
+      },
+    ];
+
+    const unresolvedBlockers = dependencies
+      .filter((dependency) => dependency.status !== "satisfied")
+      .map((dependency) => `${dependency.reference}: ${dependency.reason ?? dependency.status}`);
+    const readinessStatus = resolveReadinessStatus(dependencies, requiredWriterCapability, artifactKind);
 
     const writerArtifact: DeferredWriterArtifact = {
       artifactId: artifact.id,
       artifactKind,
       plannedOutputPath: artifact.pathHint,
       stagedDescriptorPath,
-      requiredWriterCapability: resolveWriterCapability(artifactKind),
+      requiredWriterCapability,
       dependencies,
       unresolvedBlockers,
       readinessStatus,
@@ -298,6 +344,10 @@ export function buildDeliveryHandoffContracts({
     deferredWithKnownGaps: finalizedInputs.filter((input) => input.artifact.readinessStatus === "deferred-with-known-gaps")
       .length,
     unresolvedBlockers,
+    blockedArtifacts: finalizedInputs
+      .filter((input) => input.artifact.readinessStatus === "blocked")
+      .map((input) => input.artifact.artifactId),
+    supportedCapabilities: SUPPORTED_CAPABILITIES,
   };
 
   const manifest: DeliveryHandoffManifest = {

@@ -8,8 +8,9 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 |---|---|---|---|
 | Past | Phase 1 | Contract lock + frontend operator shell | ✅ Complete |
 | Current | Phase 2A–2J | Real intake parsing + canonical hydration/reconciliation + operator mapping/validation editors + persisted operator review state | ✅ Complete |
-| Current | Phase 2K | Reduce remaining AAF adapter fallback dependence | 🚧 In Progress |
-| Later | Phase 3 | Delivery execution (including writing/orchestration) once planning is stable | 🗓️ Planned |
+| Past | Phase 2K | Reduce remaining AAF adapter fallback dependence | ✅ Complete |
+| Current | Phase 3A | Delivery execution prep boundary (planning remains separate from writing) | ✅ Complete |
+| Later | Phase 3B+ | Writer/orchestration implementation behind execution boundary | 🗓️ Planned |
 
 ## Architecture (Intake → Canonical → Delivery)
 1. **SourceBundle / intake**: scan turnover files, classify file kind/role, and parse manifest/metadata/markers/timeline exchanges.
@@ -29,11 +30,12 @@ Importer timeline precedence is currently:
 - Operator mapping/editor workflow for track, marker, metadata, and field recorder decisions.
 - Validation workflow with `PreservationIssue` synthesis and unresolved mapping summaries surfaced on Dashboard/Jobs.
 - Delivery artifact planner consumes canonical + mapping decisions without writing Nuendo files.
+- Delivery execution-prep layer now converts planned artifacts into deterministic payloads for manifest/README/marker EDL+CSV/metadata CSV/field-recorder report, while writer-only binaries remain deferred records.
 - Browser-local review-state persistence layer stores only operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job + source signature with schema versioning/migration handling.
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 ## Known Limitations
-- Nuendo writer is not implemented yet (planner-only delivery output).
+- Nuendo writer is not implemented yet (Phase 3A adds execution prep, not writer output).
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.
 
@@ -51,7 +53,7 @@ Still unsupported in direct parsing (currently fallback-prone):
 
 ## Next Recommended Work
 - **Post-2K**: continue shrinking fallback by decoding additional opaque OLE stream layouts and richer effect object classes.
-- **Phase 3 prep**: deepen delivery execution readiness while preserving planner-only constraints.
+- **Phase 3B**: implement writer/orchestration against the new execution boundary while keeping planner responsibilities unchanged.
 - Keep deterministic normalization + warning taxonomy improvements in lockstep with parser work.
 - Enter Phase 3 only after planning quality and review-state persistence are stable.
 

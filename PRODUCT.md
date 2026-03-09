@@ -1,4 +1,4 @@
-# Conform Bridge — Product Contract (Phase 2 Baseline)
+# Conform Bridge — Product Contract (Phase 3A Baseline)
 
 ## Product Intent
 Conform Bridge is an internal, desktop-first operator tool for translating **Resolve editorial bundles** into a **Nuendo-ready handoff bundle**.
@@ -7,8 +7,8 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Phase 1 contract lock + operator shell is complete.
 - Phase 2A–2J implementation is complete.
 - Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
-- Current implementation target is **Phase 2K** (reduce remaining AAF adapter fallback dependence).
-- Phase 3 delivery execution starts only after planning/review stability is achieved.
+- Phase 2K fallback-reduction work is complete.
+- Current implementation target is **Phase 3A** execution prep (planner remains separate from writer implementation).
 
 ## Primary Workflow Contract
 1. **SourceBundle / intake** ingests Resolve turnover artifacts.
@@ -30,22 +30,23 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Browser-local persisted review-state overlays for operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job and intake source signature.
 - Validation workflow surfacing `PreservationIssue` summaries and unresolved mapping counts, including acknowledgement state.
 - Delivery planner that consumes canonical + mapping decisions and produces artifact readiness statuses.
+- Delivery execution-prep boundary that converts planned artifacts into deterministic serialized payloads for safe text/CSV/JSON outputs and marks binary writer-only artifacts as deferred.
 
 ## Out of Scope (Current State)
-- Nuendo project writing / binary file generation.
+- Nuendo project writing / binary file generation (still deferred past 3A).
 - Backend persistence services (state remains browser-local in this phase).
 - Eliminating all AAF adapter fallback paths in this phase.
 - Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.
 
 ## Known Limitations
-- Export execution remains planner-only (Nuendo writing intentionally unimplemented).
+- Export execution now includes deterministic prep payload generation for non-binary artifacts; Nuendo/binary writing remains intentionally unimplemented.
 - AAF direct parser coverage now includes broader record/token aliases and clip-bearing graph extraction from messier OLE/text layouts.
 - Adapter sidecar compatibility fallback still appears in partial/unsupported AAF graph shapes and remains intentionally enabled.
 
 ## Next Recommended Work
 1. **Post-2K**: continue reducing compatibility fallback dependence by extending direct OLE stream/object graph decoding coverage.
 2. Continue deterministic canonical normalization and warning taxonomy hardening.
-3. Begin Phase 3 delivery execution prep only when planner/review behavior remains stable.
+3. Phase 3B: implement binary writer/orchestration against the execution-prep contract (without collapsing planner responsibilities).
 
 ## UX Direction
 - Desktop-first internal operations console.
@@ -64,4 +65,6 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Domain model remains aligned with `SCHEMA.md`.
 - Bundle artifact contract remains aligned with `BUNDLE_SPEC.md`.
 - Importer executes precedence-based intake/canonical hydration with explicit diagnostics.
-- Exporter produces deterministic planning results only (no Nuendo writing yet).
+- Exporter remains planning-only and deterministic (no Nuendo writing yet).
+- Execution-prep layer deterministically generates payloads for manifest, README, marker CSV/EDL, metadata CSV, and field-recorder report.
+- AAF/reference-video/native Nuendo writer outputs remain deferred records behind future writer boundary.

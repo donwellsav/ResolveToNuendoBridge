@@ -2,9 +2,9 @@
 
 ## Current Phase Status
 - ✅ Completed through **Phase 2J** (review-state persistence + reconform-ready review tooling landed).
-- 🧭 Next phase is **2K** (reduce remaining AAF compatibility fallback dependence).
-- 🗓️ Follow-on phase is **Phase 3** delivery execution once planning/review stability holds.
-- 🗓️ **Phase 3** starts after planning/review stability is achieved.
+- ✅ **Phase 2K** complete (AAF compatibility fallback dependence reduced).
+- ✅ **Phase 3A** complete (execution prep boundary landed; planner still separate from writer).
+- 🧭 Next phase is **Phase 3B** writer/orchestration on top of execution-prep contracts.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -34,15 +34,22 @@
 - [x] Add reconform-ready review tooling depth (change triage, acknowledgement/risky state, unresolved filters).
 - [x] Keep canonical/delivery contracts unchanged while persistence lands (no backend, no writer).
 
-## Phase 2K — In Progress
+## Phase 2K — Complete
 - [x] Reduce remaining adapter-sidecar fallback dependence for AAF ingestion.
 - [x] Extend direct parser coverage for edge AAF records that still require compatibility fallback.
 - [x] Keep fallback diagnostics explicit while shrinking fallback frequency.
 - [x] Add fixtures for broad direct parse, partial-direct/fallback classification, and missing-media/locator-heavy coverage.
 - [x] Expand parser/importer/reconciliation tests for richer AAF mismatch and fallback diagnostics.
 
-## Phase 3 — Delivery Execution (Planned)
-- [ ] Implement deterministic canonical normalization pipeline end-to-end.
-- [ ] Implement Nuendo-ready bundle writer for required artifact set.
-- [ ] Add file intake execution controls/job orchestration UX around real services.
-- [ ] Add persistence-backed operational state once service boundaries stabilize.
+## Phase 3A — Delivery Execution Prep (Complete)
+- [x] Add execution-prep service boundary after planner output.
+- [x] Define generated payload contracts for manifest/readme/marker/metadata/field-recorder outputs plus deferred binary contracts.
+- [x] Generate deterministic non-binary payload content from canonical + mapping/review state.
+- [x] Keep exporter planning responsibilities unchanged and separate from execution prep.
+- [x] Surface execution prep status/payload previews in job delivery view without redesigning core UI.
+- [x] Add tests for deterministic output, deferred binary behavior, and review-overlay reflection.
+
+## Phase 3B — Writer/Orchestration (Planned)
+- [ ] Implement Nuendo-ready bundle writer for deferred binary artifacts.
+- [ ] Add file execution controls/job orchestration UX around real services.
+- [ ] Add persistence-backed operational execution state once service boundaries stabilize.

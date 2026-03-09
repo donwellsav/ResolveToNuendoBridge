@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import { outputPresets, translationJobs as fallbackJobs } from "./mock-data";
+import { prepareDeliveryExecution } from "./services/delivery-execution";
 import { planNuendoDelivery } from "./services/exporter";
 import { importTurnoverFolder } from "./services/importer";
 import type { TranslationJob } from "./types";
@@ -37,11 +38,16 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
     };
 
     const { packagePlan } = await planNuendoDelivery(baseJob, baseJob.translationModel);
+    const deliveryExecution = prepareDeliveryExecution({
+      job: { ...baseJob, deliveryPackage: packagePlan },
+      packagePlan,
+    });
 
     return [
       {
         ...baseJob,
         deliveryPackage: packagePlan,
+        deliveryExecution,
       },
     ];
   } catch {

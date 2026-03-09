@@ -14,7 +14,8 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Current | Phase 3C | Deferred writer-input contract hardening + delivery handoff manifests (writer still deferred) | ✅ Complete |
 | Current | Phase 3D | External execution packaging boundary on staged + handoff outputs | ✅ Complete |
 | Current | Phase 3E | Writer-adapter interface boundary + capability dry-run against external packages | ✅ Complete |
-| Later | Phase 3F+ | Native writer execution/orchestration implementation behind adapter boundary | 🗓️ Planned |
+| Current | Phase 3F | Writer-runner request/response/receipt contracts on adapter dry-runs (no native writing) | ✅ Complete |
+| Later | Phase 3G+ | Native writer execution/orchestration implementation behind adapter boundary | 🗓️ Planned |
 
 ## Architecture (Intake → Canonical → Delivery)
 1. **SourceBundle / intake**: scan turnover files, classify file kind/role, and parse manifest/metadata/markers/timeline exchanges.
@@ -27,7 +28,7 @@ Importer timeline precedence is currently:
 3. `edl`
 4. metadata-only fallback (when no timeline exchange parse is available)
 
-## Implemented Coverage (through Phase 3E)
+## Implemented Coverage (through Phase 3F)
 - Real intake scanning + role classification for fixture turnover folders.
 - Parsing for `manifest.json`, metadata CSV, marker CSV/EDL, FCPXML/XML, and broadened direct in-repo AAF extraction/parsing.
 - Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only and EDL fallbacks.
@@ -39,13 +40,14 @@ Importer timeline precedence is currently:
 - Delivery handoff layer now emits deterministic future-writer contracts (`handoff/deferred-writer-inputs.json`, `handoff/delivery-handoff-manifest.json`, `handoff/delivery-handoff-summary.json`) with dependency/readiness validation and blocked/partial/known-gap states.
 - External execution package layer now bundles staged outputs plus handoff contracts into deterministic export layout under `exports/<job>_<sequence>/` with `staged/`, `handoff/`, and `package/` indexes/manifests/checksums/readiness summaries for external executors.
 - Writer-adapter boundary layer now normalizes external-execution package + handoff deferred inputs into a stable adapter contract, with deterministic serialization and explicit versioning/capability metadata.
+- Writer-runner boundary now consumes external-execution package + writer-adapter report to generate deterministic runnable/blocked/unsupported requests, no-op runner responses, and receipts (`handoff/writer-run-requests.json`, `handoff/writer-run-responses.json`, `handoff/writer-run-receipts.json`).
 - Registry-driven adapter matching now reports deferred artifact states (`ready`, `blocked`, `unsupported`, `deferred`) and machine-readable unsupported reasons.
 - Reference/no-op adapter validates and dry-runs writer contracts without generating native outputs; future Nuendo AAF and reference-video adapters are placeholders that expose capabilities and unsupported reasons only.
 - Browser-local review-state persistence layer stores only operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job + source signature with schema versioning/migration handling.
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 ## Known Limitations
-- Nuendo writer is still not implemented (Phase 3E adds writer-adapter interfaces, validation, and dry-run only; no Nuendo/session binaries are written).
+- Nuendo writer is still not implemented (Phase 3F adds runner contracts/receipts + no-op simulation only; no Nuendo/session binaries are written).
 - Deferred artifacts are staged as descriptors only (`*_NUENDO_READY.aaf.deferred.json`, `*_REFERENCE_VIDEO.deferred.json`), with no fake binary contents.
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.
@@ -64,8 +66,8 @@ Still unsupported in direct parsing (currently fallback-prone):
 
 ## Next Recommended Work
 - **Post-2K**: continue shrinking fallback by decoding additional opaque OLE stream layouts and richer effect object classes.
-- **Phase 3E**: continue hardening adapter capability taxonomy and contract diagnostics while keeping layer boundaries separate.
-- **Phase 3F**: implement native writer/orchestration execution against the external-execution package + adapter boundary.
+- **Phase 3F**: harden writer-runner receipts/history and runner capability diagnostics while keeping layer boundaries separate.
+- **Phase 3G**: implement native writer/orchestration execution against the external-execution package + adapter + runner boundary.
 - Keep deterministic normalization + warning taxonomy improvements in lockstep with parser work.
 - Enter Phase 3 only after planning quality and review-state persistence are stable.
 

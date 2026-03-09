@@ -1,4 +1,4 @@
-# Conform Bridge — Product Contract (Phase 3B Baseline)
+# Conform Bridge — Product Contract (Phase 3F Baseline)
 
 ## Product Intent
 Conform Bridge is an internal, desktop-first operator tool for translating **Resolve editorial bundles** into a **Nuendo-ready handoff bundle**.
@@ -8,7 +8,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Phase 2A–2J implementation is complete.
 - Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
 - Phase 2K fallback-reduction work is complete.
-- Current implementation target is **Phase 3E** writer-adapter interface formalization on top of external-execution packages (planner + execution-prep + staging + handoff + packaging remain separate from writer implementation).
+- Current implementation target is **Phase 3F** writer-runner request/response/receipt formalization on top of writer-adapter dry-runs and external-execution packages (planner + execution-prep + staging + handoff + packaging + adapter + runner remain separate).
 
 ## Primary Workflow Contract
 1. **SourceBundle / intake** ingests Resolve turnover artifacts.
@@ -34,9 +34,10 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Delivery staging boundary that materializes deterministic staged bundle layout with generated payload files, explicit deferred descriptor files, and staging-summary output.
 - Delivery handoff boundary that formalizes versioned deferred-writer input contracts, dependency/readiness validation, and deterministic handoff manifests without generating native binaries.
 - Writer adapter boundary that normalizes external-execution package + handoff contracts into stable adapter input, supports adapter validation/dry-run, and reports capability matching/readiness/unsupported reasons without writing native binaries.
+- Writer runner boundary that consumes package + handoff + adapter dry-run output to emit deterministic writer-run requests, normalized responses, and receipts/history using a reference no-op runner.
 
 ## Out of Scope (Current State)
-- Nuendo project/session writing / binary file generation (still deferred; Phase 3E only formalizes adapter interfaces, validation, and dry-run planning).
+- Nuendo project/session writing / binary file generation (still deferred; Phase 3F formalizes runner contracts, responses, and receipts with no-op simulation only).
 - Backend persistence services (state remains browser-local in this phase).
 - Eliminating all AAF adapter fallback paths in this phase.
 - Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.
@@ -50,7 +51,8 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 1. **Post-2K**: continue reducing compatibility fallback dependence by extending direct OLE stream/object graph decoding coverage.
 2. Continue deterministic canonical normalization and warning taxonomy hardening.
 3. Phase 3E: formalize writer-adapter interfaces + registry + capability dry-run against external-execution packages (without implementing binary writer outputs).
-4. Phase 3F: implement binary writer/orchestration against the external-execution package + adapter contract (without collapsing planner/execution-prep responsibilities).
+4. Phase 3F: formalize writer-runner contracts (requests/responses/receipts) on top of adapter dry-runs with a deterministic no-op runner.
+5. Phase 3G: implement binary writer/orchestration against the external-execution package + adapter + runner contract (without collapsing planner/execution-prep responsibilities).
 
 ## UX Direction
 - Desktop-first internal operations console.
@@ -80,3 +82,9 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Package includes staged generated payloads, deferred contract descriptors, and handoff manifests with checksums/index/summary files.
 - Package readiness states: `ready`, `partial`, `blocked` based on staged prerequisites, handoff readiness, preservation blockers, and deferred dependencies.
 - Native Nuendo/session writing remains intentionally unimplemented.
+
+
+## Phase 3F Baseline
+- Writer-runner requests include deterministic IDs, versioning, artifact linkage, source/review signatures, package readiness, dependency references, and blocked/unsupported reasoning.
+- Runner responses are normalized as `simulated`, `partial`, `blocked`, or `unsupported`; reference runner is explicit no-op only.
+- Receipts summarize runnable vs blocked vs unsupported outcomes and preserve adapter match + dry-run plan context at run time.

@@ -13,6 +13,7 @@ import {
   buildEffectiveDeliveryHandoffPreview,
   buildEffectiveExternalExecutionPackagePreview,
   buildEffectiveWriterAdapterReportPreview,
+  buildEffectiveWriterRunBundlePreview,
 } from "@/lib/review-state";
 import { useReviewState } from "@/lib/use-review-state";
 import type { NormalizedTrack, TranslationJob } from "@/lib/types";
@@ -53,6 +54,10 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
   );
   const writerAdapterReport = useMemo(
     () => buildEffectiveWriterAdapterReportPreview(job, effectiveWorkspace, reviewState),
+    [job, effectiveWorkspace, reviewState]
+  );
+  const writerRunBundle = useMemo(
+    () => buildEffectiveWriterRunBundlePreview(job, effectiveWorkspace, reviewState),
     [job, effectiveWorkspace, reviewState]
   );
 
@@ -302,6 +307,30 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
                 <td className="px-2 py-1">{match.adapterId ?? "none"}</td>
                 <td className="px-2 py-1"><Badge variant={match.state === "ready" ? "success" : match.state === "blocked" ? "danger" : "warning"}>{match.state}</Badge></td>
                 <td className="px-2 py-1 text-muted">{match.reason}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+
+      <section className="space-y-2">
+        <h4 className="text-sm font-semibold">Writer Runner Requests / Receipts (Phase 3F)</h4>
+        <div className="flex gap-2 text-xs">
+          <Badge variant="success">Runnable {writerRunBundle.receipt.summary.runnableRequests}</Badge>
+          <Badge variant="danger">Blocked {writerRunBundle.receipt.summary.blockedRequests}</Badge>
+          <Badge variant="warning">Unsupported {writerRunBundle.receipt.summary.unsupportedRequests}</Badge>
+          <Badge variant="accent">Simulated {writerRunBundle.receipt.summary.simulatedRequests}</Badge>
+        </div>
+        <table className="w-full border-collapse text-xs">
+          <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Artifact</th><th className="px-2 py-1 text-left">Request</th><th className="px-2 py-1 text-left">Runner readiness</th><th className="px-2 py-1 text-left">Response</th></tr></thead>
+          <tbody>
+            {writerRunBundle.receipt.artifacts.map((artifact) => (
+              <tr key={artifact.requestId} className="border-t border-border">
+                <td className="px-2 py-1 font-mono">{artifact.artifactId}</td>
+                <td className="px-2 py-1 font-mono">{artifact.requestId}</td>
+                <td className="px-2 py-1"><Badge variant={artifact.runnerReadiness === "ready" ? "success" : artifact.runnerReadiness === "blocked" ? "danger" : "warning"}>{artifact.runnerReadiness}</Badge></td>
+                <td className="px-2 py-1"><Badge variant={artifact.responseStatus === "simulated" ? "accent" : artifact.responseStatus === "blocked" ? "danger" : "warning"}>{artifact.responseStatus}</Badge></td>
               </tr>
             ))}
           </tbody>

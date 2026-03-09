@@ -735,6 +735,153 @@ export type WriterAdapterRegistryReport = {
   }>;
 };
 
+export type WriterRunnerId = "reference.noop-runner";
+
+export type WriterRunRequestVersion = "phase3f.v1";
+
+export type WriterRunRequestId = string;
+
+export type WriterRunResponseStatus = "simulated" | "partial" | "blocked" | "unsupported";
+
+export type WriterRunnerReadiness = "ready" | "partial" | "blocked" | "unsupported";
+
+export type WriterRunnerUnsupportedReasonCode =
+  | "missing-adapter"
+  | "adapter-unsupported"
+  | "dependency-blocked"
+  | "readiness-blocked"
+  | "readiness-partial"
+  | "known-gap"
+  | "package-not-ready";
+
+export type WriterRunnerUnsupportedReason = {
+  code: WriterRunnerUnsupportedReasonCode;
+  message: string;
+  artifactId: string;
+  machineCode: string;
+};
+
+export type WriterRunBlockedReason = {
+  code: "dependency-blocked" | "readiness-blocked" | "readiness-partial" | "adapter-unsupported" | "missing-adapter";
+  message: string;
+  dependencyReferences: string[];
+};
+
+export type WriterRunnerCapability = WriterCapability;
+
+export type WriterRunArtifactRequest = {
+  artifactId: string;
+  inputId: string;
+  artifactKind: WriterAdapterArtifactKind;
+  plannedOutputPath: string;
+  stagedDescriptorPath: string;
+  requiredWriterCapability: WriterCapability;
+  readinessStatus: WriterReadinessStatus;
+  dependencySummary: WriterAdapterArtifactInput["dependencySummary"];
+  unresolvedBlockers: string[];
+  dependencyReferences: string[];
+};
+
+export type WriterRunAttempt = {
+  attemptSequence: number;
+  attemptedResponseStatus: WriterRunResponseStatus;
+  message: string;
+};
+
+export type WriterRunRequest = {
+  requestId: WriterRunRequestId;
+  requestVersion: WriterRunRequestVersion;
+  requestSequence: number;
+  packageId: string;
+  packageVersion: ExternalExecutionPackageVersion;
+  packageSignature: string;
+  packageReadiness: ExternalExecutionStatus;
+  sourceSignature: DeliverySourceSignature;
+  reviewSignature: DeliveryReviewSignature;
+  adapterId?: WriterAdapterId;
+  adapterVersion?: WriterAdapterVersion;
+  runnerId?: WriterRunnerId;
+  runnerReadiness: WriterRunnerReadiness;
+  unsupportedReasons: WriterRunnerUnsupportedReason[];
+  blockedReasons: WriterRunBlockedReason[];
+  artifact: WriterRunArtifactRequest;
+};
+
+export type WriterRunResponse = {
+  requestId: WriterRunRequestId;
+  requestVersion: WriterRunRequestVersion;
+  responseStatus: WriterRunResponseStatus;
+  responseSequence: number;
+  runnerId?: WriterRunnerId;
+  message: string;
+  attempts: WriterRunAttempt[];
+  materialWrite: "none";
+};
+
+export type WriterRunReceiptArtifact = {
+  artifactId: string;
+  requestId: WriterRunRequestId;
+  responseStatus: WriterRunResponseStatus;
+  runnerReadiness: WriterRunnerReadiness;
+  adapterId?: WriterAdapterId;
+  adapterVersion?: WriterAdapterVersion;
+  runnerId?: WriterRunnerId;
+  dryRunPlan: {
+    readyArtifacts: string[];
+    deferredArtifacts: string[];
+    blockedArtifacts: string[];
+  };
+  dependencyState: {
+    unresolvedBlockers: string[];
+    dependencySummary: WriterAdapterArtifactInput["dependencySummary"];
+  };
+  signatures: {
+    source: string;
+    review: string;
+  };
+  resultKind: "simulated/no-op" | "partial" | "blocked" | "unsupported";
+  reasons: string[];
+};
+
+export type WriterRunReceiptSummary = {
+  packageId: string;
+  packageSignature: string;
+  totalRequests: number;
+  runnableRequests: number;
+  blockedRequests: number;
+  unsupportedRequests: number;
+  partialRequests: number;
+  simulatedRequests: number;
+};
+
+export type WriterRunReceipt = {
+  receiptVersion: WriterRunRequestVersion;
+  generatedSequence: number;
+  artifacts: WriterRunReceiptArtifact[];
+  summary: WriterRunReceiptSummary;
+};
+
+export type WriterRunner = {
+  id: WriterRunnerId;
+  capabilities: WriterRunnerCapability[];
+  run(request: WriterRunRequest): WriterRunResponse;
+};
+
+export type WriterRunBundle = {
+  stage: "writer-runner";
+  requestVersion: WriterRunRequestVersion;
+  requests: WriterRunRequest[];
+  responses: WriterRunResponse[];
+  receipt: WriterRunReceipt;
+  files: Array<{
+    artifactId: "writer-run-requests" | "writer-run-responses" | "writer-run-receipts";
+    fileName: string;
+    relativePath: string;
+    mediaType: "application/json";
+    contentPreview: string;
+  }>;
+};
+
 export type TranslationJob = {
   id: string;
   jobName: string;
@@ -756,6 +903,7 @@ export type TranslationJob = {
   deliveryHandoff?: DeliveryHandoffBundle;
   externalExecutionPackage?: ExternalExecutionPackage;
   writerAdapterReport?: WriterAdapterRegistryReport;
+  writerRunBundle?: WriterRunBundle;
 };
 
 export type ImportAnalysisResult = Omit<

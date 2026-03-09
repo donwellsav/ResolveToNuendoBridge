@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import { parseAaf } from "../parsers/aaf";
 import { parseFcpxml } from "../parsers/fcpxml";
 
 import type {
@@ -373,6 +374,151 @@ function reconcileFcpxmlWithMetadata(
   return issues;
 }
 
+function enrichFromAaf(
+  tracks: TranslationModel["timeline"]["tracks"],
+  aafTracks: TranslationModel["timeline"]["tracks"],
+  intakeAssets: IntakeAsset[]
+) {
+  const aafClips = aafTracks.flatMap((track) => track.clips);
+
+  tracks.forEach((track) => {
+    track.clips = track.clips.map((clip) => {
+      const fromAaf =
+        aafClips.find((candidate) => candidate.clipName === clip.clipName) ??
+        aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName);
+      if (!fromAaf) return clip;
+
+      return {
+        ...clip,
+        sourceFileName: fromAaf.sourceFileName !== "UNKNOWN" ? fromAaf.sourceFileName : clip.sourceFileName,
+        sourceAssetId:
+          intakeAssets.find((asset) => asset.fileName === fromAaf.sourceFileName)?.id ??
+          intakeAssets.find((asset) => asset.fileName === clip.sourceFileName)?.id ??
+          clip.sourceAssetId,
+        reel: fromAaf.reel !== "UNKNOWN" ? fromAaf.reel : clip.reel,
+        tape: fromAaf.tape ?? clip.tape,
+        channelCount: fromAaf.channelCount > 0 ? fromAaf.channelCount : clip.channelCount,
+        channelLayout: fromAaf.channelLayout !== "UNKNOWN" ? fromAaf.channelLayout : clip.channelLayout,
+        hasFadeIn: fromAaf.hasFadeIn || clip.hasFadeIn,
+        hasFadeOut: fromAaf.hasFadeOut || clip.hasFadeOut,
+        isOffline: fromAaf.isOffline || clip.isOffline,
+      };
+    });
+  });
+}
+
+function reconcileFcpxmlWithAaf(
+  tracks: TranslationModel["timeline"]["tracks"],
+  markers: Marker[],
+  aafTracks: TranslationModel["timeline"]["tracks"],
+  aafMarkers: Marker[],
+  intakeAssets: IntakeAsset[]
+): PreservationIssue[] {
+  const issues: PreservationIssue[] = [];
+  const fcpxmlClips = tracks.flatMap((track) => track.clips);
+  const aafClips = aafTracks.flatMap((track) => track.clips);
+
+  if (tracks.length !== aafTracks.length) {
+    issues.push({
+      id: "issue-aaf-track-count-mismatch",
+      category: "manual-review",
+      severity: "warning",
+      scope: "track",
+      title: "Track count mismatch between FCPXML/XML and AAF",
+      description: `FCPXML/XML declares ${tracks.length} tracks while AAF declares ${aafTracks.length}.`,
+      sourceLocation: "fcpxml+xml+aaf",
+      recommendedAction: "Confirm timeline sync and regenerate either FCPXML/XML or AAF from the same Resolve version.",
+    });
+  }
+
+  if (fcpxmlClips.length !== aafClips.length) {
+    issues.push({
+      id: "issue-aaf-clip-count-mismatch",
+      category: "manual-review",
+      severity: "warning",
+      scope: "clip",
+      title: "Clip count mismatch between FCPXML/XML and AAF",
+      description: `FCPXML/XML contains ${fcpxmlClips.length} clips while AAF contains ${aafClips.length}.`,
+      sourceLocation: "fcpxml+xml+aaf",
+      recommendedAction: "Verify turnover exports were generated from the same locked timeline.",
+    });
+  }
+
+  fcpxmlClips.forEach((clip) => {
+    const fromAaf =
+      aafClips.find((candidate) => candidate.clipName === clip.clipName) ??
+      aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName);
+    if (!fromAaf) return;
+
+    if (clip.recordIn !== fromAaf.recordIn || clip.recordOut !== fromAaf.recordOut) {
+      issues.push({
+        id: `issue-aaf-timing-mismatch-${clip.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "clip",
+        title: `Clip timing mismatch against AAF: ${clip.clipName}`,
+        description: `FCPXML/XML ${clip.recordIn}-${clip.recordOut} differs from AAF ${fromAaf.recordIn}-${fromAaf.recordOut}.`,
+        sourceLocation: "fcpxml+xml+aaf",
+        recommendedAction: "Inspect record/source in-out values and resolve timeline version drift.",
+      });
+    }
+
+    if (clip.sourceFileName !== fromAaf.sourceFileName && fromAaf.sourceFileName !== "UNKNOWN") {
+      issues.push({
+        id: `issue-aaf-source-file-mismatch-${clip.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "clip",
+        title: `Source file mismatch against AAF: ${clip.clipName}`,
+        description: `FCPXML/XML source ${clip.sourceFileName} differs from AAF source ${fromAaf.sourceFileName}.`,
+        sourceLocation: "fcpxml+xml+aaf",
+        recommendedAction: "Confirm clip relink state and re-export timeline exchange artifacts.",
+      });
+    }
+
+    if ((fromAaf.reel !== "UNKNOWN" && clip.reel !== fromAaf.reel) || (fromAaf.tape && clip.tape !== fromAaf.tape)) {
+      issues.push({
+        id: `issue-aaf-reel-tape-mismatch-${clip.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "metadata",
+        title: `Reel/tape mismatch against AAF: ${clip.clipName}`,
+        description: `FCPXML/XML reel/tape ${clip.reel}/${clip.tape ?? "UNKNOWN"} differs from AAF ${fromAaf.reel}/${fromAaf.tape ?? "UNKNOWN"}.`,
+        sourceLocation: "fcpxml+xml+aaf",
+        recommendedAction: "Resolve metadata conflicts before field recorder and delivery planning.",
+      });
+    }
+
+    if (fromAaf.isOffline || !intakeAssets.some((asset) => asset.fileRole === "production_audio" && asset.fileName === fromAaf.sourceFileName)) {
+      issues.push({
+        id: `issue-aaf-expected-media-missing-${clip.id}`,
+        category: "manual-review",
+        severity: "critical",
+        scope: "clip",
+        title: `AAF indicates missing expected media: ${fromAaf.sourceFileName}`,
+        description: "AAF clip is marked offline or references media not found in the intake production audio set.",
+        sourceLocation: "aaf+intake/audio",
+        recommendedAction: "Restore or provide expected media and regenerate turnover package.",
+      });
+    }
+  });
+
+  if (aafMarkers.length > 0 && aafMarkers.length !== markers.length) {
+    issues.push({
+      id: "issue-aaf-marker-coverage-mismatch",
+      category: "manual-review",
+      severity: "warning",
+      scope: "marker",
+      title: "Marker coverage mismatch between FCPXML/XML and AAF",
+      description: `FCPXML/XML exposes ${markers.length} markers while AAF exposes ${aafMarkers.length}.`,
+      sourceLocation: "fcpxml+xml+aaf",
+      recommendedAction: "Confirm marker export source and merge strategy before delivery.",
+    });
+  }
+
+  return issues;
+}
+
 export async function importTurnoverFolder(folderPath: string): Promise<ImportAnalysisResult> {
   const files = await walkFolder(folderPath);
   const intakeAssets: IntakeAsset[] = [];
@@ -383,6 +529,7 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
   let edlTracks: TranslationModel["timeline"]["tracks"] = [];
   let manifest: ManifestPayload = {};
   let parsedFcpxml: ReturnType<typeof parseFcpxml> | undefined;
+  let parsedAaf: ReturnType<typeof parseAaf> | undefined;
 
   for (const filePath of files) {
     const fileName = path.basename(filePath);
@@ -408,7 +555,7 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
       asset.hasIXml = false;
     }
 
-    if (kind === "csv" || kind === "edl" || kind === "json" || kind === "fcpxml" || kind === "xml") {
+    if (kind === "csv" || kind === "edl" || kind === "json" || kind === "fcpxml" || kind === "xml" || kind === "aaf") {
       const content = await fs.readFile(filePath, "utf8");
       if (kind === "csv" && fileName.toLowerCase().includes("metadata")) metadataRows = parseCsv(content);
       if (kind === "csv" && fileName.toLowerCase().includes("marker")) markerRows = parseCsv(content);
@@ -418,6 +565,7 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
       }
       if (kind === "json" && fileName.toLowerCase().includes("manifest")) manifest = JSON.parse(content) as ManifestPayload;
       if ((kind === "fcpxml" || kind === "xml") && role === "timeline_exchange" && !parsedFcpxml) parsedFcpxml = parseFcpxml(content);
+      if (kind === "aaf" && !parsedAaf) parsedAaf = parseAaf(content);
     }
 
     intakeAssets.push(asset);
@@ -434,15 +582,24 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
   const issues: PreservationIssue[] = [];
 
   const hasFcpxmlTimeline = Boolean(parsedFcpxml && parsedFcpxml.tracks.length > 0);
-  const timelineSource = hasFcpxmlTimeline ? "fcpxml" : edlTracks.length > 0 ? "edl" : "metadata";
+  const hasAafTimeline = Boolean(parsedAaf && parsedAaf.tracks.length > 0);
+  const timelineSource = hasFcpxmlTimeline ? "fcpxml" : hasAafTimeline ? "aaf" : edlTracks.length > 0 ? "edl" : "metadata";
   let tracks: TranslationModel["timeline"]["tracks"] = [];
   let markers: Marker[] = [];
 
   if (timelineSource === "fcpxml") {
     tracks = parsedFcpxml?.tracks ?? [];
     enrichFromMetadata(tracks, metadataRows, intakeAssets);
+    if (hasAafTimeline && parsedAaf) {
+      issues.push(...reconcileFcpxmlWithAaf(tracks, parsedFcpxml?.markers ?? [], parsedAaf.tracks, parsedAaf.markers, intakeAssets));
+      enrichFromAaf(tracks, parsedAaf.tracks, intakeAssets);
+    }
     markers = (parsedFcpxml?.markers?.length ?? 0) > 0 ? parsedFcpxml?.markers ?? [] : markersFromCsv.length > 0 ? markersFromCsv : edlMarkers;
     issues.push(...reconcileFcpxmlWithMetadata(tracks, metadataRows, markers, markerRows, intakeAssets));
+  } else if (timelineSource === "aaf") {
+    tracks = parsedAaf?.tracks ?? [];
+    enrichFromMetadata(tracks, metadataRows, intakeAssets);
+    markers = (parsedAaf?.markers?.length ?? 0) > 0 ? parsedAaf?.markers ?? [] : markersFromCsv.length > 0 ? markersFromCsv : edlMarkers;
   } else if (timelineSource === "edl") {
     tracks = edlTracks;
     enrichFromMetadata(tracks, metadataRows, intakeAssets);
@@ -546,12 +703,12 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
     sourceBundleId: sourceBundle.id,
     timeline: {
       id: "timeline-imported",
-      name: parsedFcpxml?.timelineName ?? manifest.timelineName ?? sourceBundle.resolveTimelineVersion,
-      startTimecode: parsedFcpxml?.startTimecode ?? manifest.startTimecode ?? "01:00:00:00",
+      name: parsedFcpxml?.timelineName ?? parsedAaf?.timelineName ?? manifest.timelineName ?? sourceBundle.resolveTimelineVersion,
+      startTimecode: parsedFcpxml?.startTimecode ?? parsedAaf?.startTimecode ?? manifest.startTimecode ?? "01:00:00:00",
       durationTimecode: manifest.durationTimecode ?? "00:00:00:00",
       startFrame: timelineFrames.startFrame,
       durationFrames: timelineFrames.durationFrames,
-      fps: parsedFcpxml?.fps ?? manifest.fps ?? 24,
+      fps: parsedFcpxml?.fps ?? parsedAaf?.fps ?? manifest.fps ?? 24,
       sampleRate: manifest.sampleRate ?? 48000,
       dropFrame: parsedFcpxml?.dropFrame ?? manifest.dropFrame ?? false,
       tracks,

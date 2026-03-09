@@ -1,4 +1,4 @@
-# Conform Bridge — Product Contract (Phase 1)
+# Conform Bridge — Product Contract (Phase 1/2)
 
 ## Product Intent
 Conform Bridge is an internal, desktop-first operator tool for translating **Resolve editorial bundles** into a **Nuendo-ready handoff bundle**.
@@ -9,7 +9,7 @@ Phase 1 is intentionally frontend-only and contract-first:
 - lock bundle artifact contract
 - scaffold operator routes with deterministic SSR-safe rendering
 
-## In Scope (Phase 1)
+## In Scope (Current State)
 - Next.js App Router application shell using TypeScript, Tailwind CSS, and reusable shadcn/ui-style primitives.
 - Operator workflow routes:
   - Dashboard
@@ -21,11 +21,12 @@ Phase 1 is intentionally frontend-only and contract-first:
   - Settings
 - Typed canonical internal model for translation workflow entities.
 - Realistic, static mock data for Resolve -> Nuendo workflows.
-- Stub service interfaces for importer/exporter/persistence only.
+- Importer now performs real intake for CSV/manifest/EDL/FCPXML and AAF-backed reconciliation into the canonical model.
+- Exporter remains planning-only (no Nuendo file writing yet).
 
-## Out of Scope (Phase 1)
-- Real AAF/XML/EDL parsing.
-- Real Nuendo export writing.
+## Out of Scope (Current State)
+- Nuendo project writing / binary file generation.
+- Full-fidelity AAF binary decode beyond the current structured extraction subset.
 - Auth, billing, database persistence, and marketing/public pages.
 
 ## Primary Workflow Contract
@@ -33,7 +34,7 @@ Phase 1 is intentionally frontend-only and contract-first:
 2. Data is normalized into a canonical internal model.
 3. A Nuendo-ready outbound bundle is assembled.
 
-Parser/export execution remains stubbed in this phase; UI and contracts are fixed now so phase 2 can implement services without reshaping the operator shell.
+Parser execution is now partially real (CSV/manifest/EDL/FCPXML/AAF ingestion + reconciliation). Export execution remains planning-only so phase 2 can continue without reshaping the operator shell.
 
 ## UX Direction
 - Desktop-first internal operations console.
@@ -51,4 +52,5 @@ Parser/export execution remains stubbed in this phase; UI and contracts are fixe
 - All required operator routes scaffolded and navigable in app shell.
 - Domain model includes all entities listed in `SCHEMA.md`.
 - Bundle artifact contract documented in `BUNDLE_SPEC.md` and represented in mock data.
-- Importer/exporter are explicit stubs and not real implementations.
+- Importer performs structured intake and canonical hydration, including AAF enrichment/reconciliation when present.
+- Exporter plans delivery artifacts only; writing remains intentionally unimplemented.

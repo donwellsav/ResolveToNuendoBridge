@@ -60,12 +60,13 @@ test("dispatchable vs blocked classification is explicit", () => {
   );
 });
 
-test("reference transport emits acknowledgements and receipts", () => {
+test("transport bundle emits deterministic dispatch and receipts", () => {
   const job = translationJobs[0];
   const state = createEmptyReviewState(buildReviewStateKey(job));
   const workspace = overlayMappingWorkspace(job.mappingWorkspace, state);
   const bundle = buildEffectiveWriterRunTransportBundlePreview(job, workspace, state);
 
+  assert.equal(bundle.dispatchRecords.every((item) => item.status === "dispatched" || item.status === "runner-blocked"), true);
   assert.equal(bundle.transportResponses.every((item) => item.status === "acknowledged" || item.status === "runner-complete"), true);
   assert.equal(bundle.transportReceipts.every((item) => item.receiptStatus === "receipt-recorded"), true);
 });

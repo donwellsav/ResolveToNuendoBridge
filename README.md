@@ -15,8 +15,8 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Past | Phase 3D | External execution packaging boundary on staged + handoff outputs | ✅ Complete |
 | Past | Phase 3E | Writer-adapter interface boundary + capability dry-run against external packages | ✅ Complete |
 | Past | Phase 3F | Writer-runner request/response/receipt contracts on adapter dry-runs (no native writing) | ✅ Complete |
-| Current | Phase 3G | External transport envelopes + execution audit/history on top of writer-runner contracts | ✅ Complete |
-| Later | Phase 3H | Real transport/orchestration backbone (queue + persistence) | 🗓️ Planned |
+| Past | Phase 3G | External transport envelopes + execution audit/history on top of writer-runner contracts | ✅ Complete |
+| Current | Phase 3H | Real external transport adapters + deterministic receipt ingestion (no queue/backend) | ✅ Complete |
 | Later | Phase 3I | Native writer execution/orchestration implementation behind adapter boundary | 🗓️ Planned |
 
 ## Architecture (Intake → Canonical → Delivery)
@@ -30,7 +30,7 @@ Importer timeline precedence is currently:
 3. `edl`
 4. metadata-only fallback (when no timeline exchange parse is available)
 
-## Implemented Coverage (through Phase 3G)
+## Implemented Coverage (through Phase 3H)
 - Real intake scanning + role classification for fixture turnover folders.
 - Parsing for `manifest.json`, metadata CSV, marker CSV/EDL, FCPXML/XML, and broadened direct in-repo AAF extraction/parsing.
 - Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only and EDL fallbacks.
@@ -50,7 +50,7 @@ Importer timeline precedence is currently:
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 ## Known Limitations
-- Nuendo writer is still not implemented (Phase 3G adds transport/audit formalization + no-op dispatch only; no Nuendo/session binaries are written).
+- Nuendo writer is still not implemented (Phase 3H adds filesystem transport dispatch + receipt ingestion; no Nuendo/session binaries are written).
 - Deferred artifacts are staged as descriptors only (`*_NUENDO_READY.aaf.deferred.json`, `*_REFERENCE_VIDEO.deferred.json`), with no fake binary contents.
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.
@@ -69,8 +69,8 @@ Still unsupported in direct parsing (currently fallback-prone):
 
 ## Next Recommended Work
 - **Post-2K**: continue shrinking fallback by decoding additional opaque OLE stream layouts and richer effect object classes.
-- **Phase 3H**: implement real transport adapters and persistence-backed orchestration while preserving deterministic contract boundaries.
 - **Phase 3I**: implement native writer/orchestration execution against the external-execution package + adapter + runner + transport boundaries.
+- **Phase 3J**: optional backend/queue orchestration once native writer execution is validated.
 - Keep deterministic normalization + warning taxonomy improvements in lockstep with parser work.
 - Enter Phase 3 only after planning quality and review-state persistence are stable.
 

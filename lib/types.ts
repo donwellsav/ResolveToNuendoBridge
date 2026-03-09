@@ -885,14 +885,36 @@ export type WriterRunBundle = {
 export type WriterRunTransportEnvelopeVersion = "phase3g.v1";
 export type WriterRunTransportId = string;
 export type WriterRunCorrelationId = string;
+export type WriterRunTransportAdapterId = "reference.noop-transport" | "node.filesystem";
+export type WriterRunTransportAdapterVersion = "phase3h.v1";
+export type WriterRunTransportCapability = "dispatch-envelope" | "receipt-ingestion";
+export type WriterRunTransportEndpoint = { rootPath: string; outboundPath: string; inboundPath: string };
+export type WriterRunTransportAdapterUnsupportedReason =
+  | "endpoint-missing"
+  | "adapter-mismatch"
+  | "capability-missing"
+  | "node-only"
+  | "invalid-envelope-version";
+export type WriterRunReceiptSource = "filesystem-inbound" | "bundle-inline";
+export type WriterRunReceiptMatchStatus = "matched" | "duplicate" | "stale" | "unmatched";
+export type WriterRunReceiptValidationStatus = "valid" | "invalid" | "signature-mismatch" | "version-unsupported";
 export type WriterRunDispatchStatus =
   | "ready-to-dispatch"
   | "dispatched"
+  | "dispatch-failed"
   | "acknowledged"
   | "transport-failed"
   | "runner-blocked"
   | "runner-complete"
   | "receipt-recorded"
+  | "receipt-imported"
+  | "receipt-duplicate"
+  | "receipt-stale"
+  | "receipt-unmatched"
+  | "receipt-invalid"
+  | "completed"
+  | "failed"
+  | "partial"
   | "cancelled";
 export type WriterRunTransportFailure = { code: string; retryable: boolean; machineReason: string; explanation: string };
 export type WriterRunRetryState = {
@@ -931,7 +953,15 @@ export type WriterRunDispatchRecord = {
   retryState: WriterRunRetryState;
   cancellationState: WriterRunCancellationState;
   timeoutState: "none" | "not-started" | "timed-out";
-  staleState: "current" | "superseded";
+  staleState: "current" | "superseded"
+  | "receipt-imported"
+  | "receipt-duplicate"
+  | "receipt-stale"
+  | "receipt-unmatched"
+  | "receipt-invalid"
+  | "completed"
+  | "failed"
+  | "partial";
 };
 export type WriterRunTransportResponse = {
   transportId: WriterRunTransportId;
@@ -947,6 +977,59 @@ export type WriterRunTransportReceipt = {
   receiptStatus: "receipt-recorded";
   message: string;
 };
+export type WriterRunDispatchEnvelope = {
+  adapterId: WriterRunTransportAdapterId;
+  adapterVersion: WriterRunTransportAdapterVersion;
+  endpoint: WriterRunTransportEndpoint;
+  envelope: WriterRunTransportEnvelope;
+};
+export type WriterRunDispatchResult = {
+  dispatchId: string;
+  adapterId: WriterRunTransportAdapterId;
+  adapterVersion: WriterRunTransportAdapterVersion;
+  transportId: WriterRunTransportId;
+  requestId: WriterRunRequestId;
+  correlationId: WriterRunCorrelationId;
+  packageId: string;
+  packageSignature: string;
+  status: "dispatched" | "dispatch-failed";
+  dispatchedAtIso: string;
+  outboundPath?: string;
+  failureReason?: string;
+};
+export type WriterRunReceiptEnvelope = {
+  receiptId: string;
+  receiptVersion: WriterRunTransportAdapterVersion;
+  adapterId: WriterRunTransportAdapterId;
+  transportId: WriterRunTransportId;
+  correlationId: WriterRunCorrelationId;
+  requestId: WriterRunRequestId;
+  packageId: string;
+  packageSignature: string;
+  sourceSignature: string;
+  reviewSignature: string;
+  outcome: "completed" | "failed" | "partial";
+  details: string;
+};
+export type WriterRunReceiptIngestionResult = {
+  receiptId: string;
+  source: WriterRunReceiptSource;
+  matchStatus: WriterRunReceiptMatchStatus;
+  validationStatus: WriterRunReceiptValidationStatus;
+  status: "receipt-imported" | "receipt-duplicate" | "receipt-stale" | "receipt-unmatched" | "receipt-invalid";
+  matchedTransportId?: WriterRunTransportId;
+  matchedCorrelationId?: WriterRunCorrelationId;
+  nextDispatchStatus?: "completed" | "failed" | "partial";
+  message: string;
+};
+export type WriterRunTransportAdapter = {
+  id: WriterRunTransportAdapterId;
+  version: WriterRunTransportAdapterVersion;
+  capabilities: WriterRunTransportCapability[];
+  endpoint: WriterRunTransportEndpoint;
+  dispatch(envelopes: WriterRunTransportEnvelope[]): WriterRunDispatchResult[];
+  readReceipts(): WriterRunReceiptEnvelope[];
+};
 export type WriterRunAuditEventType =
   | "classified"
   | "dispatched"
@@ -956,7 +1039,15 @@ export type WriterRunAuditEventType =
   | "transport-failed"
   | "cancelled"
   | "timed-out"
-  | "superseded";
+  | "superseded"
+  | "receipt-imported"
+  | "receipt-duplicate"
+  | "receipt-stale"
+  | "receipt-unmatched"
+  | "receipt-invalid"
+  | "completed"
+  | "failed"
+  | "partial";
 export type WriterRunAuditEvent = { eventId: string; eventType: WriterRunAuditEventType; sequence: number; explanation: string };
 export type WriterRunAuditRecord = {
   auditId: string;
@@ -978,7 +1069,15 @@ export type WriterRunAttemptHistory = {
   retryState: WriterRunRetryState;
   cancellationState: WriterRunCancellationState;
   timeoutState: "none" | "not-started" | "timed-out";
-  staleState: "current" | "superseded";
+  staleState: "current" | "superseded"
+  | "receipt-imported"
+  | "receipt-duplicate"
+  | "receipt-stale"
+  | "receipt-unmatched"
+  | "receipt-invalid"
+  | "completed"
+  | "failed"
+  | "partial";
 };
 export type WriterRunTransportBundle = {
   stage: "writer-run-transport";
@@ -987,6 +1086,10 @@ export type WriterRunTransportBundle = {
   dispatchRecords: WriterRunDispatchRecord[];
   transportResponses: WriterRunTransportResponse[];
   transportReceipts: WriterRunTransportReceipt[];
+  transportAdapter: { adapterId: WriterRunTransportAdapterId; adapterVersion: WriterRunTransportAdapterVersion; endpoint: WriterRunTransportEndpoint };
+  dispatchResults: WriterRunDispatchResult[];
+  importedReceipts: WriterRunReceiptEnvelope[];
+  receiptIngestion: WriterRunReceiptIngestionResult[];
   auditLog: WriterRunAuditRecord[];
   history: WriterRunAttemptHistory[];
   files: Array<{

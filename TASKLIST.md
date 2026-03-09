@@ -10,7 +10,8 @@
 - ✅ **Phase 3E** complete (writer-adapter interfaces + registry/capability matching + dry-run/readiness reporting on external-execution package outputs).
 - ✅ **Phase 3F** complete (writer-runner request/response/receipt contracts + no-op runner landed).
 - ✅ **Phase 3G** complete (transport envelopes + dispatch/audit/history contracts on top of writer-runner landed).
-🧭 Next phase is **Phase 3H** real transport adapters + orchestration persistence before native writer execution.
+- ✅ **Phase 3H** complete (real filesystem transport adapter + deterministic receipt-ingestion flow landed).
+🧭 Next phase is **Phase 3I** native writer orchestration execution before any backend queue/persistence.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -110,10 +111,10 @@
 - [x] Surface transport and audit visibility in job operator view without redesign.
 - [x] Add tests for envelope determinism, linkage, classification, acknowledgements, audit/history generation, and state transitions.
 
-## Phase 3H — Real Transport/Orchestration Backbone (Planned)
-- [ ] Implement real external transport adapters and queue lifecycle integration.
-- [ ] Add durable/persistence-backed dispatch and audit history storage.
-- [ ] Add orchestration controls for retries, cancellation, timeout handling, and stale/supersede transitions.
+## Phase 3H — Real Transport Adapters + Receipt Ingestion (Complete)
+- [x] Implement real external transport adapter boundary with filesystem dispatch adapter plus no-op fallback path.
+- [x] Add deterministic outbound dispatch materialization and inbound receipt ingestion/matching/validation flow.
+- [x] Extend audit/history transitions for imported/duplicate/stale/unmatched/invalid/completed/failed/partial receipt outcomes.
 
 ## Phase 3I — Native Writer/Orchestration Execution (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.

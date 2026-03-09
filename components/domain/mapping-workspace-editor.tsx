@@ -12,6 +12,7 @@ import {
   buildEffectiveDeliveryStagingPreview,
   buildEffectiveDeliveryHandoffPreview,
   buildEffectiveExternalExecutionPackagePreview,
+  buildEffectiveWriterAdapterReportPreview,
 } from "@/lib/review-state";
 import { useReviewState } from "@/lib/use-review-state";
 import type { NormalizedTrack, TranslationJob } from "@/lib/types";
@@ -48,6 +49,10 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
   );
   const externalPackagePreview = useMemo(
     () => buildEffectiveExternalExecutionPackagePreview(job, effectiveWorkspace, reviewState),
+    [job, effectiveWorkspace, reviewState]
+  );
+  const writerAdapterReport = useMemo(
+    () => buildEffectiveWriterAdapterReportPreview(job, effectiveWorkspace, reviewState),
     [job, effectiveWorkspace, reviewState]
   );
 
@@ -278,6 +283,31 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
           </tbody>
         </table>
       </section>
+
+
+      <section className="space-y-2">
+        <h4 className="text-sm font-semibold">Writer Adapter Readiness (Phase 3E)</h4>
+        <div className="flex gap-2 text-xs">
+          <Badge variant="success">Ready {writerAdapterReport.matches.filter((item) => item.state === "ready").length}</Badge>
+          <Badge variant="danger">Blocked {writerAdapterReport.matches.filter((item) => item.state === "blocked").length}</Badge>
+          <Badge variant="warning">Unsupported {writerAdapterReport.matches.filter((item) => item.state === "unsupported").length}</Badge>
+          <Badge variant="accent">Deferred {writerAdapterReport.matches.filter((item) => item.state === "deferred").length}</Badge>
+        </div>
+        <table className="w-full border-collapse text-xs">
+          <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Deferred Artifact</th><th className="px-2 py-1 text-left">Adapter</th><th className="px-2 py-1 text-left">State</th><th className="px-2 py-1 text-left">Reason</th></tr></thead>
+          <tbody>
+            {writerAdapterReport.matches.map((match) => (
+              <tr key={match.artifactId} className="border-t border-border">
+                <td className="px-2 py-1 font-mono">{match.artifactId}</td>
+                <td className="px-2 py-1">{match.adapterId ?? "none"}</td>
+                <td className="px-2 py-1"><Badge variant={match.state === "ready" ? "success" : match.state === "blocked" ? "danger" : "warning"}>{match.state}</Badge></td>
+                <td className="px-2 py-1 text-muted">{match.reason}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
 
       <section className="space-y-2">
         <h4 className="text-sm font-semibold">Delivery Preview (effective overlay state)</h4>

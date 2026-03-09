@@ -606,6 +606,135 @@ export type ExternalExecutionPackage = {
   }>;
 };
 
+
+
+export type WriterAdapterId = "reference.noop" | "future.nuendo-aaf" | "future.reference-video";
+
+export type WriterAdapterVersion = "phase3e.v1";
+
+export type WriterAdapterArtifactKind = DeferredWriterArtifact["artifactKind"];
+
+export type WriterAdapterCapability = {
+  capabilityId: WriterCapability;
+  artifactKinds: WriterAdapterArtifactKind[];
+  supported: boolean;
+  note?: string;
+};
+
+export type WriterAdapterUnsupportedReasonCode =
+  | "capability-mismatch"
+  | "readiness-blocked"
+  | "readiness-partial"
+  | "known-gap"
+  | "dependency-blocked"
+  | "missing-contract"
+  | "adapter-placeholder";
+
+export type WriterAdapterUnsupportedReason = {
+  code: WriterAdapterUnsupportedReasonCode;
+  message: string;
+  artifactId?: string;
+  dependencyReference?: string;
+};
+
+export type WriterAdapterArtifactInput = {
+  artifactId: string;
+  inputId: string;
+  artifactKind: WriterAdapterArtifactKind;
+  plannedOutputPath: string;
+  stagedDescriptorPath: string;
+  requiredWriterCapability: WriterCapability;
+  readinessStatus: WriterReadinessStatus;
+  unresolvedBlockers: string[];
+  dependencySummary: {
+    satisfied: number;
+    missing: number;
+    blocked: number;
+  };
+};
+
+export type WriterAdapterInput = {
+  schemaVersion: WriterAdapterVersion;
+  packageId: string;
+  packageVersion: ExternalExecutionPackageVersion;
+  packageSignature: string;
+  packageReadiness: ExternalExecutionStatus;
+  sourceSignature: DeliverySourceSignature;
+  reviewSignature: DeliveryReviewSignature;
+  handoffManifestVersion: DeferredWriterInputVersion;
+  artifacts: WriterAdapterArtifactInput[];
+  entries: Array<{
+    artifactId: string;
+    artifactKind: string;
+    classification: ExternalExecutionEntry["classification"];
+    relativePath: string;
+    status: ExternalExecutionEntry["status"];
+  }>;
+};
+
+export type WriterAdapterReadiness = "ready" | "partial" | "blocked";
+
+export type WriterAdapterValidationResult = {
+  adapterId: WriterAdapterId;
+  adapterVersion: WriterAdapterVersion;
+  readiness: WriterAdapterReadiness;
+  reasons: string[];
+  unsupported: WriterAdapterUnsupportedReason[];
+};
+
+export type WriterAdapterExecutionPlan = {
+  adapterId: WriterAdapterId;
+  adapterVersion: WriterAdapterVersion;
+  readyArtifacts: string[];
+  deferredArtifacts: string[];
+  blockedArtifacts: string[];
+  dependencySummary: {
+    satisfied: number;
+    missing: number;
+    blocked: number;
+  };
+};
+
+export type WriterAdapterDryRunResult = {
+  adapterId: WriterAdapterId;
+  adapterVersion: WriterAdapterVersion;
+  validation: WriterAdapterValidationResult;
+  executionPlan: WriterAdapterExecutionPlan;
+  unsupported: WriterAdapterUnsupportedReason[];
+};
+
+export type WriterAdapter = {
+  id: WriterAdapterId;
+  version: WriterAdapterVersion;
+  capabilities: WriterAdapterCapability[];
+  validate(input: WriterAdapterInput): WriterAdapterValidationResult;
+  dryRun(input: WriterAdapterInput): WriterAdapterDryRunResult;
+};
+
+export type WriterAdapterArtifactMatch = {
+  artifactId: string;
+  artifactKind: WriterAdapterArtifactKind;
+  requiredWriterCapability: WriterCapability;
+  readinessStatus: WriterReadinessStatus;
+  adapterId?: WriterAdapterId;
+  adapterVersion?: WriterAdapterVersion;
+  state: "ready" | "blocked" | "unsupported" | "deferred";
+  reason: string;
+  unsupported: WriterAdapterUnsupportedReason[];
+};
+
+export type WriterAdapterRegistryReport = {
+  packageId: string;
+  packageSignature: string;
+  schemaVersion: WriterAdapterVersion;
+  matches: WriterAdapterArtifactMatch[];
+  adapters: Array<{
+    adapterId: WriterAdapterId;
+    version: WriterAdapterVersion;
+    capabilities: WriterAdapterCapability[];
+  }>;
+};
+
 export type TranslationJob = {
   id: string;
   jobName: string;
@@ -626,6 +755,7 @@ export type TranslationJob = {
   deliveryStaging?: DeliveryStagingBundle;
   deliveryHandoff?: DeliveryHandoffBundle;
   externalExecutionPackage?: ExternalExecutionPackage;
+  writerAdapterReport?: WriterAdapterRegistryReport;
 };
 
 export type ImportAnalysisResult = Omit<

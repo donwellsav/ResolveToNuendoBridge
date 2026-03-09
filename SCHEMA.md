@@ -1,7 +1,7 @@
-# Conform Bridge Canonical Schema (Phase 3G Baseline)
+# Conform Bridge Canonical Schema (Phase 3I Baseline)
 
 Canonical data contract for the deterministic pipeline:
-**intake -> canonical -> delivery**
+**intake -> canonical -> delivery**,
 with downstream execution boundaries layered after delivery planning.
 
 ## Pipeline Vocabulary
@@ -107,8 +107,8 @@ Operator-editable decision layer consumed by validation + delivery planning.
 - `status: "planned" | "blocked" | "placeholder"`
 - `note?: string`
 
-## Downstream Contract Extensions (Implemented)
-After `DeliveryPackage`, the current codebase also includes deterministic typed boundaries for:
+## Downstream Contract Extensions (Implemented Through Phase 3I)
+After `DeliveryPackage`, deterministic typed boundaries include:
 - `DeliveryExecutionPlan`
 - `DeliveryStagingBundle`
 - `DeliveryHandoffBundle`
@@ -116,11 +116,20 @@ After `DeliveryPackage`, the current codebase also includes deterministic typed 
 - `WriterAdapterRegistryReport`
 - `WriterRunBundle`
 - `WriterRunTransportBundle`
+- `ReceiptCompatibilityProfile` / schema registry
+- receipt normalization + deterministic receipt ingestion outcomes
 
-These preserve separation of concerns and do not change canonical intake/canonical/delivery semantics.
+These preserve separation of concerns and do not change intake/canonical/delivery semantics.
+
+## Phase 3I Receipt Compatibility Contract Notes
+- Compatibility profile/versioning is explicit and deterministic.
+- Receipt normalization/migration is isolated from transport dispatch.
+- Matching uses correlation id + transport/dispatch linkage + package/source/review signatures + artifact/adapter/runner context.
+- Replay safety covers duplicate receipt ids, duplicate payload fingerprints, stale/superseded receipts, partial signature drift, and incompatible schema/version imports.
 
 ## Runtime Status Notes
 - Importer coverage includes manifest, metadata CSV, marker CSV/EDL, FCPXML/XML, and direct AAF extraction/parsing.
 - Timeline source precedence is `fcpxml/xml` -> `aaf` -> `edl` -> metadata-only fallback.
 - Browser-local persisted review state is implemented (versioned review deltas keyed by job + source signature).
+- Filesystem transport remains the first real transport path.
 - Native Nuendo writer/session outputs remain intentionally unimplemented.

@@ -7,6 +7,7 @@ import type {
 import { buildWriterRunAuditLog } from "./writer-run-audit";
 import { buildWriterRunAttemptHistory } from "./writer-run-history";
 import { buildWriterRunTransportEnvelopes, dispatchWriterRunTransportReference } from "./writer-run-transport";
+import { listReceiptCompatibilityProfiles } from "./receipt-schema-registry";
 
 export function buildWriterRunTransportBundle(params: {
   pkg: ExternalExecutionPackage;
@@ -77,6 +78,7 @@ export function buildWriterRunTransportBundle(params: {
     dispatchRecords,
     transportResponses,
     transportReceipts,
+    compatibilityProfiles: listReceiptCompatibilityProfiles(),
     transportAdapter: {
       adapterId: "reference.noop-transport",
       adapterVersion: "phase3h.v1",

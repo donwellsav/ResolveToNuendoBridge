@@ -276,10 +276,12 @@ export default async function JobsPage() {
             <CardContent className="space-y-3 text-xs">
               <div className="flex flex-wrap gap-2">
                 <Badge variant="accent">Adapter {transportBundle.transportAdapter.adapterId}</Badge>
+                <Badge variant="accent">Profile {transportBundle.compatibilityProfiles[0]?.profileId ?? "n/a"}</Badge>
                 <Badge variant="accent">Envelopes {transportBundle.envelopes.length}</Badge>
                 <Badge variant="success">Dispatched {transportBundle.dispatchResults.filter((record) => record.status === "dispatched").length}</Badge>
                 <Badge variant="warning">Receipt imports {transportBundle.receiptIngestion.filter((item) => item.status === "receipt-imported").length}</Badge>
-                <Badge variant="danger">Invalid/unmatched {transportBundle.receiptIngestion.filter((item) => item.status === "receipt-invalid" || item.status === "receipt-unmatched").length}</Badge>
+                <Badge variant="danger">Invalid/incompatible {transportBundle.receiptIngestion.filter((item) => item.status === "receipt-invalid" || item.status === "receipt-incompatible").length}</Badge>
+                <Badge variant="warning">Partial/stale {transportBundle.receiptIngestion.filter((item) => item.status === "receipt-partial" || item.status === "receipt-stale" || item.status === "receipt-superseded").length}</Badge>
               </div>
               <div className="text-muted">Outbound: <span className="font-mono">{transportBundle.transportAdapter.endpoint.outboundPath}</span> · Inbound: <span className="font-mono">{transportBundle.transportAdapter.endpoint.inboundPath}</span></div>
               <table className="w-full border-collapse text-xs">
@@ -297,15 +299,16 @@ export default async function JobsPage() {
                 </tbody>
               </table>
               <table className="w-full border-collapse text-xs">
-                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Receipt</th><th className="px-2 py-1 text-left">Match</th><th className="px-2 py-1 text-left">Validation</th><th className="px-2 py-1 text-left">Status</th><th className="px-2 py-1 text-left">Correlation</th></tr></thead>
+                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Receipt</th><th className="px-2 py-1 text-left">Profile/Version</th><th className="px-2 py-1 text-left">Match</th><th className="px-2 py-1 text-left">Validation</th><th className="px-2 py-1 text-left">Status</th><th className="px-2 py-1 text-left">Drift</th></tr></thead>
                 <tbody>
                   {transportBundle.receiptIngestion.map((entry) => (
                     <tr key={entry.receiptId} className="border-t border-border">
                       <td className="px-2 py-1 font-mono">{entry.receiptId}</td>
+                      <td className="px-2 py-1 font-mono">{entry.compatibilityProfileId ?? "—"} / {entry.compatibilityVersion ?? "—"}</td>
                       <td className="px-2 py-1">{entry.matchStatus}</td>
                       <td className="px-2 py-1">{entry.validationStatus}</td>
-                      <td className="px-2 py-1"><Badge variant={entry.status === "receipt-imported" ? "success" : entry.status === "receipt-duplicate" || entry.status === "receipt-stale" ? "warning" : "danger"}>{entry.status}</Badge></td>
-                      <td className="px-2 py-1 font-mono">{entry.matchedCorrelationId ?? "—"}</td>
+                      <td className="px-2 py-1"><Badge variant={entry.status === "receipt-imported" ? "success" : entry.status === "receipt-duplicate" || entry.status === "receipt-stale" || entry.status === "receipt-partial" || entry.status === "receipt-superseded" ? "warning" : "danger"}>{entry.status}</Badge></td>
+                      <td className="px-2 py-1 text-muted">{entry.problems?.map((problem) => problem.code).join(", ") || "none"}</td>
                     </tr>
                   ))}
                 </tbody>

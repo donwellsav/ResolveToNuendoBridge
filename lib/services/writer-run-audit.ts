@@ -52,8 +52,11 @@ export function buildWriterRunAuditLog(params: {
       }
       if (ingested?.status === "receipt-duplicate") events.push(buildEvent("receipt-duplicate", 7, ingested.message));
       if (ingested?.status === "receipt-stale") events.push(buildEvent("receipt-stale", 8, ingested.message));
+      if (ingested?.status === "receipt-superseded") events.push(buildEvent("receipt-superseded", 8, ingested.message));
+      if (ingested?.status === "receipt-partial") events.push(buildEvent("receipt-partial", 8, ingested.message));
       if (ingested?.status === "receipt-unmatched") events.push(buildEvent("receipt-unmatched", 9, ingested.message));
       if (ingested?.status === "receipt-invalid") events.push(buildEvent("receipt-invalid", 10, ingested.message));
+      if (ingested?.status === "receipt-incompatible") events.push(buildEvent("receipt-incompatible", 10, ingested.message));
       if (dispatch?.status === "runner-blocked") {
         events.push(buildEvent("runner-blocked", 11, "Request blocked before transport dispatch."));
       }

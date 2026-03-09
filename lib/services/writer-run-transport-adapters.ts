@@ -3,7 +3,6 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 
 import type {
   WriterRunDispatchResult,
-  WriterRunReceiptEnvelope,
   WriterRunTransportAdapter,
   WriterRunTransportEndpoint,
   WriterRunTransportEnvelope,
@@ -80,6 +79,14 @@ export function createNodeFilesystemTransportAdapter(endpoint: WriterRunTranspor
           dispatchStatus: "dispatched",
         });
         writeFileSync(readyPath, `${stableStringify({ dispatchId, correlationId: envelope.correlationId })}\n`, "utf8");
+        writeJson(path.join(dispatchRoot, "receipt-compatibility.json"), {
+          profileId: envelope.receiptCompatibilityProfile.profileId,
+          supportedVersions: envelope.receiptCompatibilityProfile.supportedVersions,
+          expectedReceiptFiles: envelope.receiptCompatibilityProfile.expectedReceiptFiles,
+          requiredFields: envelope.receiptCompatibilityProfile.requiredFields,
+          optionalFields: envelope.receiptCompatibilityProfile.optionalFields,
+          normalizationRules: envelope.receiptCompatibilityProfile.normalizationRules,
+        });
 
         return {
           dispatchId,
@@ -104,7 +111,7 @@ export function createNodeFilesystemTransportAdapter(endpoint: WriterRunTranspor
 
       return files.map((fileName) => {
         const payload = readFileSync(path.join(endpoint.inboundPath, fileName), "utf8");
-        return JSON.parse(payload) as WriterRunReceiptEnvelope;
+        return JSON.parse(payload) as unknown;
       });
     },
   };

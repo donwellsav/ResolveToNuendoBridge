@@ -2,35 +2,68 @@
 
 Internal desktop-first operator tool for translating Resolve turnover bundles into a Nuendo-ready conform handoff.
 
-## Phase Roadmap (Past / Current / Planned)
+## Program Status at a Glance
+
+| Status | Phase | Focus | State |
+|---|---|---|---|
+| Past | Phase 1 | Contract lock + frontend operator shell | ✅ Complete |
+| Current | Phase 2A–2E | Real intake parsing + canonical hydration/reconciliation | 🚧 Active |
+| Planned | Phase 3 | Canonical normalization + delivery writing + execution UX/persistence | 🗓️ Next |
+
+## Phase History and Plan (Past / Current / Planned)
 
 ### Past — Phase 1 (Completed)
-Phase 1 locked contracts and delivered the frontend operator shell:
-- Product/scope contract in `PRODUCT.md`
-- Canonical schema contract in `SCHEMA.md`
-- Delivery artifact/bundle contract in `BUNDLE_SPEC.md`
-- Desktop-first Next.js App Router operator UI routes and reusable UI primitives
-- Deterministic SSR-safe rendering constraints across initial render paths
+Phase 1 established the stable product/data/bundle contract and a deterministic operator shell.
 
-### Current — Phase 2 (Active)
-Phase 2 is focused on parser/import/export service milestones while preserving the phase-1 contracts.
+Completed outcomes:
+- Locked product/scope contract in `PRODUCT.md`.
+- Locked canonical schema contract in `SCHEMA.md`.
+- Locked bundle artifact contract in `BUNDLE_SPEC.md`.
+- Delivered desktop-first Next.js App Router shell and core operator routes.
+- Kept initial render deterministic and SSR-safe.
+- Kept importer/exporter boundaries as stubs while validating UX and data contracts.
 
-Current implemented status:
-- Real intake parsing for CSV/manifest/EDL/FCPXML
-- AAF ingestion milestone added (structured extraction parser + importer precedence + reconciliation issue generation)
-- Canonical hydration from FCPXML/XML when present
-- AAF fallback hydration when FCPXML/XML is absent
-- Export remains planning-only (artifact planning; no Nuendo project/file writing yet)
+### Current — Phase 2 (Active implementation series)
+Phase 2 incrementally replaces fixture-only paths with real intake parsing and canonical hydration while preserving the phase-1 contract.
 
-### Planned — Next Milestones
-Planned sequence after current AAF milestone:
-1. Deterministic canonical normalization pipeline across intake sources
-2. Expanded validation taxonomy and richer reconciliation diagnostics
-3. Nuendo-ready bundle writer implementation (actual file writing)
-4. File intake UX + job execution controls around real services
-5. Persistence layer once service boundaries are stable
+#### Phase 2 progress so far
+- **2A/2B foundation**
+  - Intake scanning and file-role classification.
+  - Real manifest + metadata CSV parsing.
+  - Marker CSV/EDL parsing and baseline preservation issue reporting.
+- **2C timeline exchange milestone**
+  - FCPXML/XML parser path wired into canonical timeline hydration.
+  - FCPXML/XML set as primary timeline source when present.
+- **2D AAF baseline**
+  - First-pass AAF parser integrated.
+  - AAF enrichment against canonical timeline plus AAF-only fallback hydration.
+- **2E deeper AAF ingestion (latest)**
+  - Richer AAF token handling for composition/event-style records.
+  - Improved extraction for source identity, reel/tape, in/out ranges, channels/layout.
+  - Explicit offline/missing-reference signals preserved.
+  - Inferable fade/speed metadata carried into canonical events.
+  - Reconciliation issues expanded for AAF vs FCPXML/XML mismatches (counts/timing/source/reel/tape/missing media).
 
-See `TASKLIST.md` for the live checklist.
+#### What remains in current phase
+- Deterministic canonical normalization pass across all ingest paths.
+- Broader warning taxonomy and conflict diagnostics.
+- Keep exporter planning unchanged except benefiting from richer canonical inputs.
+
+### Planned — Next Phases
+
+#### Phase 3 (planned)
+- Implement deterministic canonical normalization pipeline.
+- Add deeper validation/reconciliation diagnostics for operator triage.
+- Implement Nuendo-ready bundle writing (actual artifact output).
+- Add intake execution controls/job orchestration in UI.
+- Add persistence once service boundaries stabilize.
+
+#### Later (post-Phase 3)
+- Hardening/perf on large turnovers.
+- Additional interchange adapters as needed.
+- Operational reporting around preservation/reconform outcomes.
+
+See `TASKLIST.md` for the live checklist and status markers.
 
 ## Source-of-Truth Contracts
 - `PRODUCT.md`
@@ -86,6 +119,7 @@ Required artifact family modeled end-to-end:
 
 ## Implementation Notes
 - Initial render paths are deterministic and SSR-safe.
-- Importer now includes partial real phase-2 parsing milestones (including AAF intake/reconciliation).
-- Exporter remains planner-only in the current phase.
-- Mock workflow data remains plausible to Resolve/Nuendo post workflows (reels, timeline TC, pull modes, field recorder matching, reconform warnings).
+- Intake and canonical services are now partially real (manifest/CSV/EDL/FCPXML/XML/AAF coverage).
+- AAF ingestion now supports deeper reconciliation while keeping unknowns explicit.
+- Exporter remains planner-only in the current phase (no Nuendo project writing yet).
+- Mock workflow semantics remain plausible for Resolve/Nuendo workflows (reels, timeline TC, pull modes, field-recorder matching, reconform warnings).

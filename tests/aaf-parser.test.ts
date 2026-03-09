@@ -6,6 +6,7 @@ import test from "node:test";
 import { parseAaf } from "../lib/parsers/aaf";
 
 const aafOnlyFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-205-aaf-only", "timeline.aaf");
+const aafMissingMediaFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-207-aaf-missing-media", "timeline.aaf");
 
 test("AAF parser hydrates timeline, track, clip, media, and marker fields", () => {
   const content = readFileSync(aafOnlyFixture, "utf8");
@@ -33,4 +34,22 @@ test("AAF parser hydrates timeline, track, clip, media, and marker fields", () =
 
   assert.equal(parsed.markers.length, 1);
   assert.equal(parsed.markers[0].label, "ADR candidate");
+});
+
+test("AAF parser supports COMPOSITION/EVENT and infers speed/fade/missing-reference metadata", () => {
+  const content = readFileSync(aafMissingMediaFixture, "utf8");
+  const parsed = parseAaf(content);
+
+  assert.equal(parsed.timelineName, "RVR_207_LOCK_v2");
+  assert.equal(parsed.tracks.length, 1);
+  assert.equal(parsed.tracks[0].clips.length, 2);
+
+  const secondClip = parsed.tracks[0].clips[1];
+  assert.equal(secondClip.sourceFileName, "SC07_TK99.BWF");
+  assert.equal(secondClip.channelLayout, "L,R");
+  assert.equal(secondClip.hasSpeedEffect, true);
+  assert.equal(secondClip.hasFadeIn, true);
+  assert.equal(secondClip.hasFadeOut, false);
+  assert.equal(secondClip.isOffline, true);
+  assert.equal(secondClip.eventDescription, "DXMob207_2");
 });

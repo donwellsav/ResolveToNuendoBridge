@@ -3,6 +3,7 @@ import type {
   WriterRunAuditEventType,
   WriterRunAuditRecord,
   WriterRunDispatchRecord,
+  WriterRunReceiptIngestionResult,
   WriterRunTransportEnvelope,
   WriterRunTransportReceipt,
   WriterRunTransportResponse,
@@ -22,14 +23,16 @@ export function buildWriterRunAuditLog(params: {
   dispatchRecords: WriterRunDispatchRecord[];
   transportResponses: WriterRunTransportResponse[];
   transportReceipts: WriterRunTransportReceipt[];
+  receiptIngestion?: WriterRunReceiptIngestionResult[];
 }): WriterRunAuditRecord[] {
-  const { envelopes, dispatchRecords, transportResponses, transportReceipts } = params;
+  const { envelopes, dispatchRecords, transportResponses, transportReceipts, receiptIngestion = [] } = params;
 
   return envelopes
     .map((envelope, index) => {
       const dispatch = dispatchRecords.find((record) => record.transportId === envelope.transportId);
       const response = transportResponses.find((item) => item.transportId === envelope.transportId);
       const receipt = transportReceipts.find((item) => item.transportId === envelope.transportId);
+      const ingested = receiptIngestion.find((item) => item.matchedTransportId === envelope.transportId);
       const events: WriterRunAuditEvent[] = [
         buildEvent("classified", 1, `Request ${envelope.request.requestId} classified as ${envelope.dispatchStatus}.`),
       ];
@@ -43,14 +46,22 @@ export function buildWriterRunAuditLog(params: {
       if (receipt) {
         events.push(buildEvent("receipt-recorded", 4, receipt.message));
       }
-      if (dispatch?.status === "runner-blocked") {
-        events.push(buildEvent("runner-blocked", 5, "Request blocked before transport dispatch."));
+      if (ingested?.status === "receipt-imported") {
+        events.push(buildEvent("receipt-imported", 5, ingested.message));
+        events.push(buildEvent(ingested.nextDispatchStatus ?? "partial", 6, `Receipt outcome ${ingested.nextDispatchStatus}.`));
       }
-      if (dispatch?.status === "transport-failed") {
+      if (ingested?.status === "receipt-duplicate") events.push(buildEvent("receipt-duplicate", 7, ingested.message));
+      if (ingested?.status === "receipt-stale") events.push(buildEvent("receipt-stale", 8, ingested.message));
+      if (ingested?.status === "receipt-unmatched") events.push(buildEvent("receipt-unmatched", 9, ingested.message));
+      if (ingested?.status === "receipt-invalid") events.push(buildEvent("receipt-invalid", 10, ingested.message));
+      if (dispatch?.status === "runner-blocked") {
+        events.push(buildEvent("runner-blocked", 11, "Request blocked before transport dispatch."));
+      }
+      if (dispatch?.status === "transport-failed" || dispatch?.status === "dispatch-failed") {
         events.push(
           buildEvent(
             "transport-failed",
-            6,
+            12,
             dispatch.failure?.explanation ?? "Transport failed without detailed explanation."
           )
         );

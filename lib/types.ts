@@ -520,6 +520,92 @@ export type DeliveryHandoffBundle = {
   }>;
 };
 
+
+export type ExternalExecutionPackageVersion = "phase3d.v1";
+
+export type ExternalExecutionStatus = "ready" | "partial" | "blocked";
+
+export type ExternalExecutionChecksum = {
+  algorithm: "fnv1a32";
+  value: string;
+};
+
+export type ExternalExecutionDeferredInput = {
+  inputId: string;
+  artifactId: string;
+  readinessStatus: WriterReadinessStatus;
+  requiredWriterCapability: WriterCapability;
+  unresolvedBlockers: string[];
+};
+
+export type ExternalExecutionEntry = {
+  entryId: string;
+  sourceStage: "staged" | "handoff" | "package";
+  artifactId: string;
+  artifactKind: string;
+  classification: "generated" | "deferred-contract" | "package-metadata";
+  relativePath: string;
+  mediaType: string;
+  sizeBytes: number;
+  checksum: ExternalExecutionChecksum;
+  status: "generated" | "contract-only" | "missing";
+  reason?: string;
+};
+
+export type ExternalExecutionManifest = {
+  manifestVersion: ExternalExecutionPackageVersion;
+  packageId: string;
+  packageSignature: string;
+  generatedAtIso: string;
+  sourceSignature: DeliverySourceSignature;
+  reviewSignature: DeliveryReviewSignature;
+  status: ExternalExecutionStatus;
+  reasons: string[];
+};
+
+export type ExternalExecutionIndex = {
+  indexVersion: ExternalExecutionPackageVersion;
+  packageId: string;
+  entries: ExternalExecutionEntry[];
+  generatedCount: number;
+  deferredContractCount: number;
+  packageMetadataCount: number;
+};
+
+export type ExternalExecutionPackageSummary = {
+  packageId: string;
+  packageVersion: ExternalExecutionPackageVersion;
+  packageSignature: string;
+  status: ExternalExecutionStatus;
+  reasons: string[];
+  sourceSignature: string;
+  reviewSignature: string;
+  stagedGeneratedArtifacts: number;
+  stagedDeferredArtifacts: number;
+  handoffDeferredInputs: number;
+  blockedDeferredInputs: number;
+  partialDeferredInputs: number;
+};
+
+export type ExternalExecutionPackage = {
+  stage: "external-execution-package";
+  packageVersion: ExternalExecutionPackageVersion;
+  rootLabel: string;
+  rootPath: string;
+  manifest: ExternalExecutionManifest;
+  index: ExternalExecutionIndex;
+  summary: ExternalExecutionPackageSummary;
+  deferredInputs: ExternalExecutionDeferredInput[];
+  checksums: Array<{ relativePath: string; checksum: ExternalExecutionChecksum; sizeBytes: number }>;
+  files: Array<{
+    artifactId: string;
+    fileName: string;
+    relativePath: string;
+    mediaType: string;
+    contentPreview: string;
+  }>;
+};
+
 export type TranslationJob = {
   id: string;
   jobName: string;
@@ -539,6 +625,7 @@ export type TranslationJob = {
   deliveryExecution?: DeliveryExecutionPlan;
   deliveryStaging?: DeliveryStagingBundle;
   deliveryHandoff?: DeliveryHandoffBundle;
+  externalExecutionPackage?: ExternalExecutionPackage;
 };
 
 export type ImportAnalysisResult = Omit<

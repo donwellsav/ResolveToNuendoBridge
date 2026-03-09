@@ -6,7 +6,7 @@
 - ✅ **Phase 3A** complete (execution prep boundary landed; planner still separate from writer).
 - ✅ **Phase 3B** complete (staged delivery materialization landed; writer remains deferred).
 - ✅ **Phase 3C** complete (deferred writer-input contract hardening + handoff readiness manifests landed).
-- 🧭 Next phase is **Phase 3D** native writer/orchestration on top of handoff contracts.
+- 🧭 Next phase is **Phase 3E** native writer/orchestration on top of external-execution packages.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -70,7 +70,16 @@
 - [x] Surface handoff contracts/readiness in job/operator views without redesign.
 - [x] Add deterministic contract/readiness/review-influence tests.
 
-## Phase 3D — Native Writer/Orchestration (Planned)
+## Phase 3D — External Execution Packaging (Complete)
+- [x] Add external-execution package service boundary that consumes staging + handoff outputs.
+- [x] Define deterministic versioned package manifest/index/checksum/deferred-input types.
+- [x] Emit export-level package files (`external-execution-manifest.json`, `external-execution-index.json`, `external-execution-summary.json`, `checksums.json`, `deferred-writer-inputs.json`, `generated-artifact-index.json`).
+- [x] Add package readiness evaluation (`ready`/`partial`/`blocked`) with explicit reasons.
+- [x] Add disk materializer for deterministic package output layout.
+- [x] Surface package status/contents/checksums in operator views without redesign.
+- [x] Add deterministic packaging tests + staging/handoff consistency coverage.
+
+## Phase 3E — Native Writer/Orchestration (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
 - [ ] Implement reference-video binary generation orchestration boundary.
 - [ ] Add execution orchestration controls and persistence-backed execution-state tracking.

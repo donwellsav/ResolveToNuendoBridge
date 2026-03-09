@@ -12,7 +12,8 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Past | Phase 3A | Delivery execution prep boundary (planning remains separate from writing) | ✅ Complete |
 | Current | Phase 3B | Staged delivery materialization from execution-prep payloads | ✅ Complete |
 | Current | Phase 3C | Deferred writer-input contract hardening + delivery handoff manifests (writer still deferred) | ✅ Complete |
-| Later | Phase 3D+ | Native writer/orchestration implementation behind handoff boundary | 🗓️ Planned |
+| Current | Phase 3D | External execution packaging boundary on staged + handoff outputs | ✅ Complete |
+| Later | Phase 3E+ | Native writer/orchestration implementation behind handoff boundary | 🗓️ Planned |
 
 ## Architecture (Intake → Canonical → Delivery)
 1. **SourceBundle / intake**: scan turnover files, classify file kind/role, and parse manifest/metadata/markers/timeline exchanges.
@@ -25,7 +26,7 @@ Importer timeline precedence is currently:
 3. `edl`
 4. metadata-only fallback (when no timeline exchange parse is available)
 
-## Implemented Coverage (through Phase 3C)
+## Implemented Coverage (through Phase 3D)
 - Real intake scanning + role classification for fixture turnover folders.
 - Parsing for `manifest.json`, metadata CSV, marker CSV/EDL, FCPXML/XML, and broadened direct in-repo AAF extraction/parsing.
 - Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only and EDL fallbacks.
@@ -35,11 +36,12 @@ Importer timeline precedence is currently:
 - Delivery execution-prep layer converts planned artifacts into deterministic payloads for manifest/README/marker EDL+CSV/metadata CSV/field-recorder report, while writer-only binaries remain deferred records.
 - Delivery staging layer now materializes deterministic staged bundle structure and file-path contract on disk under `staging/<job>_<sequence>/` (manifest, README, marker/metadata/report files + deferred binary descriptor JSON + staging summary).
 - Delivery handoff layer now emits deterministic future-writer contracts (`handoff/deferred-writer-inputs.json`, `handoff/delivery-handoff-manifest.json`, `handoff/delivery-handoff-summary.json`) with dependency/readiness validation and blocked/partial/known-gap states.
+- External execution package layer now bundles staged outputs plus handoff contracts into deterministic export layout under `exports/<job>_<sequence>/` with `staged/`, `handoff/`, and `package/` indexes/manifests/checksums/readiness summaries for external executors.
 - Browser-local review-state persistence layer stores only operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job + source signature with schema versioning/migration handling.
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 ## Known Limitations
-- Nuendo writer is still not implemented (Phase 3C hardens deferred writer-input contracts + handoff manifests, but does not write Nuendo/session binaries).
+- Nuendo writer is still not implemented (Phase 3D packages staged/handoff outputs for external execution, but does not write Nuendo/session binaries).
 - Deferred artifacts are staged as descriptors only (`*_NUENDO_READY.aaf.deferred.json`, `*_REFERENCE_VIDEO.deferred.json`), with no fake binary contents.
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.
@@ -58,8 +60,8 @@ Still unsupported in direct parsing (currently fallback-prone):
 
 ## Next Recommended Work
 - **Post-2K**: continue shrinking fallback by decoding additional opaque OLE stream layouts and richer effect object classes.
-- **Phase 3C**: complete deferred writer-input contract hardening + readiness/blocked handoff manifests while keeping exporter/execution-prep/staging/writer boundaries separate.
-- **Phase 3D**: implement native writer/orchestration against the handoff boundary.
+- **Phase 3D**: package staged output + handoff contracts for external execution with deterministic checksums/readiness while keeping layer boundaries separate.
+- **Phase 3E**: implement native writer/orchestration against the external-execution package boundary.
 - Keep deterministic normalization + warning taxonomy improvements in lockstep with parser work.
 - Enter Phase 3 only after planning quality and review-state persistence are stable.
 

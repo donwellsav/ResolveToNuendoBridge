@@ -11,6 +11,7 @@ import {
   type ReviewState,
   buildEffectiveDeliveryStagingPreview,
   buildEffectiveDeliveryHandoffPreview,
+  buildEffectiveExternalExecutionPackagePreview,
 } from "@/lib/review-state";
 import { useReviewState } from "@/lib/use-review-state";
 import type { NormalizedTrack, TranslationJob } from "@/lib/types";
@@ -43,6 +44,10 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
   );
   const handoffPreview = useMemo(
     () => buildEffectiveDeliveryHandoffPreview(job, effectiveWorkspace, reviewState),
+    [job, effectiveWorkspace, reviewState]
+  );
+  const externalPackagePreview = useMemo(
+    () => buildEffectiveExternalExecutionPackagePreview(job, effectiveWorkspace, reviewState),
     [job, effectiveWorkspace, reviewState]
   );
 
@@ -242,6 +247,32 @@ export function MappingWorkspaceEditor({ job }: { job: TranslationJob }) {
                 <td className="px-2 py-1">{input.artifact.requiredWriterCapability}</td>
                 <td className="px-2 py-1"><Badge variant={input.artifact.readinessStatus === "ready-for-writer" ? "success" : input.artifact.readinessStatus === "blocked" ? "danger" : "warning"}>{input.artifact.readinessStatus}</Badge></td>
                 <td className="px-2 py-1 text-muted">{input.artifact.unresolvedBlockers.join("; ") || "none"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+
+
+      <section className="space-y-2">
+        <h4 className="text-sm font-semibold">External Execution Package (Phase 3D)</h4>
+        <div className="flex gap-2 text-xs">
+          <Badge variant={externalPackagePreview.summary.status === "ready" ? "success" : externalPackagePreview.summary.status === "blocked" ? "danger" : "warning"}>
+            Status {externalPackagePreview.summary.status}
+          </Badge>
+          <Badge variant="accent">Generated {externalPackagePreview.index.generatedCount}</Badge>
+          <Badge variant="warning">Deferred contracts {externalPackagePreview.index.deferredContractCount}</Badge>
+        </div>
+        <table className="w-full border-collapse text-xs">
+          <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Path</th><th className="px-2 py-1 text-left">Class</th><th className="px-2 py-1 text-left">Checksum</th><th className="px-2 py-1 text-left">Status</th></tr></thead>
+          <tbody>
+            {externalPackagePreview.index.entries.slice(0, 12).map((entry) => (
+              <tr key={entry.entryId} className="border-t border-border">
+                <td className="px-2 py-1 font-mono">{entry.relativePath}</td>
+                <td className="px-2 py-1">{entry.classification}</td>
+                <td className="px-2 py-1 font-mono">{entry.checksum.value}</td>
+                <td className="px-2 py-1"><Badge variant={entry.status === "generated" ? "success" : "warning"}>{entry.status}</Badge></td>
               </tr>
             ))}
           </tbody>

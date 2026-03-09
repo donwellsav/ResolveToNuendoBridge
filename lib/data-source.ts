@@ -5,6 +5,8 @@ import { prepareDeliveryExecution } from "./services/delivery-execution";
 import { buildDeliveryHandoffContracts } from "./services/delivery-handoff";
 import { stageDeliveryBundle } from "./services/delivery-staging";
 import { materializeStagedDeliveryBundle } from "./services/delivery-staging-materializer";
+import { buildExternalExecutionPackage } from "./services/external-execution-package";
+import { materializeExternalExecutionPackage } from "./services/external-execution-package-materializer";
 import { planNuendoDelivery } from "./services/exporter";
 import { importTurnoverFolder } from "./services/importer";
 import type { TranslationJob } from "./types";
@@ -61,6 +63,13 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
       effectiveWorkspace: baseJob.mappingWorkspace,
     });
 
+    const externalExecutionPackage = buildExternalExecutionPackage({
+      job: { ...baseJob, deliveryPackage: packagePlan, deliveryExecution, deliveryStaging, deliveryHandoff },
+      stagingBundle: deliveryStaging,
+      handoffBundle: deliveryHandoff,
+    });
+    await materializeExternalExecutionPackage(externalExecutionPackage);
+
     return [
       {
         ...baseJob,
@@ -68,6 +77,7 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
         deliveryExecution,
         deliveryStaging,
         deliveryHandoff,
+        externalExecutionPackage,
       },
     ];
   } catch {

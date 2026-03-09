@@ -3,6 +3,7 @@ import { planNuendoDeliveryArtifacts } from "./services/exporter";
 import { summarizeUnresolved } from "./services/mapping-workspace";
 import { buildDeliveryHandoffContracts } from "./services/delivery-handoff";
 import { stageDeliveryBundle } from "./services/delivery-staging";
+import { buildExternalExecutionPackage } from "./services/external-execution-package";
 import type {
   DeliveryArtifact,
   MappingWorkspace,
@@ -11,6 +12,7 @@ import type {
   DeliveryExecutionPlan,
   TranslationJob,
   DeliveryHandoffBundle,
+  ExternalExecutionPackage,
 } from "./types";
 
 export const REVIEW_STATE_VERSION = 1;
@@ -329,4 +331,25 @@ export function summarizeOperatorProgress(job: TranslationJob, reviewState: Revi
     validation,
     reconform,
   };
+}
+
+
+export function buildEffectiveExternalExecutionPackagePreview(
+  job: TranslationJob,
+  effectiveWorkspace: MappingWorkspace,
+  reviewState: ReviewState
+): ExternalExecutionPackage {
+  const stagingBundle = buildEffectiveDeliveryStagingPreview(job, effectiveWorkspace, reviewState);
+  const handoffBundle = buildEffectiveDeliveryHandoffPreview(job, effectiveWorkspace, reviewState);
+
+  return buildExternalExecutionPackage({
+    job: {
+      ...job,
+      mappingWorkspace: effectiveWorkspace,
+      deliveryStaging: stagingBundle,
+      deliveryHandoff: handoffBundle,
+    },
+    stagingBundle,
+    handoffBundle,
+  });
 }

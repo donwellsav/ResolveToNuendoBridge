@@ -12,4 +12,6 @@ test("imported fixture data flows through exporter planning into job data", asyn
   assert.ok(job.deliveryPackage.artifacts.length >= 1);
   assert.ok(job.deliveryPackage.artifacts.every((artifact) => ["planned", "blocked", "placeholder"].includes(artifact.status)));
   assert.ok(job.deliveryPackage.artifacts.some((artifact) => artifact.fileRole === "reference_video"));
+  assert.ok(job.externalExecutionPackage);
+  assert.ok(job.externalExecutionPackage?.files.some((file) => file.relativePath === "package/external-execution-manifest.json"));
 });

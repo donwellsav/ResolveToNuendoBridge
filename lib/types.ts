@@ -882,6 +882,122 @@ export type WriterRunBundle = {
   }>;
 };
 
+export type WriterRunTransportEnvelopeVersion = "phase3g.v1";
+export type WriterRunTransportId = string;
+export type WriterRunCorrelationId = string;
+export type WriterRunDispatchStatus =
+  | "ready-to-dispatch"
+  | "dispatched"
+  | "acknowledged"
+  | "transport-failed"
+  | "runner-blocked"
+  | "runner-complete"
+  | "receipt-recorded"
+  | "cancelled";
+export type WriterRunTransportFailure = { code: string; retryable: boolean; machineReason: string; explanation: string };
+export type WriterRunRetryState = {
+  retryable: boolean;
+  retryCount: number;
+  maxRetries: number;
+  nextAction: "none" | "retry" | "halt";
+};
+export type WriterRunCancellationState = { state: "active" | "cancelled"; reason: "none" | "operator-cancelled" | "superseded" | "expired" };
+export type WriterRunTransportEnvelope = {
+  envelopeVersion: WriterRunTransportEnvelopeVersion;
+  envelopeSequence: number;
+  transportId: WriterRunTransportId;
+  correlationId: WriterRunCorrelationId;
+  request: WriterRunRequest;
+  response?: WriterRunResponse;
+  dispatchStatus: WriterRunDispatchStatus;
+  packageId: string;
+  packageSignature: string;
+  packageVersion: ExternalExecutionPackageVersion;
+  sourceSignature: DeliverySourceSignature;
+  reviewSignature: DeliveryReviewSignature;
+  adapterPath: { adapterId?: WriterAdapterId; adapterVersion?: WriterAdapterVersion; matchedState?: WriterAdapterArtifactMatch["state"] };
+  runnerPath: { runnerId?: WriterRunnerId; runnerReadiness: WriterRunnerReadiness };
+  retryState: WriterRunRetryState;
+  cancellationState: WriterRunCancellationState;
+  transportFailure?: WriterRunTransportFailure;
+};
+export type WriterRunDispatchRecord = {
+  recordId: string;
+  transportId: WriterRunTransportId;
+  requestId: WriterRunRequestId;
+  correlationId: WriterRunCorrelationId;
+  status: WriterRunDispatchStatus;
+  failure?: WriterRunTransportFailure;
+  retryState: WriterRunRetryState;
+  cancellationState: WriterRunCancellationState;
+  timeoutState: "none" | "not-started" | "timed-out";
+  staleState: "current" | "superseded";
+};
+export type WriterRunTransportResponse = {
+  transportId: WriterRunTransportId;
+  requestId: WriterRunRequestId;
+  correlationId: WriterRunCorrelationId;
+  status: "acknowledged" | "runner-complete";
+  explanation: string;
+};
+export type WriterRunTransportReceipt = {
+  transportId: WriterRunTransportId;
+  requestId: WriterRunRequestId;
+  correlationId: WriterRunCorrelationId;
+  receiptStatus: "receipt-recorded";
+  message: string;
+};
+export type WriterRunAuditEventType =
+  | "classified"
+  | "dispatched"
+  | "acknowledged"
+  | "receipt-recorded"
+  | "runner-blocked"
+  | "transport-failed"
+  | "cancelled"
+  | "timed-out"
+  | "superseded";
+export type WriterRunAuditEvent = { eventId: string; eventType: WriterRunAuditEventType; sequence: number; explanation: string };
+export type WriterRunAuditRecord = {
+  auditId: string;
+  transportId: WriterRunTransportId;
+  requestId: WriterRunRequestId;
+  correlationId: WriterRunCorrelationId;
+  packageId: string;
+  sourceSignature: DeliverySourceSignature;
+  reviewSignature: DeliveryReviewSignature;
+  events: WriterRunAuditEvent[];
+  latestStatus: WriterRunDispatchStatus;
+};
+export type WriterRunAttemptHistory = {
+  historyId: string;
+  transportId: WriterRunTransportId;
+  requestId: WriterRunRequestId;
+  correlationId: WriterRunCorrelationId;
+  statusTimeline: Array<{ sequence: number; eventType: WriterRunAuditEventType; explanation: string }>;
+  retryState: WriterRunRetryState;
+  cancellationState: WriterRunCancellationState;
+  timeoutState: "none" | "not-started" | "timed-out";
+  staleState: "current" | "superseded";
+};
+export type WriterRunTransportBundle = {
+  stage: "writer-run-transport";
+  transportVersion: WriterRunTransportEnvelopeVersion;
+  envelopes: WriterRunTransportEnvelope[];
+  dispatchRecords: WriterRunDispatchRecord[];
+  transportResponses: WriterRunTransportResponse[];
+  transportReceipts: WriterRunTransportReceipt[];
+  auditLog: WriterRunAuditRecord[];
+  history: WriterRunAttemptHistory[];
+  files: Array<{
+    artifactId: "writer-run-transport-envelopes" | "writer-run-dispatch-records" | "writer-run-audit-log" | "writer-run-history";
+    fileName: string;
+    relativePath: string;
+    mediaType: "application/json";
+    contentPreview: string;
+  }>;
+};
+
 export type TranslationJob = {
   id: string;
   jobName: string;
@@ -904,6 +1020,7 @@ export type TranslationJob = {
   externalExecutionPackage?: ExternalExecutionPackage;
   writerAdapterReport?: WriterAdapterRegistryReport;
   writerRunBundle?: WriterRunBundle;
+  writerRunTransportBundle?: WriterRunTransportBundle;
 };
 
 export type ImportAnalysisResult = Omit<

@@ -1,6 +1,8 @@
-# Conform Bridge Canonical Schema (Phase 2 Baseline)
+# Conform Bridge Canonical Schema (Phase 3G Baseline)
 
-Canonical data contract for the intake -> canonical -> delivery pipeline.
+Canonical data contract for the deterministic pipeline:
+**intake -> canonical -> delivery**
+with downstream execution boundaries layered after delivery planning.
 
 ## Pipeline Vocabulary
 - **SourceBundle**: intake envelope and discovered turnover assets.
@@ -105,8 +107,20 @@ Operator-editable decision layer consumed by validation + delivery planning.
 - `status: "planned" | "blocked" | "placeholder"`
 - `note?: string`
 
+## Downstream Contract Extensions (Implemented)
+After `DeliveryPackage`, the current codebase also includes deterministic typed boundaries for:
+- `DeliveryExecutionPlan`
+- `DeliveryStagingBundle`
+- `DeliveryHandoffBundle`
+- `ExternalExecutionPackage`
+- `WriterAdapterRegistryReport`
+- `WriterRunBundle`
+- `WriterRunTransportBundle`
+
+These preserve separation of concerns and do not change canonical intake/canonical/delivery semantics.
+
 ## Runtime Status Notes
 - Importer coverage includes manifest, metadata CSV, marker CSV/EDL, FCPXML/XML, and direct AAF extraction/parsing.
 - Timeline source precedence is `fcpxml/xml` -> `aaf` -> `edl` -> metadata-only fallback.
-- Delivery remains planner-only (Nuendo writer not yet implemented).
-- Persistence beyond current in-memory review session is not implemented yet.
+- Browser-local persisted review state is implemented (versioned review deltas keyed by job + source signature).
+- Native Nuendo writer/session outputs remain intentionally unimplemented.

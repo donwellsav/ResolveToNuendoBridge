@@ -1,13 +1,15 @@
-# Resolve -> Nuendo Bundle Specification (Phase 2 Baseline)
+# Resolve -> Nuendo Bundle Specification (Phase 3G Baseline)
 
 ## Purpose
-Define and maintain the artifact contract while intake/canonical fidelity improves and delivery writing remains intentionally deferred.
+Define and maintain the full artifact contract across the deterministic pipeline:
+**intake -> canonical -> delivery planning -> execution prep -> staging -> handoff -> external package -> writer-adapter -> writer-runner -> transport/audit**.
 
-## Canonical Pipeline
+Nuendo native/session writing remains intentionally deferred in this phase.
+
+## Canonical Pipeline Vocabulary
 **SourceBundle (intake) -> TranslationModel (canonical) -> DeliveryPackage (delivery)**
 
-## Required Artifact Set
-The following artifacts remain required in contract scope:
+## Required Artifact Set (Contract Scope)
 1. `AAF`
 2. `marker EDL`
 3. `marker CSV`
@@ -18,12 +20,12 @@ The following artifacts remain required in contract scope:
 8. `field recorder matching report`
 
 ## Intake (Resolve-side)
-Operator provides a source bundle containing the required artifact family above.
+Operator provides a source bundle containing the artifact family above.
 
 Expected semantics:
 - AAF carries editorial structure for timeline reconstruction/reconciliation.
-- FCPXML/XML can provide preferred timeline exchange when present.
-- Marker EDL/CSV provide review/cue metadata.
+- FCPXML/XML is preferred timeline exchange when present.
+- Marker EDL/CSV carry review/cue metadata.
 - Metadata CSV carries reel/tape/scene/take and clip metadata.
 - Manifest declares package metadata + inventory.
 - README provides operator transfer context.
@@ -31,8 +33,8 @@ Expected semantics:
 - Field recorder report carries match confidence/fallback context.
 
 ## Delivery (Nuendo-side)
-Delivery planner targets the same artifact family in Nuendo-oriented form:
-- translated AAF (planned, not yet written)
+Delivery planning targets the same artifact family in Nuendo-oriented form:
+- translated AAF (deferred contract, not yet written)
 - marker EDL
 - marker CSV
 - metadata CSV
@@ -42,43 +44,39 @@ Delivery planner targets the same artifact family in Nuendo-oriented form:
 - optional reference video copy/handoff
 
 ## Validation Rules (Current)
-- Bundle must declare explicit contract version.
 - Required artifacts must be represented in intake/delivery planning.
+- Timeline/track/clip IDs remain stable across pipeline stages.
 - Timecode fields use `HH:MM:SS:FF`.
-- Frame rates limited to `23.976`, `24`, `25`, `29.97`.
-- IDs for timeline/track/clip events remain stable across pipeline stages.
-- Missing critical intake artifacts surfaces `PreservationIssue` warnings/blocks.
+- Frame rates are constrained to known supported values.
+- Missing critical intake artifacts surface `PreservationIssue` warnings/blocks.
 
-## Current Status
-- Real intake parsing is implemented for manifest, metadata CSV, marker CSV/EDL, FCPXML/XML, and AAF-derived timeline sources.
-- Import precedence is `fcpxml/xml` -> `aaf` -> `edl` -> metadata-only fallback.
-- Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only fallback when needed.
-- Delivery planner is active and contract-driven; Nuendo writer remains unimplemented.
+## Implemented Boundaries (through Phase 3G)
+- Intake parsing + canonical hydration/reconciliation.
+- Delivery planner (deterministic planning only; no native writer).
+- Execution prep payload generation for safe text/JSON/CSV/EDL artifacts.
+- Staged delivery materialization under `staging/<job>_<sequence>/...`.
+- Deferred writer-input handoff contracts under `handoff/...`.
+- External execution package under `exports/<job>_<sequence>/...` with checksums/index/summary.
+- Writer-adapter dry-run/capability matching contracts (no native writing).
+- Writer-runner request/response/receipt contracts with reference no-op runner.
+- Writer-run transport/audit envelopes, dispatch records, audit events, and history with reference no-op transport.
 
-## Known Limitations
-- Nuendo file writing is not implemented yet.
-- Persistence for operator review state is still in-memory only.
-- Some AAF compatibility adapter fallback remains in edge cases.
-
-## Next Recommended Work
-- Phase 2J: persist operator review/mapping state and deepen reconform-ready review flows.
-- Phase 2K: reduce remaining AAF compatibility fallback dependence.
-- Phase 3: implement delivery execution/writing once planning is stable.
-
-
-## External Execution Package (Phase 3D)
+## External Execution Package Layout (Phase 3D+)
 Deterministic export package boundary layers on top of staged + handoff outputs:
 - `exports/<job>_<sequence>/staged/...` (preserved staged payload layout)
-- `exports/<job>_<sequence>/handoff/...` (preserved handoff manifests/contracts)
-- `exports/<job>_<sequence>/package/...` (export-level manifest/index/summary/checksums/deferred-input index)
+- `exports/<job>_<sequence>/handoff/...` (handoff contracts + runner + transport/audit outputs)
+- `exports/<job>_<sequence>/package/...` (manifest/index/summary/checksums/deferred-input index)
 
 ### Generated Now
 - Text/JSON/CSV/EDL staged payloads from execution prep
 - Deferred descriptor JSON for AAF/reference-video binaries
 - Handoff manifests + deferred writer input contracts
+- Writer-runner requests/responses/receipts
+- Writer-run transport envelopes/dispatch/audit/history artifacts
 - Package-level index/summary/checksum manifests for external executor intake
 
 ### Still Deferred
 - Native Nuendo project/session writing
-- Binary AAF writing via Nuendo writer adapter
+- Binary AAF writing via real Nuendo writer adapter
+- Real external transport adapters / persistent queue orchestration
 - Binary reference video writing/copy orchestration

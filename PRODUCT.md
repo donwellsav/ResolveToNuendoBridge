@@ -1,40 +1,51 @@
-# Conform Bridge — Product Contract (Phase 1/2)
+# Conform Bridge — Product Contract (Phase 2 Baseline)
 
 ## Product Intent
 Conform Bridge is an internal, desktop-first operator tool for translating **Resolve editorial bundles** into a **Nuendo-ready handoff bundle**.
 
-Phase 1 is intentionally frontend-only and contract-first:
-- lock product terminology
-- lock data model expectations
-- lock bundle artifact contract
-- scaffold operator routes with deterministic SSR-safe rendering
+## Current Status
+- Phase 1 contract lock + operator shell is complete.
+- Phase 2A–2I implementation is complete.
+- Next implementation target is **Phase 2J** (persist operator review state + deepen reconform-ready review tools).
+- Follow-on target is **Phase 2K** (reduce remaining AAF adapter fallback dependence).
+- Phase 3 delivery execution starts only after planning/review stability is achieved.
+
+## Primary Workflow Contract
+1. **SourceBundle / intake** ingests Resolve turnover artifacts.
+2. **TranslationModel / canonical** hydrates normalized timeline, mapping workspace, and preservation diagnostics.
+3. **DeliveryPackage / delivery** plans Nuendo-ready artifact output deterministically.
 
 ## In Scope (Current State)
-- Next.js App Router application shell using TypeScript, Tailwind CSS, and reusable shadcn/ui-style primitives.
-- Operator workflow routes:
-  - Dashboard
-  - Jobs
-  - New Job
-  - Templates
-  - Field Recorder
-  - ReConform
-  - Settings
-- Typed canonical internal model for translation workflow entities.
-- Realistic, static mock data for Resolve -> Nuendo workflows.
-- Importer now performs real intake for CSV/manifest/EDL/FCPXML plus direct in-repo OLE/container AAF graph parsing with reconciliation into the canonical model (adapter sidecar fallback retained for compatibility).
-- Exporter remains planning-only (no Nuendo file writing yet).
+- Next.js App Router shell using TypeScript, Tailwind CSS, and reusable shadcn/ui-style primitives.
+- Operator workflow routes: Dashboard, Jobs, New Job, Templates, Field Recorder, ReConform, Settings.
+- Typed canonical model spanning intake, canonical translation, mapping workspace, preservation issues, and delivery planning.
+- Real intake parsing for manifest + metadata CSV + marker CSV/EDL + FCPXML/XML + direct in-repo AAF extraction/parsing.
+- Importer precedence for timeline hydration:
+  1. `fcpxml` / `xml`
+  2. `aaf`
+  3. `edl`
+  4. metadata-only fallback
+- AAF reconciliation/enrichment against canonical timeline, including explicit fallback diagnostics.
+- Mapping/editor workflow for track/marker/metadata/field-recorder decisions.
+- Validation workflow surfacing `PreservationIssue` summaries and unresolved mapping counts.
+- Delivery planner that consumes canonical + mapping decisions and produces artifact readiness statuses.
 
 ## Out of Scope (Current State)
 - Nuendo project writing / binary file generation.
-- Full-fidelity AAF semantic decode beyond the current direct OLE/container graph extraction subset (adapter fallback still retained for edge compatibility).
-- Auth, billing, database persistence, and marketing/public pages.
+- Persistence beyond the current in-memory review session.
+- Eliminating all AAF adapter fallback paths in this phase.
+- Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.
 
-## Primary Workflow Contract
-1. Resolve exports (bundle artifacts) are ingested.
-2. Data is normalized into a canonical internal model.
-3. A Nuendo-ready outbound bundle is assembled.
+## Known Limitations
+- Export execution remains planner-only (Nuendo writing intentionally unimplemented).
+- AAF direct parser coverage is broad but not full-fidelity for all interchange variants.
+- Adapter sidecar compatibility fallback still appears in some AAF edge cases.
 
-Parser execution is now partially real (CSV/manifest/EDL/FCPXML plus direct in-repo OLE/container AAF ingestion + reconciliation, with adapter fallback diagnostics). Export execution remains planning-only (Nuendo writing still unimplemented) so phase 2 can continue without reshaping the operator shell.
+## Next Recommended Work
+1. **Phase 2J**: persist operator review/mapping state and expand reconform-ready review ergonomics.
+2. **Phase 2K**: reduce compatibility fallback dependence by extending direct AAF extraction/traversal coverage.
+3. Continue deterministic canonical normalization and warning taxonomy hardening.
+4. Begin Phase 3 delivery execution only when planning and review-state behavior are stable.
 
 ## UX Direction
 - Desktop-first internal operations console.
@@ -48,9 +59,9 @@ Parser execution is now partially real (CSV/manifest/EDL/FCPXML plus direct in-r
 - No render-time nondeterminism (`Date.now`, dynamic `new Date()`, `Math.random`, UUID generation).
 - Prefer reusable components over page-specific one-offs.
 
-## Acceptance Criteria (Phase 1)
-- All required operator routes scaffolded and navigable in app shell.
-- Domain model includes all entities listed in `SCHEMA.md`.
-- Bundle artifact contract documented in `BUNDLE_SPEC.md` and represented in mock data.
-- Importer performs structured intake and canonical hydration, including AAF enrichment/reconciliation when present.
-- Exporter plans delivery artifacts only; writing remains intentionally unimplemented.
+## Acceptance Criteria (Current Baseline)
+- Operator routes are navigable in the app shell.
+- Domain model remains aligned with `SCHEMA.md`.
+- Bundle artifact contract remains aligned with `BUNDLE_SPEC.md`.
+- Importer executes precedence-based intake/canonical hydration with explicit diagnostics.
+- Exporter produces deterministic planning results only (no Nuendo writing yet).

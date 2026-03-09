@@ -8,7 +8,7 @@ export default function SettingsPage() {
   return (
     <AppShell title="Settings">
       <Card>
-        <CardHeader><CardTitle>Operator Defaults (Mock)</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Operator Defaults</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-2 gap-3 text-xs">
           <p>Density: <span className="font-mono">{appSettings.density}</span></p>
           <p>Show Frame Counts: <span className="font-mono">{String(appSettings.showFrameCounts)}</span></p>

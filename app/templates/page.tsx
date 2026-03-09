@@ -6,7 +6,7 @@ export default function TemplatesPage() {
   return (
     <AppShell title="Templates">
       <Card>
-        <CardHeader><CardTitle>Mapping Template Library (Mock)</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Mapping Template Library</CardTitle></CardHeader>
         <CardContent className="space-y-2 text-xs">
           {templateMappingRules.map((rule) => (
             <div key={rule.id} className="rounded border border-border bg-panelAlt px-3 py-2">

@@ -1,46 +1,46 @@
 # TASKLIST — Conform Bridge
 
-## Phase 1 — Contract Lock + Frontend Operator Shell
+## Current Phase Status
+- ✅ Completed through **Phase 2I** (mapping + validation workflow landed).
+- 🧭 Next phase is **2J** (persist operator review state + deepen reconform-ready review tools).
+- 🧭 Follow-on phase is **2K** (reduce remaining AAF compatibility fallback dependence).
+- 🗓️ **Phase 3** starts after planning/review stability is achieved.
+
+## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
 - [x] Lock canonical data contract in `SCHEMA.md`.
 - [x] Lock bundle artifact contract in `BUNDLE_SPEC.md`.
 - [x] Scaffold desktop-first operator shell with App Router navigation.
 - [x] Scaffold routes: Dashboard, Jobs, New Job, Templates, Field Recorder, ReConform, Settings.
-- [x] Implement typed models for all phase-1 entities:
-  - [x] `TranslationJob`
-  - [x] `SourceBundle`
-  - [x] `SourceAsset`
-  - [x] `Timeline`
-  - [x] `Track`
-  - [x] `ClipEvent`
-  - [x] `Marker`
-  - [x] `FieldRecorderCandidate`
-  - [x] `MappingRule`
-  - [x] `PreservationIssue`
-  - [x] `OutputPreset`
-  - [x] `ExportArtifact`
+- [x] Implement typed models for all baseline entities.
 - [x] Keep render deterministic and SSR-safe (no browser-only APIs in initial render path).
-- [x] Keep importer/exporter/persistence as stubs only.
-- [x] Use realistic Resolve -> Nuendo mock workflow data.
+- [x] Use realistic Resolve -> Nuendo workflow fixtures/fallback data.
 - [x] Exclude auth, billing, database, and marketing pages.
 
-## Phase 2 — Parser/Exporter Services (Active, through 2I)
-- [~] Implement Resolve intake validation/parsing service for CSV/manifest/EDL contract (partially real).
-- [x] Make timeline_exchange (`.fcpxml`/`.xml`) the active canonical timeline hydration milestone.
-- [x] Implement direct in-repo OLE/container AAF graph parsing + reconciliation against canonical timeline (FCPXML precedence + AAF-only hydration + adapter compatibility fallback + mismatch issue taxonomy).
-  - [x] Expand direct traversal across composition/mob-slot/source-mob/source-clip style records.
-  - [x] Extract locators/comments + media descriptor/effect hints when present.
-  - [x] Keep fallback diagnostics explicit when adapter compatibility path is used.
-- [ ] Build canonical normalization pipeline with deterministic transform rules.
+## Phase 2A–2I — Intake/Canonical/Planning + Mapping/Validation (Complete)
+- [x] Implement intake scanning + classification for turnover assets.
+- [x] Parse manifest + metadata CSV + marker CSV/EDL inputs.
+- [x] Land FCPXML/XML timeline hydration.
+- [x] Implement direct in-repo OLE/container AAF parsing + canonical reconciliation.
+- [x] Keep explicit diagnostics when adapter compatibility fallback is required.
+- [x] Maintain importer precedence (`fcpxml/xml` -> `aaf` -> `edl` -> metadata-only fallback).
+- [x] Add operator mapping editors (track, marker, metadata, field recorder) and unresolved summaries.
+- [x] Feed mapping workspace decisions into delivery planner.
+- [x] Expand preservation/review issue taxonomy and dashboard/job-level visibility.
+- [x] Add tests for importer/parser/planner/mapping integration paths.
+
+## Phase 2J — Next (Planned)
+- [ ] Persist operator mapping/review decisions beyond the in-memory review session.
+- [ ] Add reconform-ready review tooling depth (change triage ergonomics + cross-check summaries).
+- [ ] Keep canonical/delivery contracts unchanged while persistence lands.
+
+## Phase 2K — Planned After 2J
+- [ ] Reduce remaining adapter-sidecar fallback dependence for AAF ingestion.
+- [ ] Extend direct parser coverage for edge AAF records that still require compatibility fallback.
+- [ ] Keep fallback diagnostics explicit while shrinking fallback frequency.
+
+## Phase 3 — Delivery Execution (Planned)
+- [ ] Implement deterministic canonical normalization pipeline end-to-end.
 - [ ] Implement Nuendo-ready bundle writer for required artifact set.
-- [~] Add robust validation and warning taxonomy for reconform/preservation issues (AAF mismatch/media-reference coverage + direct-parser/fallback diagnostics expanded).
-- [ ] Add file intake UX and job execution controls around real services.
-- [ ] Add persistence layer once service boundaries stabilize.
-
-
-## Phase 2I — Mapping + Validation Workflow
-- [x] Add richer mapping editors (track, marker, metadata, field recorder) with bulk actions where practical.
-- [x] Surface unresolved mapping/validation counts on Dashboard and Jobs pages.
-- [x] Keep exporter planner-only while consuming mapping workspace decisions.
-- [x] Add tests for mapping state updates, validation rule generation, and fixture-to-planning integration path.
-- [x] Update docs for 2I scope/progress.
+- [ ] Add file intake execution controls/job orchestration UX around real services.
+- [ ] Add persistence-backed operational state once service boundaries stabilize.

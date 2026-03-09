@@ -14,7 +14,7 @@ export default async function NewJobPage() {
         <Card>
           <CardHeader><CardTitle>Step 1 — Intake Package</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm text-muted">
-            <p>Resolve bundle parsing is intentionally stubbed in phase 1.</p>
+            <p>Resolve bundle intake parses turnover fixtures into canonical review data before delivery planning.</p>
             <p>Operator chooses inbound assets only: AAF/XML/EDL, metadata CSV, reference video, and production audio.</p>
           </CardContent>
         </Card>

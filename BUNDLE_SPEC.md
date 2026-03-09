@@ -1,13 +1,13 @@
-# Resolve -> Nuendo Bundle Specification (Phase 2 Contract Baseline)
+# Resolve -> Nuendo Bundle Specification (Phase 2 Baseline)
 
 ## Purpose
-Define and maintain the bundle artifact contract while intake parsing deepens and exporter writing remains pending.
+Define and maintain the artifact contract while intake/canonical fidelity improves and delivery writing remains intentionally deferred.
 
 ## Canonical Pipeline
-**Resolve exports in -> canonical internal model -> Nuendo-ready bundle out**
+**SourceBundle (intake) -> TranslationModel (canonical) -> DeliveryPackage (delivery)**
 
 ## Required Artifact Set
-The following artifacts are modeled in the active phase and remain required in the contract:
+The following artifacts remain required in contract scope:
 1. `AAF`
 2. `marker EDL`
 3. `marker CSV`
@@ -17,21 +17,22 @@ The following artifacts are modeled in the active phase and remain required in t
 7. `reference video`
 8. `field recorder matching report`
 
-## Inbound Bundle (Resolve-side)
-Operator provides a source bundle that includes the required artifact set above.
+## Intake (Resolve-side)
+Operator provides a source bundle containing the required artifact family above.
 
 Expected semantics:
-- AAF provides editorial structure.
-- Marker EDL/CSV provide review and cue references.
-- Metadata CSV carries clip/scene/reel metadata.
-- Manifest declares bundle versioning and required file inventory.
-- README provides intake context/instructions.
-- Reference video supports sync/verification during conform.
-- Field recorder report provides match confidence and fallback details.
+- AAF carries editorial structure for timeline reconstruction/reconciliation.
+- FCPXML/XML can provide preferred timeline exchange when present.
+- Marker EDL/CSV provide review/cue metadata.
+- Metadata CSV carries reel/tape/scene/take and clip metadata.
+- Manifest declares package metadata + inventory.
+- README provides operator transfer context.
+- Reference video supports sync verification.
+- Field recorder report carries match confidence/fallback context.
 
-## Outbound Bundle (Nuendo-ready)
-Exporter contract targets the same artifact family, emitted in Nuendo-oriented form:
-- translated AAF
+## Delivery (Nuendo-side)
+Delivery planner targets the same artifact family in Nuendo-oriented form:
+- translated AAF (planned, not yet written)
 - marker EDL
 - marker CSV
 - metadata CSV
@@ -40,16 +41,26 @@ Exporter contract targets the same artifact family, emitted in Nuendo-oriented f
 - field recorder matching report
 - optional reference video copy/handoff
 
-## Validation Rules (Phase 2 target behavior)
+## Validation Rules (Current)
 - Bundle must declare explicit contract version.
-- Required artifacts must all be present.
+- Required artifacts must be represented in intake/delivery planning.
 - Timecode fields use `HH:MM:SS:FF`.
 - Frame rates limited to `23.976`, `24`, `25`, `29.97`.
-- IDs for timeline/track/clip events must be stable across pipeline stages.
-- Missing AAF, manifest, or metadata CSV is a hard validation failure.
+- IDs for timeline/track/clip events remain stable across pipeline stages.
+- Missing critical intake artifacts surfaces `PreservationIssue` warnings/blocks.
 
 ## Current Status
-- Real intake scanning/parsing is implemented for manifest, metadata CSV, marker CSV/EDL, FCPXML/XML, and AAF-derived timeline sources.
-- Canonical hydration supports FCPXML-first with AAF enrichment/reconciliation, plus AAF-only fallback.
-- Delivery planning remains contract-driven and unchanged; Nuendo project writing is still deferred.
-- Export artifact writing is not yet implemented.
+- Real intake parsing is implemented for manifest, metadata CSV, marker CSV/EDL, FCPXML/XML, and AAF-derived timeline sources.
+- Import precedence is `fcpxml/xml` -> `aaf` -> `edl` -> metadata-only fallback.
+- Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only fallback when needed.
+- Delivery planner is active and contract-driven; Nuendo writer remains unimplemented.
+
+## Known Limitations
+- Nuendo file writing is not implemented yet.
+- Persistence for operator review state is still in-memory only.
+- Some AAF compatibility adapter fallback remains in edge cases.
+
+## Next Recommended Work
+- Phase 2J: persist operator review/mapping state and deepen reconform-ready review flows.
+- Phase 2K: reduce remaining AAF compatibility fallback dependence.
+- Phase 3: implement delivery execution/writing once planning is stable.

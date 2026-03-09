@@ -6,7 +6,8 @@
 - ✅ **Phase 3A** complete (execution prep boundary landed; planner still separate from writer).
 - ✅ **Phase 3B** complete (staged delivery materialization landed; writer remains deferred).
 - ✅ **Phase 3C** complete (deferred writer-input contract hardening + handoff readiness manifests landed).
-- 🧭 Next phase is **Phase 3E** native writer/orchestration on top of external-execution packages.
+- ✅ **Phase 3E** complete (writer-adapter interfaces + registry/capability matching + dry-run/readiness reporting on external-execution package outputs).
+🧭 Next phase is **Phase 3F** native writer/orchestration execution on top of adapter boundary.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -79,7 +80,17 @@
 - [x] Surface package status/contents/checksums in operator views without redesign.
 - [x] Add deterministic packaging tests + staging/handoff consistency coverage.
 
-## Phase 3E — Native Writer/Orchestration (Planned)
+## Phase 3E — Writer Adapter Interfaces (Complete)
+- [x] Add writer-adapter service boundary that consumes external execution package outputs + deferred handoff contracts only.
+- [x] Define explicit versioned writer-adapter input/capability/readiness/unsupported/dry-run types.
+- [x] Normalize package/handoff/deferred contracts into deterministic adapter input shape.
+- [x] Add reference/no-op adapter validation + dry-run behavior without native writing.
+- [x] Add placeholder adapters for future Nuendo AAF and reference-video handoff capabilities with explicit unsupported reasons.
+- [x] Add adapter registry for capability matching + per-artifact state explanations (ready/blocked/unsupported/deferred).
+- [x] Surface adapter readiness and unsupported reasons in operator views without redesigning UI.
+- [x] Add tests for normalization, matching, readiness, dry-run, unsupported reasons, and review-state influence.
+
+## Phase 3F — Native Writer/Orchestration Execution (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
 - [ ] Implement reference-video binary generation orchestration boundary.
 - [ ] Add execution orchestration controls and persistence-backed execution-state tracking.

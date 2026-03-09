@@ -8,7 +8,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Phase 2A–2J implementation is complete.
 - Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
 - Phase 2K fallback-reduction work is complete.
-- Current implementation target is **Phase 3C** deferred writer-input contract hardening (planner + execution-prep + staging remain separate from writer implementation).
+- Current implementation target is **Phase 3E** writer-adapter interface formalization on top of external-execution packages (planner + execution-prep + staging + handoff + packaging remain separate from writer implementation).
 
 ## Primary Workflow Contract
 1. **SourceBundle / intake** ingests Resolve turnover artifacts.
@@ -33,9 +33,10 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Delivery execution-prep boundary that converts planned artifacts into deterministic serialized payloads for safe text/CSV/JSON outputs and marks binary writer-only artifacts as deferred.
 - Delivery staging boundary that materializes deterministic staged bundle layout with generated payload files, explicit deferred descriptor files, and staging-summary output.
 - Delivery handoff boundary that formalizes versioned deferred-writer input contracts, dependency/readiness validation, and deterministic handoff manifests without generating native binaries.
+- Writer adapter boundary that normalizes external-execution package + handoff contracts into stable adapter input, supports adapter validation/dry-run, and reports capability matching/readiness/unsupported reasons without writing native binaries.
 
 ## Out of Scope (Current State)
-- Nuendo project/session writing / binary file generation (still deferred; Phase 3C only formalizes writer-input/handoff contracts).
+- Nuendo project/session writing / binary file generation (still deferred; Phase 3E only formalizes adapter interfaces, validation, and dry-run planning).
 - Backend persistence services (state remains browser-local in this phase).
 - Eliminating all AAF adapter fallback paths in this phase.
 - Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.
@@ -48,8 +49,8 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 ## Next Recommended Work
 1. **Post-2K**: continue reducing compatibility fallback dependence by extending direct OLE stream/object graph decoding coverage.
 2. Continue deterministic canonical normalization and warning taxonomy hardening.
-3. Phase 3C: harden deferred writer-input contracts + handoff/readiness manifests (without implementing binary writer outputs).
-4. Phase 3E: implement binary writer/orchestration against the external-execution package contract (without collapsing planner/execution-prep responsibilities).
+3. Phase 3E: formalize writer-adapter interfaces + registry + capability dry-run against external-execution packages (without implementing binary writer outputs).
+4. Phase 3F: implement binary writer/orchestration against the external-execution package + adapter contract (without collapsing planner/execution-prep responsibilities).
 
 ## UX Direction
 - Desktop-first internal operations console.
@@ -74,7 +75,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - AAF/reference-video/native Nuendo writer outputs remain deferred records behind future writer boundary (now with versioned writer-input contracts and readiness states).
 
 
-## Phase 3D Baseline
+## Phase 3E Baseline
 - Add deterministic external execution packaging boundary after staging + handoff.
 - Package includes staged generated payloads, deferred contract descriptors, and handoff manifests with checksums/index/summary files.
 - Package readiness states: `ready`, `partial`, `blocked` based on staged prerequisites, handoff readiness, preservation blockers, and deferred dependencies.

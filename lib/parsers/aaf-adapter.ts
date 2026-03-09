@@ -181,6 +181,10 @@ function normalizeMaybeTextAaf(content: string): string {
   return lines.join("\n");
 }
 
+function hasClipBearingRecords(normalizedText: string): boolean {
+  return /\b(SOURCECLIP|CLIP|EVENT)\b/.test(normalizedText);
+}
+
 export async function extractAafTimelineText(filePath: string): Promise<AafExtractionResult> {
   const warnings: string[] = [];
   const sidecarAdapterPath = `${filePath}.adapter.json`;
@@ -189,7 +193,7 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
   const utf8 = buffer.toString("utf8");
   const normalizedText = normalizeMaybeTextAaf(utf8);
 
-  if (normalizedText.includes("TIMELINE") && (normalizedText.includes("CLIP") || normalizedText.includes("EVENT"))) {
+  if (normalizedText.includes("TIMELINE") && hasClipBearingRecords(normalizedText)) {
     return {
       normalizedText,
       mode: "text-fixture",
@@ -199,7 +203,7 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
 
   if (isOleCompoundFile(buffer)) {
     const oleRecords = extractRecordsFromOleContainer(buffer);
-    if (oleRecords.length > 0) {
+    if (oleRecords.length > 0 && hasClipBearingRecords(oleRecords)) {
       return {
         normalizedText: oleRecords,
         mode: "binary-container",
@@ -207,17 +211,22 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
       };
     }
 
-    warnings.push("Direct in-repo OLE AAF parser found no recognizable timeline records.");
+    warnings.push(
+      oleRecords.length > 0
+        ? "Direct in-repo OLE AAF parser found only partial records (no clip-bearing graph nodes)."
+        : "Direct in-repo OLE AAF parser found no recognizable timeline records."
+    );
   }
 
   const extractedRecords = extractContainerRecords(buffer);
-  if (extractedRecords.length > 0) {
+  if (extractedRecords.length > 0 && hasClipBearingRecords(extractedRecords)) {
     return {
       normalizedText: extractedRecords,
       mode: "binary-container",
       warnings,
     };
   }
+  if (extractedRecords.length > 0) warnings.push("Container scan found partial records but no clip-bearing nodes.");
 
   try {
     const sidecar = await fs.readFile(sidecarAdapterPath, "utf8");
@@ -239,4 +248,3 @@ export async function extractAafTimelineText(filePath: string): Promise<AafExtra
     warnings,
   };
 }
-

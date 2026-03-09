@@ -14,6 +14,7 @@ const aafOnlyFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-205-a
 const aafVsFcpxmlFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-206-aaf-vs-fcpxml");
 const aafMissingMediaFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-207-aaf-missing-media");
 const aafBroadFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-209-aaf-broad-ole");
+const aafPartialFallbackFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-210-aaf-partial-direct-fallback");
 
 test("importer prefers FCPXML/XML as primary timeline source when present", async () => {
   const imported = await importTurnoverFolder(fcpxmlFixture);
@@ -152,6 +153,19 @@ test("importer emits diagnostics when adapter fallback path is required", async 
 
   assert.ok(imported.preservationIssues.some((issue) => issue.id === "issue-aaf-direct-parser-fallback"));
   assert.ok(imported.preservationIssues.some((issue) => issue.id.startsWith("issue-aaf-extraction-warning-")));
+});
+
+test("importer classifies partial direct AAF parse and preserves adapter fallback path", async () => {
+  const imported = await importTurnoverFolder(aafPartialFallbackFixture);
+
+  assert.equal(imported.translationModel.timeline.name, "RVR_210_LOCK_v1");
+  assert.equal(imported.translationModel.timeline.tracks.length, 1);
+  assert.ok(imported.preservationIssues.some((issue) => issue.id === "issue-aaf-direct-parser-fallback"));
+  assert.ok(
+    imported.preservationIssues.some(
+      (issue) => issue.id.startsWith("issue-aaf-extraction-warning-") && issue.description.includes("partial")
+    )
+  );
 });
 test("importer raises critical AAF media-reference issues when AAF is primary timeline source", async () => {
   const imported = await importTurnoverFolder(aafMissingMediaFixture);

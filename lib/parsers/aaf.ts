@@ -18,13 +18,63 @@ type ParsedContext = {
   sourceMobById: Map<string, TokenMap>;
 };
 
+const RECORD_ALIASES: Record<string, string> = {
+  compositionmob: "COMPOSITION",
+  composition: "COMPOSITION",
+  mobslot: "MOBSLOT",
+  slot: "MOBSLOT",
+  sourcemob: "SOURCEMOB",
+  mastermob: "SOURCEMOB",
+  sourceclip: "SOURCECLIP",
+  sequenceclip: "SOURCECLIP",
+  timeline: "TIMELINE",
+  track: "TRACK",
+  clip: "CLIP",
+  event: "EVENT",
+  marker: "MARKER",
+  locator: "LOCATOR",
+  comment: "COMMENT",
+};
+
+const TOKEN_ALIASES: Record<string, string> = {
+  timelineinframes: "recordInFrames",
+  timelineoutframes: "recordOutFrames",
+  editinframes: "recordInFrames",
+  editoutframes: "recordOutFrames",
+  srcinframes: "sourceInFrames",
+  srcoutframes: "sourceOutFrames",
+  sourcepackageid: "sourceMobId",
+  sourcepackageuid: "sourceMobId",
+  sourcepackageumid: "sourceMobId",
+  sourcepackageclipid: "sourceClipId",
+  sourcepackageclipidentity: "sourceClipIdentity",
+  mediarefstatus: "mediaStatus",
+  mediafilepath: "sourceFile",
+  sourcefilepath: "sourcePath",
+  tapeid: "tape",
+  soundrollid: "soundRoll",
+  slotid: "slotId",
+  trackid: "trackId",
+  descriptorclassid: "descriptorClass",
+};
+
+function normalizeIdentifier(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function normalizeRecordName(line: string): string {
+  const firstToken = line.split(/\s+/, 1)[0] ?? "";
+  return RECORD_ALIASES[normalizeIdentifier(firstToken)] ?? firstToken.toUpperCase();
+}
+
 function parseTokens(raw: string): TokenMap {
   const tokens: TokenMap = {};
-  const regex = /(\w+)=(("[^"]*")|([^\s]+))/g;
+  const regex = /([A-Za-z][\w.-]*)=(("(?:[^"\\]|\\.)*")|([^\s]+))/g;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(raw))) {
-    const key = match[1];
-    const value = match[2].replace(/^"|"$/g, "");
+    const rawKey = match[1];
+    const key = TOKEN_ALIASES[normalizeIdentifier(rawKey)] ?? rawKey;
+    const value = match[2].replace(/^"|"$/g, "").replace(/\\"/g, '"');
     tokens[key] = value;
   }
   return tokens;
@@ -115,7 +165,6 @@ function toClip(tokens: TokenMap, clipIndex: number, context: ParsedContext): Cl
   const sourceOutFrames = asInt(firstDefined(tokens, ["sourceOutFrames", "srcOutFrames"]), sourceInFrames);
   const sourceFileName = inferSourceName(tokens, clipIndex);
   const sourceClipIdentity = firstDefined(tokens, ["sourceClipId", "sourceClipIdentity", "sourceMobId", "mobId"]);
-  const descriptor = [tokens.mediaDescriptor, tokens.descriptorClass, tokens.codec].filter(Boolean).join(",");
 
   return {
     id: `evt-aaf-${clipIndex}`,
@@ -133,8 +182,7 @@ function toClip(tokens: TokenMap, clipIndex: number, context: ParsedContext): Cl
     tape: firstDefined(tokens, ["tape", "soundRoll", "sourcePackageTape"]),
     scene: tokens.scene,
     take: tokens.take,
-    eventDescription:
-      firstDefined(tokens, ["eventDescription", "transition", "effectHint", "mobName", "sourceMobName"]) ?? context.currentComposition,
+    eventDescription: firstDefined(tokens, ["eventDescription", "transition", "effectHint", "mobName", "sourceMobName"]) ?? context.currentComposition,
     clipNotes: composeNotes(tokens),
     sourceAssetId: sourceClipIdentity ? `in-${sourceClipIdentity}` : `in-${sourceFileName.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}`,
     channelCount: asInt(firstDefined(tokens, ["channels", "channelCount"]), 0),
@@ -180,16 +228,17 @@ export function parseAaf(content: string): ParsedAafTimeline {
     .filter((line) => line.length > 0 && !line.startsWith("#"));
 
   lines.forEach((line) => {
-    if (line.startsWith("TIMELINE")) {
-      const tokens = parseTokens(line);
+    const recordName = normalizeRecordName(line);
+    const tokens = parseTokens(line);
+
+    if (recordName === "TIMELINE") {
       timelineName = tokens.name ?? timelineName;
       fps = asFps(tokens.fps) ?? fps;
       startTimecode = tokens.start ?? startTimecode;
       return;
     }
 
-    if (line.startsWith("COMPOSITION")) {
-      const tokens = parseTokens(line);
+    if (recordName === "COMPOSITION") {
       context.currentComposition = tokens.name ?? context.currentComposition;
       timelineName = tokens.name ?? timelineName;
       fps = asFps(tokens.fps) ?? fps;
@@ -197,23 +246,20 @@ export function parseAaf(content: string): ParsedAafTimeline {
       return;
     }
 
-    if (line.startsWith("MOBSLOT")) {
-      const tokens = parseTokens(line);
+    if (recordName === "MOBSLOT") {
       const slotId = firstDefined(tokens, ["slotId", "id"]);
       const trackId = firstDefined(tokens, ["track", "trackId"]);
       if (slotId && trackId) context.mobSlots.set(slotId, trackId);
       return;
     }
 
-    if (line.startsWith("SOURCEMOB")) {
-      const tokens = parseTokens(line);
+    if (recordName === "SOURCEMOB") {
       const sourceMobId = firstDefined(tokens, ["id", "sourceMobId"]);
       if (sourceMobId) context.sourceMobById.set(sourceMobId, tokens);
       return;
     }
 
-    if (line.startsWith("TRACK")) {
-      const tokens = parseTokens(line);
+    if (recordName === "TRACK") {
       const trackId = tokens.id ?? `t${tracksById.size + 1}`;
       if (!tracksById.has(trackId)) {
         tracksById.set(trackId, {
@@ -226,8 +272,7 @@ export function parseAaf(content: string): ParsedAafTimeline {
       return;
     }
 
-    if (line.startsWith("SOURCECLIP") || line.startsWith("EVENT") || line.startsWith("CLIP")) {
-      const tokens = parseTokens(line);
+    if (recordName === "SOURCECLIP" || recordName === "EVENT" || recordName === "CLIP") {
       const slotTrack = tokens.slotId ? context.mobSlots.get(tokens.slotId) : undefined;
       const sourceMob = firstDefined(tokens, ["sourceMobId", "mobId"]);
       const sourceMobTokens = sourceMob ? context.sourceMobById.get(sourceMob) : undefined;
@@ -247,13 +292,13 @@ export function parseAaf(content: string): ParsedAafTimeline {
       return;
     }
 
-    if (line.startsWith("MARKER")) {
-      addMarker(parseTokens(line), markers, "mk-aaf");
+    if (recordName === "MARKER") {
+      addMarker(tokens, markers, "mk-aaf");
       return;
     }
 
-    if (line.startsWith("LOCATOR") || line.startsWith("COMMENT")) {
-      addMarker(parseTokens(line), markers, "loc-aaf");
+    if (recordName === "LOCATOR" || recordName === "COMMENT") {
+      addMarker(tokens, markers, "loc-aaf");
     }
   });
 

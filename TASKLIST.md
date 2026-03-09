@@ -34,10 +34,12 @@
 - [x] Add reconform-ready review tooling depth (change triage, acknowledgement/risky state, unresolved filters).
 - [x] Keep canonical/delivery contracts unchanged while persistence lands (no backend, no writer).
 
-## Phase 2K — Planned After 2J
-- [ ] Reduce remaining adapter-sidecar fallback dependence for AAF ingestion.
-- [ ] Extend direct parser coverage for edge AAF records that still require compatibility fallback.
-- [ ] Keep fallback diagnostics explicit while shrinking fallback frequency.
+## Phase 2K — In Progress
+- [x] Reduce remaining adapter-sidecar fallback dependence for AAF ingestion.
+- [x] Extend direct parser coverage for edge AAF records that still require compatibility fallback.
+- [x] Keep fallback diagnostics explicit while shrinking fallback frequency.
+- [x] Add fixtures for broad direct parse, partial-direct/fallback classification, and missing-media/locator-heavy coverage.
+- [x] Expand parser/importer/reconciliation tests for richer AAF mismatch and fallback diagnostics.
 
 ## Phase 3 — Delivery Execution (Planned)
 - [ ] Implement deterministic canonical normalization pipeline end-to-end.

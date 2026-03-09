@@ -480,7 +480,19 @@ function reconcileFcpxmlWithAaf(
       aafClips.find((candidate) => candidate.clipName === clip.clipName) ??
       aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName && candidate.recordInFrames === clip.recordInFrames) ??
       aafClips.find((candidate) => candidate.sourceFileName === clip.sourceFileName);
-    if (!fromAaf) return;
+    if (!fromAaf) {
+      issues.push({
+        id: `issue-aaf-source-clip-missing-${clip.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "clip",
+        title: `No matching AAF source clip for ${clip.clipName}`,
+        description: "FCPXML/XML clip could not be matched to any AAF clip by identity, file name, or timing anchors.",
+        sourceLocation: "fcpxml+xml+aaf",
+        recommendedAction: "Check clip lineage and regenerate AAF/FCPXML from the same locked Resolve timeline.",
+      });
+      return;
+    }
 
     const recordMismatch = clip.recordIn !== fromAaf.recordIn || clip.recordOut !== fromAaf.recordOut;
     const sourceMismatch = clip.sourceIn !== fromAaf.sourceIn || clip.sourceOut !== fromAaf.sourceOut;
@@ -563,6 +575,24 @@ function reconcileFcpxmlWithAaf(
       recommendedAction: "Confirm marker/locator export source and merge strategy before delivery.",
     });
   }
+
+  markers.forEach((marker) => {
+    const hasMatch = aafMarkers.some(
+      (candidate) => candidate.timelineTc === marker.timelineTc || candidate.label.toLowerCase() === marker.label.toLowerCase()
+    );
+    if (!hasMatch) {
+      issues.push({
+        id: `issue-aaf-marker-detail-mismatch-${marker.id}`,
+        category: "manual-review",
+        severity: "warning",
+        scope: "marker",
+        title: `Marker/locator detail mismatch: ${marker.label}`,
+        description: "FCPXML/XML marker has no equivalent AAF locator/marker by timecode or label.",
+        sourceLocation: "fcpxml+xml+aaf",
+        recommendedAction: "Review marker/locator transfer completeness across exported timeline artifacts.",
+      });
+    }
+  });
 
   issues.push(...reconcileAafMediaReferences(aafTracks, intakeAssets));
 
@@ -650,6 +680,19 @@ export async function importTurnoverFolder(folderPath: string): Promise<ImportAn
       description: "Direct in-repo AAF parsing did not provide timeline records; compatibility adapter sidecar was used.",
       sourceLocation: "aaf",
       recommendedAction: "Review AAF parser diagnostics and keep adapter fallback only as a temporary compatibility path.",
+    });
+  }
+
+  if (aafExtractionMode === "unknown") {
+    issues.push({
+      id: "issue-aaf-unparsed-shape",
+      category: "manual-review",
+      severity: "warning",
+      scope: "timeline",
+      title: "AAF shape unsupported by direct parser",
+      description: "AAF container was detected but clip-bearing graph records could not be extracted directly.",
+      sourceLocation: "aaf",
+      recommendedAction: "Capture parser diagnostics and extend direct OLE/AAF graph traversal coverage.",
     });
   }
 

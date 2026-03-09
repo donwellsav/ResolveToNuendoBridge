@@ -1,0 +1,2 @@
+trackName,role,recordIn,recordOut,sourceIn,sourceOut,recordInFrames,recordOutFrames,sourceInFrames,sourceOutFrames,clipName,sourceFileName,reel,tape,scene,take,eventDescription,clipNotes,channelCount,channelLayout,isPolyWav,hasBwf,hasIXml,isOffline,isNested,isFlattened,hasSpeedEffect,hasFadeIn,hasFadeOut
+DX A,DX,01:00:00:00,01:00:03:00,10:00:00:00,10:00:03:00,0,72,864000,864072,DX_210_001,SC10_TK01.BWF,R210,SR210A,10,1,Fallback coverage,Partial parse fixture,2,"L,R",false,true,false,false,false,true,false,false,false

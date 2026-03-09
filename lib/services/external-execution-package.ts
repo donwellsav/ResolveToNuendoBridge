@@ -7,12 +7,16 @@ import type {
   ExternalExecutionStatus,
   TranslationJob,
 } from "../types";
+import { buildExecutorCompatibilityArtifacts } from "./executor-compatibility";
 
 type ExternalExecutionPackageInputs = {
   job: TranslationJob;
   stagingBundle: NonNullable<TranslationJob["deliveryStaging"]>;
   handoffBundle: NonNullable<TranslationJob["deliveryHandoff"]>;
   exportRoot?: string;
+  transportProfileId?: "canonical-filesystem-transport-v1" | "filesystem-strict-export-v1";
+  receiptProfileId?: "canonical-filesystem-transport-v1" | "compatibility-filesystem-receipt-v1";
+  executorProfileId?: "canonical-filesystem-executor-v1" | "compatibility-filesystem-executor-v1" | "future-service-executor-placeholder";
 };
 
 const PACKAGE_VERSION: ExternalExecutionPackageVersion = "phase3d.v1";
@@ -98,6 +102,9 @@ export function buildExternalExecutionPackage({
   stagingBundle,
   handoffBundle,
   exportRoot = "exports",
+  transportProfileId = "canonical-filesystem-transport-v1",
+  receiptProfileId = "canonical-filesystem-transport-v1",
+  executorProfileId = "canonical-filesystem-executor-v1",
 }: ExternalExecutionPackageInputs): ExternalExecutionPackage {
   const sequenceLabel = sanitizeSegment(job.sourceBundle.resolveTimelineVersion || job.translationModel.timeline.name || job.id);
   const rootLabel = sanitizeSegment(`${job.id}_${sequenceLabel}`);
@@ -208,6 +215,22 @@ export function buildExternalExecutionPackage({
     partialDeferredInputs: deferredInputs.filter((input) => input.readinessStatus === "partial").length,
   };
 
+  const compatibility = buildExecutorCompatibilityArtifacts({
+    pkg: {
+      packageVersion: PACKAGE_VERSION,
+      transportProfileId,
+      receiptProfileId,
+      manifest,
+      index,
+      summary,
+      files: [],
+    },
+    profileId: executorProfileId,
+    transportProfileId,
+    receiptProfileId,
+    handoffManifestVersion: handoffBundle.manifest.manifestVersion,
+  });
+
   const packageFiles: ExternalExecutionPackage["files"] = [
     ...stagingBundle.files.map((file) => ({
       artifactId: file.artifactId,
@@ -265,16 +288,40 @@ export function buildExternalExecutionPackage({
       mediaType: "application/json",
       contentPreview: `${JSON.stringify(entries.filter((entry) => entry.classification === "generated"), null, 2)}\n`,
     },
+    {
+      artifactId: "executor-profile-resolution",
+      fileName: "executor-profile-resolution.json",
+      relativePath: "handoff/executor-profile-resolution.json",
+      mediaType: "application/json",
+      contentPreview: `${JSON.stringify(compatibility.profileResolution, null, 2)}\n`,
+    },
+    {
+      artifactId: "executor-compatibility-report",
+      fileName: "executor-compatibility-report.json",
+      relativePath: "handoff/executor-compatibility-report.json",
+      mediaType: "application/json",
+      contentPreview: `${JSON.stringify(compatibility.report, null, 2)}\n`,
+    },
+    {
+      artifactId: "executor-compatibility-summary",
+      fileName: "executor-compatibility-summary.json",
+      relativePath: "handoff/executor-compatibility-summary.json",
+      mediaType: "application/json",
+      contentPreview: `${JSON.stringify(compatibility.summary, null, 2)}\n`,
+    },
   ].sort((a, b) => a.relativePath.localeCompare(b.relativePath));
 
   return {
     stage: "external-execution-package",
     packageVersion: PACKAGE_VERSION,
+    transportProfileId,
+    receiptProfileId,
     rootLabel,
     rootPath,
     manifest,
     index,
     summary,
+    executorCompatibility: compatibility,
     deferredInputs,
     checksums,
     files: packageFiles,

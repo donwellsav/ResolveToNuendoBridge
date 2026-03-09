@@ -35,6 +35,7 @@ export default async function JobsPage() {
   const externalPackageFiles = primaryJob.externalExecutionPackage?.files ?? [];
   const externalPackageEntries = primaryJob.externalExecutionPackage?.index.entries ?? [];
   const transportBundle = primaryJob.writerRunTransportBundle;
+  const executorCompatibility = primaryJob.externalExecutionPackage?.executorCompatibility;
 
   const generatedPayloadPreviews = (primaryJob.deliveryExecution?.artifacts ?? [])
     .filter((artifact) => artifact.generatedPayload)
@@ -276,7 +277,10 @@ export default async function JobsPage() {
             <CardContent className="space-y-3 text-xs">
               <div className="flex flex-wrap gap-2">
                 <Badge variant="accent">Adapter {transportBundle.transportAdapter.adapterId}</Badge>
-                <Badge variant="accent">Profile {transportBundle.compatibilityProfiles[0]?.profileId ?? "n/a"}</Badge>
+                <Badge variant="accent">Transport {primaryJob.externalExecutionPackage?.transportProfileId ?? "n/a"}</Badge>
+                <Badge variant="accent">Receipt {primaryJob.externalExecutionPackage?.receiptProfileId ?? "n/a"}</Badge>
+                <Badge variant="accent">Executor {executorCompatibility?.profileResolution.profileId ?? "n/a"}</Badge>
+                <Badge variant={executorCompatibility?.summary.status === "compatible" ? "success" : executorCompatibility?.summary.status === "compatible-with-warnings" || executorCompatibility?.summary.status === "partial" ? "warning" : "danger"}>Compatibility {executorCompatibility?.summary.status ?? "n/a"}</Badge>
                 <Badge variant="accent">Envelopes {transportBundle.envelopes.length}</Badge>
                 <Badge variant="success">Dispatched {transportBundle.dispatchResults.filter((record) => record.status === "dispatched").length}</Badge>
                 <Badge variant="warning">Receipt imports {transportBundle.receiptIngestion.filter((item) => item.status === "receipt-imported").length}</Badge>
@@ -284,6 +288,18 @@ export default async function JobsPage() {
                 <Badge variant="warning">Partial/stale {transportBundle.receiptIngestion.filter((item) => item.status === "receipt-partial" || item.status === "receipt-stale" || item.status === "receipt-superseded").length}</Badge>
               </div>
               <div className="text-muted">Outbound: <span className="font-mono">{transportBundle.transportAdapter.endpoint.outboundPath}</span> · Inbound: <span className="font-mono">{transportBundle.transportAdapter.endpoint.inboundPath}</span></div>
+              {executorCompatibility ? (
+                <table className="w-full border-collapse text-xs">
+                  <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Compatibility</th><th className="px-2 py-1 text-left">Status</th><th className="px-2 py-1 text-left">Required Follow-up</th></tr></thead>
+                  <tbody>
+                    <tr className="border-t border-border">
+                      <td className="px-2 py-1 font-mono">{executorCompatibility.profileResolution.profileId}</td>
+                      <td className="px-2 py-1">{executorCompatibility.summary.readiness}</td>
+                      <td className="px-2 py-1 text-muted">{executorCompatibility.summary.requiredFollowUps.join("; ") || "none"}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              ) : null}
               <table className="w-full border-collapse text-xs">
                 <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Request</th><th className="px-2 py-1 text-left">Correlation</th><th className="px-2 py-1 text-left">Dispatch</th><th className="px-2 py-1 text-left">Retry</th><th className="px-2 py-1 text-left">Cancel</th></tr></thead>
                 <tbody>

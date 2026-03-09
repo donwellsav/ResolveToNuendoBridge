@@ -100,6 +100,6 @@ test("ingestion handles duplicate, stale, partial and incompatible deterministic
 
   assert.equal(ingested[0]?.status, "receipt-partial");
   assert.equal(ingested[1]?.status, "receipt-duplicate");
-  assert.equal(ingested[2]?.status, "receipt-stale");
+  assert.equal(ingested[2]?.status, "receipt-incompatible");
   assert.equal(ingested[3]?.status, "receipt-incompatible");
 });

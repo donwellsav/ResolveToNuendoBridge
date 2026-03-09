@@ -1,8 +1,8 @@
-# Resolve -> Nuendo Bundle Specification (Phase 3I Baseline)
+# Resolve -> Nuendo Bundle Specification (Phase 3J Baseline)
 
 ## Purpose
 Define and maintain the full artifact contract across the deterministic pipeline:
-**intake -> canonical -> delivery planning -> execution prep -> staging -> handoff -> external package -> writer-adapter -> writer-runner -> transport -> receipt compatibility/ingestion**.
+**intake -> canonical -> delivery planning -> execution prep -> staging -> handoff -> external package -> writer-adapter -> writer-runner -> transport -> receipt compatibility/ingestion -> executor compatibility**.
 
 Nuendo native/session writing remains intentionally deferred in this phase.
 
@@ -50,7 +50,7 @@ Delivery planning targets the same artifact family in Nuendo-oriented form:
 - Frame rates are constrained to known supported values.
 - Missing critical intake artifacts surface `PreservationIssue` warnings/blocks.
 
-## Implemented Boundaries (through Phase 3I)
+## Implemented Boundaries (through Phase 3J)
 - Intake parsing + canonical hydration/reconciliation.
 - Delivery planner (deterministic planning only; no native writer).
 - Execution prep payload generation for safe text/JSON/CSV/EDL artifacts.
@@ -69,7 +69,7 @@ Deterministic export package boundary layers on top of staged + handoff outputs:
 - `exports/<job>_<sequence>/handoff/...` (handoff + runner + transport/receipt artifacts)
 - `exports/<job>_<sequence>/package/...` (manifest/index/summary/checksums/deferred-input index)
 
-## Receipt Compatibility Profiles (Phase 3I)
+## Receipt Compatibility Profiles (Phase 3J)
 Profiles are explicit and versioned:
 - `canonical-filesystem-transport-v1`
 - `compatibility-filesystem-receipt-v1`
@@ -96,3 +96,10 @@ Each profile declares:
 - Binary AAF writing via real Nuendo writer adapter.
 - Persistent backend queue/orchestration services.
 - Binary reference video writing/copy orchestration.
+
+
+## Executor Compatibility Artifacts (Phase 3J)
+- `handoff/executor-profile-resolution.json`
+- `handoff/executor-compatibility-report.json`
+- `handoff/executor-compatibility-summary.json`
+- Profiles: `canonical-filesystem-executor-v1`, `compatibility-filesystem-executor-v1`, `future-service-executor-placeholder`.

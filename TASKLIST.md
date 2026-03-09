@@ -11,7 +11,7 @@
 - ✅ **Phase 3F** complete (writer-runner request/response/receipt contracts + no-op runner landed).
 - ✅ **Phase 3G** complete (transport envelopes + dispatch/audit/history contracts on top of writer-runner landed).
 - ✅ **Phase 3H** complete (real filesystem transport adapter + deterministic receipt-ingestion flow landed).
-🧭 Next phase is **Phase 3J** native writer orchestration execution before any backend queue/persistence.
+🧭 Next phase is **Phase 3K** native writer orchestration execution before any backend queue/persistence.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -125,7 +125,14 @@
 - [x] Add regression tests for canonical/compatibility normalization, migrations, replay safety, and deterministic matching.
 - [x] Align README/PRODUCT/SCHEMA/BUNDLE_SPEC documentation with Phase 3I compatibility and deferred-writer constraints.
 
-## Phase 3J — Native Writer/Orchestration Execution (Planned)
+## Phase 3J — External Executor Compatibility Hardening (Complete)
+- [x] Add executor compatibility boundary services separated from transport dispatch and receipt ingestion.
+- [x] Add executor profile registry and deterministic profile resolution artifacts.
+- [x] Validate package/handoff/transport/receipt/signature compatibility against selected executor profile.
+- [x] Emit deterministic compatibility report/summary/profile artifacts under handoff.
+- [x] Thread compatibility profile/status through dispatch and receipt ingestion visibility.
+
+## Phase 3K — Native Writer/Orchestration Execution (Planned)
 - [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
 - [ ] Implement reference-video binary generation orchestration boundary.
 - [ ] Keep planner/execution-prep/staging/handoff/package/adapter/runner/transport layers separated while native writing lands.

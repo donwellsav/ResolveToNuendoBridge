@@ -1,4 +1,4 @@
-# Conform Bridge — Product Contract (Phase 3I Baseline)
+# Conform Bridge — Product Contract (Phase 3J Baseline)
 
 ## Product Intent
 Conform Bridge is an internal, desktop-first operator tool for translating **Resolve editorial bundles** into a **Nuendo-ready handoff bundle**.
@@ -8,7 +8,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Phase 2A–2J implementation is complete.
 - Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
 - Phase 2K fallback-reduction work is complete.
-- Current implementation baseline is **Phase 3I** filesystem transport interoperability + receipt compatibility normalization/matching on top of writer transport/audit contracts (planner + execution-prep + staging + handoff + packaging + adapter + runner + transport/audit + receipt compatibility remain separate).
+- Current implementation baseline is **Phase 3J** executor compatibility hardening on top of filesystem transport + receipt compatibility (planner + execution-prep + staging + handoff + packaging + adapter + runner + transport/audit + receipt compatibility + executor compatibility remain separate).
 
 ## Primary Workflow Contract
 1. **SourceBundle / intake** ingests Resolve turnover artifacts.
@@ -55,7 +55,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 4. Preserve deterministic receipt normalization and warning taxonomy as new transport profiles are introduced.
 
 
-## Phase 3I Operator Visibility
+## Phase 3J Operator Visibility
 - Dispatch now declares compatibility expectations for inbound receipts.
 - Job transport view surfaces profile/version, match/validation status, and drift/problem reasons.
 - Audit/history include partial, superseded, and incompatible receipt transitions in deterministic order.
@@ -98,8 +98,11 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Audit log/history capture status transitions and human-readable explanations separately from runner receipts.
 
 
-## Phase 3I Baseline
+## Phase 3J Baseline
 - Receipt compatibility profiles are explicit (`canonical-filesystem-transport-v1`, `compatibility-filesystem-receipt-v1`, `future-service-transport-placeholder`) with required/optional fields and supported versions.
 - Receipt normalization/migration is deterministic and isolated from transport dispatch.
 - Receipt matching now evaluates correlation id, dispatch/transport id, package/source/review signatures, artifact identity, and adapter/runner path to classify matched/duplicate/stale/superseded/partial/incompatible/invalid states.
 - Filesystem transport dispatch exports compatibility metadata and validates inbound receipts against declared profile expectations before ingesting outcomes.
+
+- Executor profile registry resolves deterministic external executor profiles (`canonical-filesystem-executor-v1`, `compatibility-filesystem-executor-v1`, `future-service-executor-placeholder`).
+- Executor compatibility validator classifies package readiness as ready / ready-with-warnings / partial / incompatible / unsupported / blocked and keeps this boundary independent from dispatch and receipt ingestion.

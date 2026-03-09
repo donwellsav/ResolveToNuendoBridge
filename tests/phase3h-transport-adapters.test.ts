@@ -39,6 +39,7 @@ test("filesystem adapter writes deterministic outbound layout", () => {
   const first = results[0];
   assert.ok(first?.outboundPath);
   assert.equal(adapter.id, "node.filesystem");
+  assert.equal(envelopes[0]?.executorCompatibilityProfileId, "canonical-filesystem-executor-v1");
 
   const outboundRoot = path.join(process.cwd(), first.outboundPath!);
   assert.equal(existsSync(path.join(outboundRoot, "envelope.json")), true);

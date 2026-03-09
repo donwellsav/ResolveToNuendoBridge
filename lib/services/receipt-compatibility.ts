@@ -131,6 +131,27 @@ export function ingestWriterRunReceiptsCompatibility(params: {
       };
     }
 
+    if (receipt.profileId && receipt.profileId !== envelope.receiptCompatibilityProfile.profileId) {
+      return {
+        receiptId: receipt.receiptId,
+        source: "filesystem-inbound",
+        matchStatus: "matched",
+        validationStatus: "incompatible",
+        status: "receipt-incompatible",
+        matchedTransportId: envelope.transportId,
+        matchedCorrelationId: envelope.correlationId,
+        normalizationStatus: "incompatible",
+        compatibilityProfileId: envelope.receiptCompatibilityProfile.profileId,
+        compatibilityVersion: receipt.receiptVersion,
+        payloadFingerprint: normalized.fingerprint,
+        schemaMatch: normalized.schemaMatch,
+        correlationResult,
+        warnings: normalized.warnings,
+        problems: [{ code: "profile-mismatch", reason: "Receipt profile does not match expected executor receipt profile." }],
+        message: "Receipt profile mismatch for selected executor compatibility profile.",
+      };
+    }
+
     if (!envelope.receiptCompatibilityProfile.supportedVersions.includes(receipt.receiptVersion)) {
       return {
         receiptId: receipt.receiptId,

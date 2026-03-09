@@ -1,9 +1,9 @@
 # TASKLIST — Conform Bridge
 
 ## Current Phase Status
-- ✅ Completed through **Phase 2I** (mapping + validation workflow landed).
-- 🧭 Next phase is **2J** (persist operator review state + deepen reconform-ready review tools).
-- 🧭 Follow-on phase is **2K** (reduce remaining AAF compatibility fallback dependence).
+- ✅ Completed through **Phase 2J** (review-state persistence + reconform-ready review tooling landed).
+- 🧭 Next phase is **2K** (reduce remaining AAF compatibility fallback dependence).
+- 🗓️ Follow-on phase is **Phase 3** delivery execution once planning/review stability holds.
 - 🗓️ **Phase 3** starts after planning/review stability is achieved.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
@@ -29,10 +29,10 @@
 - [x] Expand preservation/review issue taxonomy and dashboard/job-level visibility.
 - [x] Add tests for importer/parser/planner/mapping integration paths.
 
-## Phase 2J — Next (Planned)
-- [ ] Persist operator mapping/review decisions beyond the in-memory review session.
-- [ ] Add reconform-ready review tooling depth (change triage ergonomics + cross-check summaries).
-- [ ] Keep canonical/delivery contracts unchanged while persistence lands.
+## Phase 2J — Persisted Review State + Reconform Review (Complete)
+- [x] Persist operator mapping/review decisions as browser-local review deltas keyed by job + intake signature.
+- [x] Add reconform-ready review tooling depth (change triage, acknowledgement/risky state, unresolved filters).
+- [x] Keep canonical/delivery contracts unchanged while persistence lands (no backend, no writer).
 
 ## Phase 2K — Planned After 2J
 - [ ] Reduce remaining adapter-sidecar fallback dependence for AAF ingestion.

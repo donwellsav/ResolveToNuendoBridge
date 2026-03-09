@@ -23,7 +23,7 @@ export default async function JobDetailPage({ params }: { params: Promise<Params
             <CardTitle>Mapping Editors</CardTitle>
           </CardHeader>
           <CardContent>
-            <MappingWorkspaceEditor workspace={job.mappingWorkspace} fieldRecorderCandidates={job.fieldRecorderCandidates} />
+            <MappingWorkspaceEditor job={job} />
           </CardContent>
         </Card>
 

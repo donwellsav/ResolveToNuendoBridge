@@ -5,9 +5,9 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 
 ## Current Status
 - Phase 1 contract lock + operator shell is complete.
-- Phase 2A–2I implementation is complete.
-- Next implementation target is **Phase 2J** (persist operator review state + deepen reconform-ready review tools).
-- Follow-on target is **Phase 2K** (reduce remaining AAF adapter fallback dependence).
+- Phase 2A–2J implementation is complete.
+- Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
+- Next implementation target is **Phase 2K** (reduce remaining AAF adapter fallback dependence).
 - Phase 3 delivery execution starts only after planning/review stability is achieved.
 
 ## Primary Workflow Contract
@@ -27,12 +27,13 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
   4. metadata-only fallback
 - AAF reconciliation/enrichment against canonical timeline, including explicit fallback diagnostics.
 - Mapping/editor workflow for track/marker/metadata/field-recorder decisions.
-- Validation workflow surfacing `PreservationIssue` summaries and unresolved mapping counts.
+- Browser-local persisted review-state overlays for operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job and intake source signature.
+- Validation workflow surfacing `PreservationIssue` summaries and unresolved mapping counts, including acknowledgement state.
 - Delivery planner that consumes canonical + mapping decisions and produces artifact readiness statuses.
 
 ## Out of Scope (Current State)
 - Nuendo project writing / binary file generation.
-- Persistence beyond the current in-memory review session.
+- Backend persistence services (state remains browser-local in this phase).
 - Eliminating all AAF adapter fallback paths in this phase.
 - Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.
 
@@ -42,10 +43,9 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Adapter sidecar compatibility fallback still appears in some AAF edge cases.
 
 ## Next Recommended Work
-1. **Phase 2J**: persist operator review/mapping state and expand reconform-ready review ergonomics.
-2. **Phase 2K**: reduce compatibility fallback dependence by extending direct AAF extraction/traversal coverage.
-3. Continue deterministic canonical normalization and warning taxonomy hardening.
-4. Begin Phase 3 delivery execution only when planning and review-state behavior are stable.
+1. **Phase 2K**: reduce compatibility fallback dependence by extending direct AAF extraction/traversal coverage.
+2. Continue deterministic canonical normalization and warning taxonomy hardening.
+3. Begin Phase 3 delivery execution prep only when planner/review behavior remains stable.
 
 ## UX Direction
 - Desktop-first internal operations console.

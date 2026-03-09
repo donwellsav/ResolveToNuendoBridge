@@ -1,3 +1,6 @@
+import { mkdtemp, readFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import assert from "node:assert/strict";
 import test from "node:test";
 
@@ -10,6 +13,7 @@ import {
   overlayMappingWorkspace,
 } from "../lib/review-state";
 import { stageDeliveryBundle } from "../lib/services/delivery-staging";
+import { materializeStagedDeliveryBundle } from "../lib/services/delivery-staging-materializer";
 import { planNuendoDelivery } from "../lib/services/exporter";
 
 async function buildStaging() {
@@ -109,4 +113,35 @@ test("saved review state overlays affect staged outputs", async () => {
   assert.doesNotMatch(markerCsv?.contentPreview ?? "", /FX SWELL OUT/);
   assert.match(metadataCsv?.contentPreview ?? "", /evt-002,RAIN_WILDTRACK_02.WAV,R4,SR300,15,5/);
   assert.equal(staged.summary.reviewInfluence.markerOverrides, 1);
+});
+
+
+test("delivery staging materializes bundle files on disk with deterministic layout", async () => {
+  const staged = await buildStaging();
+  const tempRoot = await mkdtemp(path.join(os.tmpdir(), "resolve-bridge-stage-"));
+  const diskBundle = stageDeliveryBundle({
+    job: translationJobs[0],
+    packagePlan: translationJobs[0].deliveryPackage,
+    executionPlan: buildEffectiveDeliveryExecutionPreview(translationJobs[0], translationJobs[0].mappingWorkspace),
+    effectiveWorkspace: translationJobs[0].mappingWorkspace,
+    stagingRoot: path.relative(process.cwd(), tempRoot),
+  });
+
+  const written = await materializeStagedDeliveryBundle(diskBundle);
+  assert.equal(written.includes(`${diskBundle.rootPath}/manifest.json`), true);
+  assert.equal(written.includes(`${diskBundle.rootPath}/staging-summary.json`), true);
+
+  const manifestPath = path.join(process.cwd(), diskBundle.rootPath, "manifest.json");
+  const deferredPath = path.join(
+    process.cwd(),
+    diskBundle.rootPath,
+    diskBundle.deferredArtifacts.find((item) => item.artifactId === "out-aaf")?.deferredPath ?? "deferred/missing.json"
+  );
+
+  const manifest = await readFile(manifestPath, "utf8");
+  const deferred = await readFile(deferredPath, "utf8");
+  assert.match(manifest, /"packageId"/);
+  assert.match(deferred, /"writerBoundary": "nuendo_writer"/);
+
+  assert.equal(staged.files.some((file) => file.relativePath.includes("markers/")), true);
 });

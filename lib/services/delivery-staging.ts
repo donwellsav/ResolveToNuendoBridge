@@ -6,8 +6,7 @@ import type {
   MappingWorkspace,
   TranslationJob,
 } from "../types";
-
-type DeliveryStagingInputs = {
+export type DeliveryStagingInputs = {
   job: TranslationJob;
   packagePlan: TranslationJob["deliveryPackage"];
   executionPlan: DeliveryExecutionPlan;
@@ -22,7 +21,6 @@ type DeliveryStagingInputs = {
   };
   stagingRoot?: string;
 };
-
 function sanitizeSegment(value: string): string {
   return value
     .trim()
@@ -30,11 +28,9 @@ function sanitizeSegment(value: string): string {
     .replace(/_+/g, "_")
     .replace(/^_+|_+$/g, "");
 }
-
 function buildSourceSignature(job: TranslationJob): string {
   return [job.sourceBundle.id, job.sourceBundle.resolveTimelineVersion, job.sourceBundle.importedAtIso, job.translationModel.id].join("::");
 }
-
 function resolveGeneratedPath(artifactId: string, sequenceLabel: string): string {
   switch (artifactId) {
     case "out-manifest":
@@ -53,21 +49,18 @@ function resolveGeneratedPath(artifactId: string, sequenceLabel: string): string
       return `generated/${artifactId}.txt`;
   }
 }
-
 function resolveDeferredPath(artifact: DeliveryArtifact, sequenceLabel: string): string {
   if (artifact.fileKind === "aaf") {
     return `deferred/${sequenceLabel}_NUENDO_READY.aaf.deferred.json`;
   }
   return `deferred/${sequenceLabel}_REFERENCE_VIDEO.deferred.json`;
 }
-
 function dependenciesForArtifact(artifact: DeliveryArtifact): string[] {
   if (artifact.fileKind === "aaf") {
     return ["canonical.timeline", "mappingWorkspace.trackMappings", "mappingWorkspace.metadataMappings"];
   }
   return ["canonical.timeline", "delivery.referenceVideoPreset"];
 }
-
 function summarizeReviewInfluence(reviewState?: DeliveryStagingInputs["reviewState"]) {
   return {
     trackOverrides: Object.keys(reviewState?.trackTargetOverrides ?? {}).length,
@@ -78,7 +71,6 @@ function summarizeReviewInfluence(reviewState?: DeliveryStagingInputs["reviewSta
     reconformDecisions: Object.keys(reviewState?.reconformDecisions ?? {}).length,
   };
 }
-
 export function stageDeliveryBundle({
   job,
   packagePlan,
@@ -90,11 +82,16 @@ export function stageDeliveryBundle({
   const sequenceLabel = sanitizeSegment(job.sourceBundle.resolveTimelineVersion || job.translationModel.timeline.name || job.id);
   const rootLabel = sanitizeSegment(`${job.id}_${sequenceLabel}`);
   const rootPath = `${stagingRoot}/${rootLabel}`;
-
   const files: DeliveryStagingBundle["files"] = [];
+  const directories: DeliveryStagingBundle["directories"] = [
+    { relativePath: "." },
+    { relativePath: "markers" },
+    { relativePath: "metadata" },
+    { relativePath: "reports" },
+    { relativePath: "deferred" },
+  ];
   const deferredArtifacts: DeferredArtifactDescriptor[] = [];
   const unresolvedBlockers: string[] = [];
-
   for (const artifactExecution of executionPlan.artifacts) {
     if (artifactExecution.executionStatus === "generated" && artifactExecution.generatedPayload) {
       const relativePath = resolveGeneratedPath(artifactExecution.artifact.id, sequenceLabel);
@@ -108,7 +105,6 @@ export function stageDeliveryBundle({
       });
       continue;
     }
-
     if (artifactExecution.executionStatus === "deferred" && artifactExecution.deferredPayload) {
       const deferredPath = resolveDeferredPath(artifactExecution.artifact, sequenceLabel);
       const descriptor: DeferredArtifactDescriptor = {
@@ -131,12 +127,10 @@ export function stageDeliveryBundle({
       });
       continue;
     }
-
     if (artifactExecution.executionStatus === "unavailable") {
       unresolvedBlockers.push(`${artifactExecution.artifact.id}: ${artifactExecution.note ?? "not available for staging"}`);
     }
   }
-
   const summary = {
     jobId: job.id,
     deliveryPackageId: packagePlan.id,
@@ -152,7 +146,6 @@ export function stageDeliveryBundle({
       category: file.category,
     })),
   };
-
   files.push({
     artifactId: "staging-summary",
     fileName: "staging-summary.json",
@@ -161,13 +154,12 @@ export function stageDeliveryBundle({
     mediaType: "application/json",
     contentPreview: `${JSON.stringify(summary, null, 2)}\n`,
   });
-
   void effectiveWorkspace;
-
   return {
     stage: "delivery-staging",
     rootLabel,
     rootPath,
+    directories,
     files,
     deferredArtifacts,
     summary,

@@ -32,6 +32,8 @@ export default async function JobsPage() {
   const deferredDescriptors = primaryJob.deliveryStaging?.deferredArtifacts ?? [];
   const handoffFiles = primaryJob.deliveryHandoff?.files ?? [];
   const handoffInputs = primaryJob.deliveryHandoff?.writerInputs ?? [];
+  const externalPackageFiles = primaryJob.externalExecutionPackage?.files ?? [];
+  const externalPackageEntries = primaryJob.externalExecutionPackage?.index.entries ?? [];
 
   const generatedPayloadPreviews = (primaryJob.deliveryExecution?.artifacts ?? [])
     .filter((artifact) => artifact.generatedPayload)
@@ -186,6 +188,42 @@ export default async function JobsPage() {
           </Card>
         ) : null}
 
+
+
+        {externalPackageFiles.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>External Execution Package (Phase 3D)</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-xs">
+              <div className="flex gap-2">
+                <Badge variant={primaryJob.externalExecutionPackage?.summary.status === "ready" ? "success" : primaryJob.externalExecutionPackage?.summary.status === "blocked" ? "danger" : "warning"}>
+                  Status {primaryJob.externalExecutionPackage?.summary.status ?? "unknown"}
+                </Badge>
+                <Badge variant="accent">Source {primaryJob.externalExecutionPackage?.summary.sourceSignature ?? "--"}</Badge>
+                <Badge variant="accent">Review {primaryJob.externalExecutionPackage?.summary.reviewSignature ?? "--"}</Badge>
+              </div>
+              <div className="font-mono text-muted">{primaryJob.externalExecutionPackage?.rootPath}</div>
+              <table className="w-full border-collapse">
+                <thead className="bg-panelAlt text-muted">
+                  <tr><th className="px-2 py-1 text-left">Path</th><th className="px-2 py-1 text-left">Class</th><th className="px-2 py-1 text-left">Checksum</th><th className="px-2 py-1 text-left">Status</th></tr>
+                </thead>
+                <tbody>
+                  {externalPackageEntries.slice(0, 12).map((entry) => (
+                    <tr key={entry.entryId} className="border-t border-border">
+                      <td className="px-2 py-1 font-mono">{entry.relativePath}</td>
+                      <td className="px-2 py-1">{entry.classification}</td>
+                      <td className="px-2 py-1 font-mono">{entry.checksum.value}</td>
+                      <td className="px-2 py-1">
+                        <Badge variant={entry.status === "generated" ? "success" : "warning"}>{entry.status}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        ) : null}
 
         {handoffFiles.length > 0 ? (
           <Card>

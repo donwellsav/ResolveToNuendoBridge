@@ -64,3 +64,21 @@ Delivery planner targets the same artifact family in Nuendo-oriented form:
 - Phase 2J: persist operator review/mapping state and deepen reconform-ready review flows.
 - Phase 2K: reduce remaining AAF compatibility fallback dependence.
 - Phase 3: implement delivery execution/writing once planning is stable.
+
+
+## External Execution Package (Phase 3D)
+Deterministic export package boundary layers on top of staged + handoff outputs:
+- `exports/<job>_<sequence>/staged/...` (preserved staged payload layout)
+- `exports/<job>_<sequence>/handoff/...` (preserved handoff manifests/contracts)
+- `exports/<job>_<sequence>/package/...` (export-level manifest/index/summary/checksums/deferred-input index)
+
+### Generated Now
+- Text/JSON/CSV/EDL staged payloads from execution prep
+- Deferred descriptor JSON for AAF/reference-video binaries
+- Handoff manifests + deferred writer input contracts
+- Package-level index/summary/checksum manifests for external executor intake
+
+### Still Deferred
+- Native Nuendo project/session writing
+- Binary AAF writing via Nuendo writer adapter
+- Binary reference video writing/copy orchestration

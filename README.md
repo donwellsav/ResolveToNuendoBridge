@@ -17,8 +17,9 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Past | Phase 3F | Writer-runner request/response/receipt contracts on adapter dry-runs (no native writing) | ✅ Complete |
 | Past | Phase 3G | External transport envelopes + execution audit/history on top of writer-runner contracts | ✅ Complete |
 | Past | Phase 3H | Real external transport adapters + deterministic receipt ingestion (no queue/backend) | ✅ Complete |
-| Current | Phase 3I | External execution interoperability + receipt compatibility hardening (still no native Nuendo writing) | ✅ Complete |
-| Later | Phase 3J | Native writer execution/orchestration implementation behind adapter boundary | 🗓️ Planned |
+| Past | Phase 3I | External execution interoperability + receipt compatibility hardening (still no native Nuendo writing) | ✅ Complete |
+| Current | Phase 3J | External executor/package compatibility hardening + profile validation/reporting (still no native Nuendo writing) | ✅ Complete |
+| Later | Phase 3K | Native writer execution/orchestration implementation behind adapter boundary | 🗓️ Planned |
 
 ## Architecture (Intake → Canonical → Delivery)
 1. **SourceBundle / intake**: scan turnover files, classify file kind/role, and parse manifest/metadata/markers/timeline exchanges.
@@ -31,7 +32,7 @@ Importer timeline precedence is currently:
 3. `edl`
 4. metadata-only fallback (when no timeline exchange parse is available)
 
-## Implemented Coverage (through Phase 3I)
+## Implemented Coverage (through Phase 3J)
 - Real intake scanning + role classification for fixture turnover folders.
 - Parsing for `manifest.json`, metadata CSV, marker CSV/EDL, FCPXML/XML, and broadened direct in-repo AAF extraction/parsing.
 - Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only and EDL fallbacks.
@@ -53,15 +54,16 @@ Importer timeline precedence is currently:
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 
-## Phase 3I Receipt Compatibility at a Glance
-- First real transport path remains **filesystem** (`node.filesystem`).
+## Phase 3J Executor Compatibility at a Glance
+- First real transport path remains **filesystem** (`node.filesystem`) with optional stricter filesystem profile metadata (`filesystem-strict-export-v1`) while preserving existing contracts.
 - Inbound receipts support canonical and compatibility payload shapes via schema/profile registry matching.
 - Deterministic normalization can produce `normalized` or `migrated` outcomes before matching.
 - Ingestion outcomes include: imported, duplicate, stale, superseded, partial, unmatched, invalid, incompatible.
 - Matching evaluates correlation id, dispatch/transport id, package signature, source signature, review signature, and artifact/adapter/runner linkage context.
 
 ## Known Limitations
-- Nuendo writer is still not implemented (Phase 3I deepens filesystem transport interoperability + receipt compatibility; no Nuendo/session binaries are written).
+- Executor compatibility boundary now validates package/handoff/transport/receipt/signature alignment and emits deterministic compatibility artifacts (`handoff/executor-profile-resolution.json`, `handoff/executor-compatibility-report.json`, `handoff/executor-compatibility-summary.json`).
+- Nuendo writer is still not implemented (Phase 3J hardens external compatibility only; no Nuendo/session binaries are written).
 - Deferred artifacts are staged as descriptors only (`*_NUENDO_READY.aaf.deferred.json`, `*_REFERENCE_VIDEO.deferred.json`), with no fake binary contents.
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.

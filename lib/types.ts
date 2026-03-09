@@ -525,6 +525,132 @@ export type ExternalExecutionPackageVersion = "phase3d.v1";
 
 export type ExternalExecutionStatus = "ready" | "partial" | "blocked";
 
+export type ExecutorCompatibilityProfileId =
+  | "canonical-filesystem-executor-v1"
+  | "compatibility-filesystem-executor-v1"
+  | "future-service-executor-placeholder";
+
+export type ExecutorCompatibilityVersion = "phase3j.v1";
+
+export type ExecutorCompatibilitySeverity = "info" | "warning" | "error" | "blocking";
+
+export type ExecutorPackageReadiness = "ready" | "ready-with-warnings" | "partial" | "incompatible" | "unsupported" | "blocked";
+
+export type ExecutorPackageUnsupportedReason =
+  | "unsupported-package-version"
+  | "unsupported-handoff-version"
+  | "unsupported-transport-profile"
+  | "unsupported-receipt-profile"
+  | "unsupported-artifact-kind"
+  | "missing-required-member"
+  | "missing-required-payload"
+  | "version-mismatch"
+  | "signature-mismatch"
+  | "profile-constraint"
+  | "future-placeholder";
+
+export type ExecutorSupportedArtifactKind =
+  | DeferredWriterArtifact["artifactKind"]
+  | "manifest"
+  | "readme"
+  | "marker_edl"
+  | "marker_csv"
+  | "metadata_csv"
+  | "field_recorder_report"
+  | "handoff-contract"
+  | "package-metadata";
+
+export type ExecutorSupportedTransportProfile = "canonical-filesystem-transport-v1" | "filesystem-strict-export-v1" | "future-service-transport-placeholder";
+
+export type ExecutorSupportedReceiptProfile = ReceiptCompatibilityProfileId;
+
+export type ExecutorVersionConstraint = {
+  min?: string;
+  max?: string;
+  equals?: readonly string[];
+};
+
+export type ExecutorCapabilityMatrix = {
+  artifactKinds: readonly ExecutorSupportedArtifactKind[];
+  transportProfiles: readonly ExecutorSupportedTransportProfile[];
+  receiptProfiles: readonly ExecutorSupportedReceiptProfile[];
+  packageVersions: readonly ExternalExecutionPackageVersion[];
+  handoffVersions: readonly DeferredWriterInputVersion[];
+};
+
+export type ExecutorCompatibilityIssue = {
+  issueId: string;
+  severity: ExecutorCompatibilitySeverity;
+  code: ExecutorPackageUnsupportedReason | "optional-missing" | "warning";
+  message: string;
+  artifactId?: string;
+  expected?: string;
+  actual?: string;
+};
+
+export type ExecutorCompatibilitySummary = {
+  selectedProfileId: ExecutorCompatibilityProfileId;
+  compatibilityVersion: ExecutorCompatibilityVersion;
+  status: "compatible" | "compatible-with-warnings" | "partial" | "incompatible" | "unsupported" | "blocked";
+  readiness: ExecutorPackageReadiness;
+  matchedCapabilities: string[];
+  warnings: string[];
+  blockers: string[];
+  requiredFollowUps: string[];
+};
+
+export type ExecutorCompatibilityProfile = {
+  profileId: ExecutorCompatibilityProfileId;
+  profileVersion: ExecutorCompatibilityVersion;
+  label: string;
+  description: string;
+  capabilityMatrix: ExecutorCapabilityMatrix;
+  versionConstraints: {
+    packageVersion: ExecutorVersionConstraint;
+    handoffVersion: ExecutorVersionConstraint;
+    transportAdapterVersion?: ExecutorVersionConstraint;
+    receiptVersion?: ExecutorVersionConstraint;
+  };
+  requiredMembers: string[];
+  optionalMembers: string[];
+  unsupportedReasons: ExecutorPackageUnsupportedReason[];
+  constraints: string[];
+};
+
+export type ExecutorPackageCompatibilityResult = {
+  compatibilityId: string;
+  packageId: string;
+  packageVersion: ExternalExecutionPackageVersion;
+  packageSignature: string;
+  handoffManifestVersion: DeferredWriterInputVersion;
+  transportProfileId: ExecutorSupportedTransportProfile;
+  receiptProfileId: ExecutorSupportedReceiptProfile;
+  status: ExecutorCompatibilitySummary["status"];
+  readiness: ExecutorPackageReadiness;
+  issues: ExecutorCompatibilityIssue[];
+  summary: ExecutorCompatibilitySummary;
+  signatures: {
+    sourceSignature: string;
+    reviewSignature: string;
+    packageSignature: string;
+  };
+};
+
+export type ExecutorCompatibilityArtifacts = {
+  profileResolution: {
+    profileId: ExecutorCompatibilityProfileId;
+    profileVersion: ExecutorCompatibilityVersion;
+    packageId: string;
+    packageSignature: string;
+    packageVersion: ExternalExecutionPackageVersion;
+    handoffManifestVersion: DeferredWriterInputVersion;
+    transportProfileId: ExecutorSupportedTransportProfile;
+    receiptProfileId: ExecutorSupportedReceiptProfile;
+  };
+  report: ExecutorPackageCompatibilityResult;
+  summary: ExecutorCompatibilitySummary;
+};
+
 export type ExternalExecutionChecksum = {
   algorithm: "fnv1a32";
   value: string;
@@ -590,11 +716,14 @@ export type ExternalExecutionPackageSummary = {
 export type ExternalExecutionPackage = {
   stage: "external-execution-package";
   packageVersion: ExternalExecutionPackageVersion;
+  transportProfileId: ExecutorSupportedTransportProfile;
+  receiptProfileId: ExecutorSupportedReceiptProfile;
   rootLabel: string;
   rootPath: string;
   manifest: ExternalExecutionManifest;
   index: ExternalExecutionIndex;
   summary: ExternalExecutionPackageSummary;
+  executorCompatibility: ExecutorCompatibilityArtifacts;
   deferredInputs: ExternalExecutionDeferredInput[];
   checksums: Array<{ relativePath: string; checksum: ExternalExecutionChecksum; sizeBytes: number }>;
   files: Array<{
@@ -1002,6 +1131,8 @@ export type WriterRunRetryState = {
 };
 export type WriterRunCancellationState = { state: "active" | "cancelled"; reason: "none" | "operator-cancelled" | "superseded" | "expired" };
 export type WriterRunTransportEnvelope = {
+  executorCompatibilityProfileId: ExecutorCompatibilityProfileId;
+  executorCompatibilityStatus: ExecutorCompatibilitySummary["status"];
   envelopeVersion: WriterRunTransportEnvelopeVersion;
   envelopeSequence: number;
   transportId: WriterRunTransportId;
@@ -1022,6 +1153,8 @@ export type WriterRunTransportEnvelope = {
   transportFailure?: WriterRunTransportFailure;
 };
 export type WriterRunDispatchRecord = {
+  executorCompatibilityProfileId: ExecutorCompatibilityProfileId;
+  executorCompatibilityStatus: ExecutorCompatibilitySummary["status"];
   recordId: string;
   transportId: WriterRunTransportId;
   requestId: WriterRunRequestId;

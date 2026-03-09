@@ -77,6 +77,8 @@ export function createNodeFilesystemTransportAdapter(endpoint: WriterRunTranspor
           sourceSignature: envelope.sourceSignature.signature,
           reviewSignature: envelope.reviewSignature.revision,
           dispatchStatus: "dispatched",
+          transportProfileId: envelope.request.packageReadiness === "blocked" ? "canonical-filesystem-transport-v1" : "filesystem-strict-export-v1",
+          executorCompatibilityProfileId: envelope.executorCompatibilityProfileId,
         });
         writeFileSync(readyPath, `${stableStringify({ dispatchId, correlationId: envelope.correlationId })}\n`, "utf8");
         writeJson(path.join(dispatchRoot, "receipt-compatibility.json"), {

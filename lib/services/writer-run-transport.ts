@@ -85,6 +85,8 @@ export function buildWriterRunTransportEnvelopes(params: {
           : undefined;
 
       return {
+        executorCompatibilityProfileId: pkg.executorCompatibility.profileResolution.profileId,
+        executorCompatibilityStatus: pkg.executorCompatibility.summary.status,
         envelopeVersion: WRITER_RUN_TRANSPORT_ENVELOPE_VERSION,
         envelopeSequence: envelopeSequence + 1,
         transportId,
@@ -107,7 +109,7 @@ export function buildWriterRunTransportEnvelopes(params: {
           runnerReadiness: request.runnerReadiness,
         },
         receiptCompatibilityProfile: {
-          profileId: "canonical-filesystem-transport-v1" as const,
+          profileId: pkg.receiptProfileId,
           expectedEnvelopeFiles: ["envelope.json", "dispatch-summary.json", "READY.marker"],
           expectedReceiptFiles: ["receipt.json"],
           requiredFields: [
@@ -147,6 +149,8 @@ export function dispatchWriterRunTransportReference(
   for (const envelope of envelopes) {
     const status = envelope.dispatchStatus;
     dispatchRecords.push({
+      executorCompatibilityProfileId: envelope.executorCompatibilityProfileId,
+      executorCompatibilityStatus: envelope.executorCompatibilityStatus,
       recordId: `dispatch-${envelope.transportId}`,
       transportId: envelope.transportId,
       requestId: envelope.request.requestId,

@@ -351,6 +351,53 @@ export type DeliveryExecutionPlan = {
   artifacts: DeliveryExecutionArtifact[];
 };
 
+export type DeferredArtifactDescriptor = {
+  artifactId: string;
+  fileName: string;
+  deferredPath: string;
+  status: DeliveryArtifact["status"];
+  deferredReason: string;
+  writerBoundary: "nuendo_writer" | "reference_video_writer";
+  sourceDependencies: string[];
+};
+
+export type StagedDeliveryFile = {
+  artifactId: string;
+  fileName: string;
+  relativePath: string;
+  category: "generated" | "deferred";
+  mediaType: string;
+  contentPreview: string;
+};
+
+export type DeliveryStagingSummary = {
+  jobId: string;
+  deliveryPackageId: string;
+  sourceSignature: string;
+  generatedArtifacts: number;
+  deferredArtifacts: number;
+  unavailableArtifacts: number;
+  unresolvedBlockers: string[];
+  reviewInfluence: {
+    trackOverrides: number;
+    markerOverrides: number;
+    metadataOverrides: number;
+    fieldRecorderOverrides: number;
+    validationAcknowledgements: number;
+    reconformDecisions: number;
+  };
+  artifactPaths: Array<{ artifactId: string; relativePath: string; category: "generated" | "deferred" }>;
+};
+
+export type DeliveryStagingBundle = {
+  stage: "delivery-staging";
+  rootLabel: string;
+  rootPath: string;
+  files: StagedDeliveryFile[];
+  deferredArtifacts: DeferredArtifactDescriptor[];
+  summary: DeliveryStagingSummary;
+};
+
 export type TranslationJob = {
   id: string;
   jobName: string;
@@ -368,6 +415,7 @@ export type TranslationJob = {
   outputPreset: OutputPreset;
   deliveryPackage: DeliveryPackage;
   deliveryExecution?: DeliveryExecutionPlan;
+  deliveryStaging?: DeliveryStagingBundle;
 };
 
 export type ImportAnalysisResult = Omit<

@@ -4,7 +4,8 @@
 - ✅ Completed through **Phase 2J** (review-state persistence + reconform-ready review tooling landed).
 - ✅ **Phase 2K** complete (AAF compatibility fallback dependence reduced).
 - ✅ **Phase 3A** complete (execution prep boundary landed; planner still separate from writer).
-- 🧭 Next phase is **Phase 3B** writer/orchestration on top of execution-prep contracts.
+- ✅ **Phase 3B** complete (staged delivery materialization landed; writer remains deferred).
+- 🧭 Next phase is **Phase 3C** native writer/orchestration on top of staging contracts.
 
 ## Phase 1 — Contract Lock + Frontend Operator Shell (Complete)
 - [x] Lock product contract and scope boundaries in `PRODUCT.md`.
@@ -49,7 +50,17 @@
 - [x] Surface execution prep status/payload previews in job delivery view without redesigning core UI.
 - [x] Add tests for deterministic output, deferred binary behavior, and review-overlay reflection.
 
-## Phase 3B — Writer/Orchestration (Planned)
-- [ ] Implement Nuendo-ready bundle writer for deferred binary artifacts.
-- [ ] Add file execution controls/job orchestration UX around real services.
-- [ ] Add persistence-backed operational execution state once service boundaries stabilize.
+
+## Phase 3B — Staged Delivery Materialization (Complete)
+- [x] Add delivery-staging service boundary after execution prep.
+- [x] Materialize deterministic staged bundle layout and file naming contract.
+- [x] Stage generated manifest/README/marker/metadata/field-recorder outputs.
+- [x] Stage explicit deferred descriptor JSON records for AAF/reference video artifacts.
+- [x] Generate deterministic staging summary output including review influence + source signature.
+- [x] Surface staged structure/previews/summary in job operator views without redesign.
+- [x] Add tests for deterministic staging, deferred descriptors, summary generation, and review-state overlays.
+
+## Phase 3C — Native Writer/Orchestration (Planned)
+- [ ] Implement Nuendo/session writer boundary for deferred AAF artifacts.
+- [ ] Implement reference-video binary generation orchestration boundary.
+- [ ] Add execution orchestration controls and persistence-backed execution-state tracking.

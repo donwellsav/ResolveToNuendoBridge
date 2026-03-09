@@ -9,8 +9,9 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Past | Phase 1 | Contract lock + frontend operator shell | ✅ Complete |
 | Current | Phase 2A–2J | Real intake parsing + canonical hydration/reconciliation + operator mapping/validation editors + persisted operator review state | ✅ Complete |
 | Past | Phase 2K | Reduce remaining AAF adapter fallback dependence | ✅ Complete |
-| Current | Phase 3A | Delivery execution prep boundary (planning remains separate from writing) | ✅ Complete |
-| Later | Phase 3B+ | Writer/orchestration implementation behind execution boundary | 🗓️ Planned |
+| Past | Phase 3A | Delivery execution prep boundary (planning remains separate from writing) | ✅ Complete |
+| Current | Phase 3B | Staged delivery materialization from execution-prep payloads | ✅ Complete |
+| Later | Phase 3C+ | Native writer/orchestration implementation behind staging boundary | 🗓️ Planned |
 
 ## Architecture (Intake → Canonical → Delivery)
 1. **SourceBundle / intake**: scan turnover files, classify file kind/role, and parse manifest/metadata/markers/timeline exchanges.
@@ -23,19 +24,20 @@ Importer timeline precedence is currently:
 3. `edl`
 4. metadata-only fallback (when no timeline exchange parse is available)
 
-## Implemented Coverage (through 2K baseline)
+## Implemented Coverage (through Phase 3B)
 - Real intake scanning + role classification for fixture turnover folders.
 - Parsing for `manifest.json`, metadata CSV, marker CSV/EDL, FCPXML/XML, and broadened direct in-repo AAF extraction/parsing.
 - Canonical hydration supports FCPXML-first + AAF enrichment/reconciliation, plus AAF-only and EDL fallbacks.
 - Operator mapping/editor workflow for track, marker, metadata, and field recorder decisions.
 - Validation workflow with `PreservationIssue` synthesis and unresolved mapping summaries surfaced on Dashboard/Jobs.
 - Delivery artifact planner consumes canonical + mapping decisions without writing Nuendo files.
-- Delivery execution-prep layer now converts planned artifacts into deterministic payloads for manifest/README/marker EDL+CSV/metadata CSV/field-recorder report, while writer-only binaries remain deferred records.
+- Delivery execution-prep layer converts planned artifacts into deterministic payloads for manifest/README/marker EDL+CSV/metadata CSV/field-recorder report, while writer-only binaries remain deferred records.
+- Delivery staging layer now materializes deterministic staged bundle structure and file-path contract (manifest, README, marker/metadata/report files + deferred binary descriptor JSON + staging summary).
 - Browser-local review-state persistence layer stores only operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job + source signature with schema versioning/migration handling.
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 ## Known Limitations
-- Nuendo writer is not implemented yet (Phase 3A adds execution prep, not writer output).
+- Nuendo writer is not implemented yet (Phase 3B stages bundles but does not write Nuendo/session binaries).
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.
 
@@ -53,7 +55,7 @@ Still unsupported in direct parsing (currently fallback-prone):
 
 ## Next Recommended Work
 - **Post-2K**: continue shrinking fallback by decoding additional opaque OLE stream layouts and richer effect object classes.
-- **Phase 3B**: implement writer/orchestration against the new execution boundary while keeping planner responsibilities unchanged.
+- **Phase 3C**: implement native writer/orchestration against the staging boundary while keeping planner and execution-prep responsibilities unchanged.
 - Keep deterministic normalization + warning taxonomy improvements in lockstep with parser work.
 - Enter Phase 3 only after planning quality and review-state persistence are stable.
 

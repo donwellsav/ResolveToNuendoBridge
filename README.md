@@ -7,7 +7,7 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Status | Phase | Focus | State |
 |---|---|---|---|
 | Past | Phase 1 | Contract lock + frontend operator shell | ✅ Complete |
-| Current | Phase 2A–2F | Real intake parsing + canonical hydration/reconciliation | 🚧 Active |
+| Current | Phase 2A–2H | Real intake parsing + canonical hydration/reconciliation | 🚧 Active |
 | Planned | Phase 3 | Canonical normalization + delivery writing + execution UX/persistence | 🗓️ Next |
 
 ## Phase History and Plan (Past / Current / Planned)
@@ -43,11 +43,17 @@ Phase 2 incrementally replaces fixture-only paths with real intake parsing and c
   - Explicit offline/missing-reference signals preserved.
   - Inferable fade/speed metadata carried into canonical events.
   - Reconciliation issues expanded for AAF vs FCPXML/XML mismatches (counts/timing/source/reel/tape/missing media).
-- **2F binary/container-aware AAF ingestion (latest)**
+- **2F binary/container-aware AAF ingestion**
   - Added a binary/container-aware extraction boundary for real `.aaf` files.
   - Supports direct container record extraction plus a stable external-adapter normalization path.
   - Preserves fallback text-fixture compatibility for controlled fixture workflows.
   - Keeps FCPXML/XML primary when present, uses AAF for enrich/reconcile, and falls back to AAF-primary only when FCPXML/XML is absent.
+
+- **2H expanded direct AAF graph traversal (latest)**
+  - Extended direct parser coverage for broader AAF/OLE-style graph records (composition, mob slots, source mobs/source clips).
+  - Added locator/comment + media-descriptor/effect-hint extraction into canonical markers/clip notes.
+  - Preserved compatibility fallback path with explicit diagnostics when adapter fallback was required.
+  - Expanded reconciliation taxonomy for source clip identity, timing (record+source), reel/tape, media reference, and marker/locator coverage mismatches.
 
 #### What remains in current phase
 - Deterministic canonical normalization pass across all ingest paths.

@@ -1,0 +1,10 @@
+{
+  "project": "RVR209",
+  "timelineVersion": "RVR_209_LOCK_v3",
+  "timelineName": "RVR_209_LOCK_v3",
+  "startTimecode": "01:00:00:00",
+  "durationTimecode": "00:00:12:00",
+  "fps": 24,
+  "sampleRate": 48000,
+  "dropFrame": false
+}

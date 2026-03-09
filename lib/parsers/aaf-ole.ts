@@ -36,7 +36,7 @@ function decodeDirectoryName(entry: Buffer): string {
 
 function collectRecords(buffer: Buffer): string[] {
   const records = new Set<string>();
-  const regex = /(TIMELINE|COMPOSITION|TRACK|CLIP|EVENT|MARKER)\b[^\r\n\u0000]*/g;
+  const regex = /(TIMELINE|COMPOSITION|TRACK|MOBSLOT|SOURCEMOB|SOURCECLIP|CLIP|EVENT|MARKER|LOCATOR|COMMENT)\b[^\r\n\u0000]*/g;
 
   for (const encoding of ["utf8", "utf16le"] as const) {
     const text = buffer.toString(encoding);

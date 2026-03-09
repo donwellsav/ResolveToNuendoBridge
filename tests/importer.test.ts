@@ -13,6 +13,7 @@ const edlFixture = path.join(process.cwd(), "fixtures", "turnover-edl-metadata-o
 const aafOnlyFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-205-aaf-only");
 const aafVsFcpxmlFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-206-aaf-vs-fcpxml");
 const aafMissingMediaFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-207-aaf-missing-media");
+const aafBroadFixture = path.join(process.cwd(), "fixtures", "intake", "rvr-209-aaf-broad-ole");
 
 test("importer prefers FCPXML/XML as primary timeline source when present", async () => {
   const imported = await importTurnoverFolder(fcpxmlFixture);
@@ -69,7 +70,9 @@ test("importer keeps FCPXML/XML as primary timeline and reconciles mismatches wi
   assert.ok(issueIds.includes("issue-aaf-clip-count-mismatch"));
   assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-timing-mismatch-")));
   assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-source-file-mismatch-")));
+  assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-source-clip-mismatch-")));
   assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-reel-tape-mismatch-")));
+  assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-missing-media-reference-")));
   assert.ok(issueIds.some((id) => id.startsWith("issue-aaf-expected-media-missing-")));
   assert.ok(issueIds.includes("issue-aaf-marker-coverage-mismatch"));
 });
@@ -129,6 +132,27 @@ test("importer hydrates canonical timeline from direct OLE AAF fixture without a
   }
 });
 
+
+
+test("importer extracts locator/comment markers and media descriptors from broader direct AAF fixture", async () => {
+  const imported = await importTurnoverFolder(aafBroadFixture);
+
+  assert.equal(imported.translationModel.timeline.name, "RVR_209_LOCK_v3");
+  assert.equal(imported.translationModel.timeline.markers.length, 3);
+  assert.ok(imported.translationModel.timeline.markers.some((marker) => marker.label.includes("Missing line pickup")));
+
+  const firstClip = imported.translationModel.timeline.tracks[0].clips[0];
+  const secondClip = imported.translationModel.timeline.tracks[0].clips[1];
+  assert.equal(secondClip.sourceAssetId, "in-SRC209B");
+  assert.equal(firstClip.hasFadeIn, false);
+});
+
+test("importer emits diagnostics when adapter fallback path is required", async () => {
+  const imported = await importTurnoverFolder(aafMissingMediaFixture);
+
+  assert.ok(imported.preservationIssues.some((issue) => issue.id === "issue-aaf-direct-parser-fallback"));
+  assert.ok(imported.preservationIssues.some((issue) => issue.id.startsWith("issue-aaf-extraction-warning-")));
+});
 test("importer raises critical AAF media-reference issues when AAF is primary timeline source", async () => {
   const imported = await importTurnoverFolder(aafMissingMediaFixture);
 

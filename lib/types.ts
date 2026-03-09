@@ -253,6 +253,104 @@ export type DeliveryPackage = {
   artifacts: DeliveryArtifact[];
 };
 
+export type GeneratedManifestPayload = {
+  artifactId: string;
+  artifactKind: "manifest";
+  fileName: string;
+  pathHint: string;
+  mediaType: "application/json";
+  content: string;
+};
+
+export type GeneratedReadmePayload = {
+  artifactId: string;
+  artifactKind: "readme";
+  fileName: string;
+  pathHint: string;
+  mediaType: "text/plain";
+  content: string;
+};
+
+export type GeneratedMarkerCsvPayload = {
+  artifactId: string;
+  artifactKind: "marker_csv";
+  fileName: string;
+  pathHint: string;
+  mediaType: "text/csv";
+  content: string;
+  rowCount: number;
+};
+
+export type GeneratedMarkerEdlPayload = {
+  artifactId: string;
+  artifactKind: "marker_edl";
+  fileName: string;
+  pathHint: string;
+  mediaType: "text/plain";
+  content: string;
+  markerCount: number;
+};
+
+export type GeneratedMetadataCsvPayload = {
+  artifactId: string;
+  artifactKind: "metadata_csv";
+  fileName: string;
+  pathHint: string;
+  mediaType: "text/csv";
+  content: string;
+  rowCount: number;
+};
+
+export type GeneratedFieldRecorderReportPayload = {
+  artifactId: string;
+  artifactKind: "field_recorder_report";
+  fileName: string;
+  pathHint: string;
+  mediaType: "text/csv";
+  content: string;
+  rowCount: number;
+};
+
+export type GeneratedReferenceVideoInstructionPayload = {
+  artifactId: string;
+  artifactKind: "reference_video_instruction";
+  fileName: string;
+  pathHint: string;
+  mediaType: "text/plain";
+  content: string;
+};
+
+export type DeferredBinaryArtifactPayload = {
+  artifactId: string;
+  artifactKind: "deferred_binary";
+  fileName: string;
+  pathHint: string;
+  deferredReason: string;
+};
+
+export type GeneratedArtifactPayload =
+  | GeneratedManifestPayload
+  | GeneratedReadmePayload
+  | GeneratedMarkerCsvPayload
+  | GeneratedMarkerEdlPayload
+  | GeneratedMetadataCsvPayload
+  | GeneratedFieldRecorderReportPayload
+  | GeneratedReferenceVideoInstructionPayload;
+
+export type DeliveryExecutionArtifact = {
+  artifact: DeliveryArtifact;
+  executionStatus: "planned" | "generated" | "deferred" | "unavailable";
+  generatedPayload?: GeneratedArtifactPayload;
+  deferredPayload?: DeferredBinaryArtifactPayload;
+  note?: string;
+};
+
+export type DeliveryExecutionPlan = {
+  packageId: string;
+  generatedAtIso: string;
+  artifacts: DeliveryExecutionArtifact[];
+};
+
 export type TranslationJob = {
   id: string;
   jobName: string;
@@ -269,6 +367,7 @@ export type TranslationJob = {
   analysisReport: AnalysisReport;
   outputPreset: OutputPreset;
   deliveryPackage: DeliveryPackage;
+  deliveryExecution?: DeliveryExecutionPlan;
 };
 
 export type ImportAnalysisResult = Omit<

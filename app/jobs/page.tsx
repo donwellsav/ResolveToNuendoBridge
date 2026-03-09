@@ -23,6 +23,17 @@ export default async function JobsPage() {
     );
   }
 
+  const executionByArtifactId = new Map(
+    (primaryJob.deliveryExecution?.artifacts ?? []).map((artifact) => [artifact.artifact.id, artifact])
+  );
+
+  const generatedPayloadPreviews = (primaryJob.deliveryExecution?.artifacts ?? [])
+    .filter((artifact) => artifact.generatedPayload)
+    .map((artifact) => ({
+      fileName: artifact.artifact.fileName,
+      preview: artifact.generatedPayload?.content.slice(0, 300) ?? "",
+    }));
+
   return (
     <AppShell title="Jobs">
       <div className="space-y-4">
@@ -53,8 +64,12 @@ export default async function JobsPage() {
                   {primaryJob.sourceBundle.intakeAssets.map((asset) => (
                     <tr key={asset.id} className="border-t border-border">
                       <td className="px-3 py-2 font-mono text-[11px]">{asset.fileName}</td>
-                      <td className="px-3 py-2">{asset.fileKind} / {asset.fileRole}</td>
-                      <td className="px-3 py-2"><Badge variant="accent">{asset.origin}</Badge></td>
+                      <td className="px-3 py-2">
+                        {asset.fileKind} / {asset.fileRole}
+                      </td>
+                      <td className="px-3 py-2">
+                        <Badge variant="accent">{asset.origin}</Badge>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -73,21 +88,65 @@ export default async function JobsPage() {
                     <th className="px-3 py-2 text-left">Artifact</th>
                     <th className="px-3 py-2 text-left">Kind/Role</th>
                     <th className="px-3 py-2 text-left">Status</th>
+                    <th className="px-3 py-2 text-left">Execution Prep</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {primaryJob.deliveryPackage.artifacts.map((artifact) => (
-                    <tr key={artifact.id} className="border-t border-border">
-                      <td className="px-3 py-2 font-mono text-[11px]">{artifact.fileName}</td>
-                      <td className="px-3 py-2">{artifact.fileKind} / {artifact.fileRole}</td>
-                      <td className="px-3 py-2"><Badge variant={artifact.status === "planned" ? "success" : artifact.status === "blocked" ? "danger" : "warning"}>{artifact.status}</Badge></td>
-                    </tr>
-                  ))}
+                  {primaryJob.deliveryPackage.artifacts.map((artifact) => {
+                    const execution = executionByArtifactId.get(artifact.id);
+                    const executionStatus = execution?.executionStatus ?? "planned";
+                    return (
+                      <tr key={artifact.id} className="border-t border-border">
+                        <td className="px-3 py-2 font-mono text-[11px]">{artifact.fileName}</td>
+                        <td className="px-3 py-2">
+                          {artifact.fileKind} / {artifact.fileRole}
+                        </td>
+                        <td className="px-3 py-2">
+                          <Badge
+                            variant={artifact.status === "planned" ? "success" : artifact.status === "blocked" ? "danger" : "warning"}
+                          >
+                            {artifact.status}
+                          </Badge>
+                        </td>
+                        <td className="px-3 py-2">
+                          <Badge
+                            variant={
+                              executionStatus === "generated"
+                                ? "success"
+                                : executionStatus === "deferred"
+                                  ? "warning"
+                                  : executionStatus === "unavailable"
+                                    ? "danger"
+                                    : "accent"
+                            }
+                          >
+                            {executionStatus}
+                          </Badge>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </CardContent>
           </Card>
         </div>
+
+        {generatedPayloadPreviews.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Execution Prep Payload Preview</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {generatedPayloadPreviews.map((payload) => (
+                <div key={payload.fileName} className="rounded border border-border bg-panelAlt p-3">
+                  <div className="mb-2 text-xs font-semibold">{payload.fileName}</div>
+                  <pre className="overflow-x-auto text-[11px] text-muted">{payload.preview}</pre>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        ) : null}
 
         <Card>
           <CardHeader>

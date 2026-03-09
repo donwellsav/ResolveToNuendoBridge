@@ -21,12 +21,12 @@ Phase 1 is intentionally frontend-only and contract-first:
   - Settings
 - Typed canonical internal model for translation workflow entities.
 - Realistic, static mock data for Resolve -> Nuendo workflows.
-- Importer now performs real intake for CSV/manifest/EDL/FCPXML and AAF-backed reconciliation into the canonical model.
+- Importer now performs real intake for CSV/manifest/EDL/FCPXML plus binary/container-aware AAF extraction with reconciliation into the canonical model.
 - Exporter remains planning-only (no Nuendo file writing yet).
 
 ## Out of Scope (Current State)
 - Nuendo project writing / binary file generation.
-- Full-fidelity AAF binary decode beyond the current structured extraction subset.
+- Full-fidelity AAF semantic decode beyond the current binary/container extraction subset and normalized adapter contract.
 - Auth, billing, database persistence, and marketing/public pages.
 
 ## Primary Workflow Contract
@@ -34,7 +34,7 @@ Phase 1 is intentionally frontend-only and contract-first:
 2. Data is normalized into a canonical internal model.
 3. A Nuendo-ready outbound bundle is assembled.
 
-Parser execution is now partially real (CSV/manifest/EDL/FCPXML/AAF ingestion + reconciliation). Export execution remains planning-only so phase 2 can continue without reshaping the operator shell.
+Parser execution is now partially real (CSV/manifest/EDL/FCPXML plus binary/container-aware AAF ingestion + reconciliation). Export execution remains planning-only (Nuendo writing still unimplemented) so phase 2 can continue without reshaping the operator shell.
 
 ## UX Direction
 - Desktop-first internal operations console.

@@ -7,7 +7,7 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Status | Phase | Focus | State |
 |---|---|---|---|
 | Past | Phase 1 | Contract lock + frontend operator shell | ✅ Complete |
-| Current | Phase 2A–2E | Real intake parsing + canonical hydration/reconciliation | 🚧 Active |
+| Current | Phase 2A–2F | Real intake parsing + canonical hydration/reconciliation | 🚧 Active |
 | Planned | Phase 3 | Canonical normalization + delivery writing + execution UX/persistence | 🗓️ Next |
 
 ## Phase History and Plan (Past / Current / Planned)
@@ -37,15 +37,21 @@ Phase 2 incrementally replaces fixture-only paths with real intake parsing and c
 - **2D AAF baseline**
   - First-pass AAF parser integrated.
   - AAF enrichment against canonical timeline plus AAF-only fallback hydration.
-- **2E deeper AAF ingestion (latest)**
+- **2E deeper AAF ingestion**
   - Richer AAF token handling for composition/event-style records.
   - Improved extraction for source identity, reel/tape, in/out ranges, channels/layout.
   - Explicit offline/missing-reference signals preserved.
   - Inferable fade/speed metadata carried into canonical events.
   - Reconciliation issues expanded for AAF vs FCPXML/XML mismatches (counts/timing/source/reel/tape/missing media).
+- **2F binary/container-aware AAF ingestion (latest)**
+  - Added a binary/container-aware extraction boundary for real `.aaf` files.
+  - Supports direct container record extraction plus a stable external-adapter normalization path.
+  - Preserves fallback text-fixture compatibility for controlled fixture workflows.
+  - Keeps FCPXML/XML primary when present, uses AAF for enrich/reconcile, and falls back to AAF-primary only when FCPXML/XML is absent.
 
 #### What remains in current phase
 - Deterministic canonical normalization pass across all ingest paths.
+- Surface AAF extraction diagnostics/modes as explicit preservation issues where useful.
 - Broader warning taxonomy and conflict diagnostics.
 - Keep exporter planning unchanged except benefiting from richer canonical inputs.
 
@@ -54,7 +60,7 @@ Phase 2 incrementally replaces fixture-only paths with real intake parsing and c
 #### Phase 3 (planned)
 - Implement deterministic canonical normalization pipeline.
 - Add deeper validation/reconciliation diagnostics for operator triage.
-- Implement Nuendo-ready bundle writing (actual artifact output).
+- Implement Nuendo-ready bundle writing (actual artifact output; still intentionally not implemented today).
 - Add intake execution controls/job orchestration in UI.
 - Add persistence once service boundaries stabilize.
 

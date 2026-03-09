@@ -4,6 +4,7 @@ import { outputPresets, translationJobs as fallbackJobs } from "./mock-data";
 import { prepareDeliveryExecution } from "./services/delivery-execution";
 import { buildDeliveryHandoffContracts } from "./services/delivery-handoff";
 import { stageDeliveryBundle } from "./services/delivery-staging";
+import { materializeStagedDeliveryBundle } from "./services/delivery-staging-materializer";
 import { planNuendoDelivery } from "./services/exporter";
 import { importTurnoverFolder } from "./services/importer";
 import type { TranslationJob } from "./types";
@@ -50,6 +51,7 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
       executionPlan: deliveryExecution,
       effectiveWorkspace: baseJob.mappingWorkspace,
     });
+    await materializeStagedDeliveryBundle(deliveryStaging);
 
     const deliveryHandoff = buildDeliveryHandoffContracts({
       job: { ...baseJob, deliveryPackage: packagePlan, deliveryExecution, deliveryStaging },

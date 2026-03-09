@@ -33,12 +33,13 @@ Importer timeline precedence is currently:
 - Validation workflow with `PreservationIssue` synthesis and unresolved mapping summaries surfaced on Dashboard/Jobs.
 - Delivery artifact planner consumes canonical + mapping decisions without writing Nuendo files.
 - Delivery execution-prep layer converts planned artifacts into deterministic payloads for manifest/README/marker EDL+CSV/metadata CSV/field-recorder report, while writer-only binaries remain deferred records.
-- Delivery staging layer now materializes deterministic staged bundle structure and file-path contract (manifest, README, marker/metadata/report files + deferred binary descriptor JSON + staging summary).
+- Delivery staging layer now materializes deterministic staged bundle structure and file-path contract on disk under `staging/<job>_<sequence>/` (manifest, README, marker/metadata/report files + deferred binary descriptor JSON + staging summary).
 - Browser-local review-state persistence layer stores only operator deltas (mapping overrides, validation acknowledgements, reconform decisions) keyed by job + source signature with schema versioning/migration handling.
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 ## Known Limitations
 - Nuendo writer is still not implemented (Phase 3C hardens deferred writer-input contracts + handoff manifests, but does not write Nuendo/session binaries).
+- Deferred artifacts are staged as descriptors only (`*_NUENDO_READY.aaf.deferred.json`, `*_REFERENCE_VIDEO.deferred.json`), with no fake binary contents.
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.
 

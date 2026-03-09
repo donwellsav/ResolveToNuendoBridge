@@ -56,10 +56,10 @@
 - [x] Add delivery-staging service boundary after execution prep.
 - [x] Materialize deterministic staged bundle layout and file naming contract.
 - [x] Stage generated manifest/README/marker/metadata/field-recorder outputs.
-- [x] Stage explicit deferred descriptor JSON records for AAF/reference video artifacts.
+- [x] Stage explicit deferred descriptor JSON records for AAF/reference video artifacts (no fake binary contents).
 - [x] Generate deterministic staging summary output including review influence + source signature.
 - [x] Surface staged structure/previews/summary in job operator views without redesign.
-- [x] Add tests for deterministic staging, deferred descriptors, summary generation, and review-state overlays.
+- [x] Add tests for deterministic staging, generated payload writes, deferred descriptors, summary generation, and review-state overlays.
 
 ## Phase 3C — Deferred Writer Contract Hardening (Complete)
 - [x] Add deferred-writer contract boundary and deterministic handoff service.

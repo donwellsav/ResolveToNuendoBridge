@@ -370,6 +370,10 @@ export type StagedDeliveryFile = {
   contentPreview: string;
 };
 
+export type StagedDeliveryDirectory = {
+  relativePath: string;
+};
+
 export type DeliveryStagingSummary = {
   jobId: string;
   deliveryPackageId: string;
@@ -393,6 +397,7 @@ export type DeliveryStagingBundle = {
   stage: "delivery-staging";
   rootLabel: string;
   rootPath: string;
+  directories: StagedDeliveryDirectory[];
   files: StagedDeliveryFile[];
   deferredArtifacts: DeferredArtifactDescriptor[];
   summary: DeliveryStagingSummary;

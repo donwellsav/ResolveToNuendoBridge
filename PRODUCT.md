@@ -40,7 +40,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Auth, billing, database-backed multi-user infrastructure, and marketing/public pages.
 
 ## Known Limitations
-- Export execution includes deterministic prep payload generation for non-binary artifacts and deterministic staged bundle materialization; Nuendo/binary writing remains intentionally unimplemented.
+- Export execution includes deterministic prep payload generation for non-binary artifacts and deterministic staged bundle materialization (`staging/<job>_<sequence>/manifest.json`, `README_NUENDO_IMPORT.txt`, markers/metadata/reports files, deferred descriptors, staging-summary.json); Nuendo/binary writing remains intentionally unimplemented.
 - AAF direct parser coverage now includes broader record/token aliases and clip-bearing graph extraction from messier OLE/text layouts.
 - Adapter sidecar compatibility fallback still appears in partial/unsupported AAF graph shapes and remains intentionally enabled.
 

@@ -8,7 +8,7 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Phase 2A–2J implementation is complete.
 - Current implementation includes persisted browser-local operator review deltas and reconform-ready review tooling.
 - Phase 2K fallback-reduction work is complete.
-- Current implementation target is **Phase 3B** staged delivery materialization (planner + execution-prep remain separate from writer implementation).
+- Current implementation target is **Phase 3C** deferred writer-input contract hardening (planner + execution-prep + staging remain separate from writer implementation).
 
 ## Primary Workflow Contract
 1. **SourceBundle / intake** ingests Resolve turnover artifacts.
@@ -47,7 +47,8 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 ## Next Recommended Work
 1. **Post-2K**: continue reducing compatibility fallback dependence by extending direct OLE stream/object graph decoding coverage.
 2. Continue deterministic canonical normalization and warning taxonomy hardening.
-3. Phase 3C: implement binary writer/orchestration against the staging contract (without collapsing planner/execution-prep responsibilities).
+3. Phase 3C: harden deferred writer-input contracts + handoff/readiness manifests (without implementing binary writer outputs).
+4. Phase 3D: implement binary writer/orchestration against the handoff contract (without collapsing planner/execution-prep responsibilities).
 
 ## UX Direction
 - Desktop-first internal operations console.
@@ -69,4 +70,4 @@ Conform Bridge is an internal, desktop-first operator tool for translating **Res
 - Exporter remains planning-only and deterministic (no Nuendo writing yet).
 - Execution-prep layer deterministically generates payloads for manifest, README, marker CSV/EDL, metadata CSV, and field-recorder report.
 - Staging layer deterministically materializes generated payload files + deferred descriptor files + staging summary files.
-- AAF/reference-video/native Nuendo writer outputs remain deferred records behind future writer boundary.
+- AAF/reference-video/native Nuendo writer outputs remain deferred records behind future writer boundary (now with versioned writer-input contracts and readiness states).

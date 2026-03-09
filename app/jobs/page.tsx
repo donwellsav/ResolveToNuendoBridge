@@ -30,6 +30,8 @@ export default async function JobsPage() {
 
   const stagedFiles = primaryJob.deliveryStaging?.files ?? [];
   const deferredDescriptors = primaryJob.deliveryStaging?.deferredArtifacts ?? [];
+  const handoffFiles = primaryJob.deliveryHandoff?.files ?? [];
+  const handoffInputs = primaryJob.deliveryHandoff?.writerInputs ?? [];
 
   const generatedPayloadPreviews = (primaryJob.deliveryExecution?.artifacts ?? [])
     .filter((artifact) => artifact.generatedPayload)
@@ -180,6 +182,45 @@ export default async function JobsPage() {
                   ))}
                 </div>
               ) : null}
+            </CardContent>
+          </Card>
+        ) : null}
+
+
+        {handoffFiles.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Delivery Handoff Contracts</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-xs">
+              <div className="flex gap-2">
+                <Badge variant="success">Ready {primaryJob.deliveryHandoff?.summary.readyForWriter ?? 0}</Badge>
+                <Badge variant="danger">Blocked {primaryJob.deliveryHandoff?.summary.blocked ?? 0}</Badge>
+                <Badge variant="warning">Partial {primaryJob.deliveryHandoff?.summary.partial ?? 0}</Badge>
+              </div>
+              <table className="w-full border-collapse text-xs">
+                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Handoff file</th><th className="px-2 py-1 text-left">Path</th></tr></thead>
+                <tbody>
+                  {handoffFiles.map((file) => (
+                    <tr key={file.relativePath} className="border-t border-border">
+                      <td className="px-2 py-1">{file.fileName}</td>
+                      <td className="px-2 py-1 font-mono">{file.relativePath}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <table className="w-full border-collapse text-xs">
+                <thead className="bg-panelAlt text-muted"><tr><th className="px-2 py-1 text-left">Deferred Artifact</th><th className="px-2 py-1 text-left">Readiness</th><th className="px-2 py-1 text-left">Dependencies</th></tr></thead>
+                <tbody>
+                  {handoffInputs.map((input) => (
+                    <tr key={input.inputId} className="border-t border-border">
+                      <td className="px-2 py-1 font-mono">{input.artifact.plannedOutputPath}</td>
+                      <td className="px-2 py-1">{input.artifact.readinessStatus}</td>
+                      <td className="px-2 py-1 text-muted">{input.artifact.dependencies.map((dependency) => `${dependency.reference}:${dependency.status}`).join(", ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </CardContent>
           </Card>
         ) : null}

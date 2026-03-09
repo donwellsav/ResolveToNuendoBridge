@@ -398,6 +398,109 @@ export type DeliveryStagingBundle = {
   summary: DeliveryStagingSummary;
 };
 
+export type DeferredWriterInputVersion = "phase3c.v1";
+
+export type WriterDependencyStatus = "satisfied" | "missing" | "blocked";
+
+export type WriterReadinessStatus = "ready-for-writer" | "blocked" | "partial" | "deferred-with-known-gaps";
+
+export type WriterDependency = {
+  id: string;
+  reference: string;
+  status: WriterDependencyStatus;
+  reason?: string;
+};
+
+export type DeliverySourceSignature = {
+  sourceBundleId: string;
+  resolveTimelineVersion: string;
+  importedAtIso: string;
+  translationModelId: string;
+  signature: string;
+};
+
+export type DeliveryReviewSignature = {
+  revision: string;
+  influence: {
+    trackOverrides: number;
+    markerOverrides: number;
+    metadataOverrides: number;
+    fieldRecorderOverrides: number;
+    validationAcknowledgements: number;
+    reconformDecisions: number;
+  };
+};
+
+export type DeferredWriterArtifact = {
+  artifactId: string;
+  artifactKind: "nuendo_ready_aaf" | "reference_video_binary" | "nuendo_session";
+  plannedOutputPath: string;
+  stagedDescriptorPath: string;
+  requiredWriterCapability: "nuendo_writer.aaf" | "video_writer.reference" | "nuendo_writer.session";
+  dependencies: WriterDependency[];
+  unresolvedBlockers: string[];
+  readinessStatus: WriterReadinessStatus;
+  explanation: string;
+  machinePayload: Record<string, unknown>;
+};
+
+export type DeferredWriterInput = {
+  inputId: string;
+  inputVersion: DeferredWriterInputVersion;
+  packageId: string;
+  packageSignature: string;
+  sourceSignature: DeliverySourceSignature;
+  reviewSignature: DeliveryReviewSignature;
+  artifact: DeferredWriterArtifact;
+};
+
+export type DeliveryHandoffArtifact = {
+  artifactId: string;
+  fileName: string;
+  category: "generated" | "deferred";
+  relativePath: string;
+  executionStatus: DeliveryExecutionArtifact["executionStatus"];
+};
+
+export type DeliveryHandoffSummary = {
+  packageId: string;
+  packageName: string;
+  packageVersion: DeferredWriterInputVersion;
+  packageSignature: string;
+  sourceSignature: DeliverySourceSignature;
+  reviewSignature: DeliveryReviewSignature;
+  generatedArtifacts: number;
+  deferredArtifacts: number;
+  readyForWriter: number;
+  blocked: number;
+  partial: number;
+  deferredWithKnownGaps: number;
+  unresolvedBlockers: string[];
+};
+
+export type DeliveryHandoffManifest = {
+  manifestVersion: DeferredWriterInputVersion;
+  generatedAtIso: string;
+  artifacts: DeliveryHandoffArtifact[];
+  deferredWriterInputs: DeferredWriterInput[];
+  summary: DeliveryHandoffSummary;
+};
+
+export type DeliveryHandoffBundle = {
+  stage: "delivery-handoff";
+  writerInputVersion: DeferredWriterInputVersion;
+  writerInputs: DeferredWriterInput[];
+  manifest: DeliveryHandoffManifest;
+  summary: DeliveryHandoffSummary;
+  files: Array<{
+    artifactId: "handoff-writer-inputs" | "handoff-manifest" | "handoff-summary";
+    fileName: string;
+    relativePath: string;
+    mediaType: "application/json";
+    contentPreview: string;
+  }>;
+};
+
 export type TranslationJob = {
   id: string;
   jobName: string;
@@ -416,6 +519,7 @@ export type TranslationJob = {
   deliveryPackage: DeliveryPackage;
   deliveryExecution?: DeliveryExecutionPlan;
   deliveryStaging?: DeliveryStagingBundle;
+  deliveryHandoff?: DeliveryHandoffBundle;
 };
 
 export type ImportAnalysisResult = Omit<

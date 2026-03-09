@@ -2,6 +2,7 @@ import path from "node:path";
 
 import { outputPresets, translationJobs as fallbackJobs } from "./mock-data";
 import { prepareDeliveryExecution } from "./services/delivery-execution";
+import { buildDeliveryHandoffContracts } from "./services/delivery-handoff";
 import { stageDeliveryBundle } from "./services/delivery-staging";
 import { planNuendoDelivery } from "./services/exporter";
 import { importTurnoverFolder } from "./services/importer";
@@ -50,12 +51,21 @@ export async function getTranslationJobs(): Promise<TranslationJob[]> {
       effectiveWorkspace: baseJob.mappingWorkspace,
     });
 
+    const deliveryHandoff = buildDeliveryHandoffContracts({
+      job: { ...baseJob, deliveryPackage: packagePlan, deliveryExecution, deliveryStaging },
+      packagePlan,
+      executionPlan: deliveryExecution,
+      stagingBundle: deliveryStaging,
+      effectiveWorkspace: baseJob.mappingWorkspace,
+    });
+
     return [
       {
         ...baseJob,
         deliveryPackage: packagePlan,
         deliveryExecution,
         deliveryStaging,
+        deliveryHandoff,
       },
     ];
   } catch {

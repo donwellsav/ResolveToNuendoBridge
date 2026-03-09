@@ -11,7 +11,8 @@ Internal desktop-first operator tool for translating Resolve turnover bundles in
 | Past | Phase 2K | Reduce remaining AAF adapter fallback dependence | ✅ Complete |
 | Past | Phase 3A | Delivery execution prep boundary (planning remains separate from writing) | ✅ Complete |
 | Current | Phase 3B | Staged delivery materialization from execution-prep payloads | ✅ Complete |
-| Later | Phase 3C+ | Native writer/orchestration implementation behind staging boundary | 🗓️ Planned |
+| Current | Phase 3C | Deferred writer-input contract hardening + delivery handoff manifests (writer still deferred) | ✅ Complete |
+| Later | Phase 3D+ | Native writer/orchestration implementation behind handoff boundary | 🗓️ Planned |
 
 ## Architecture (Intake → Canonical → Delivery)
 1. **SourceBundle / intake**: scan turnover files, classify file kind/role, and parse manifest/metadata/markers/timeline exchanges.
@@ -37,7 +38,7 @@ Importer timeline precedence is currently:
 - Reconform review tools now support per-change status, notes-ready decision states, unresolved/acknowledged/risky filters, and cross-page unresolved review summaries.
 
 ## Known Limitations
-- Nuendo writer is not implemented yet (Phase 3B stages bundles but does not write Nuendo/session binaries).
+- Nuendo writer is still not implemented (Phase 3C hardens deferred writer-input contracts + handoff manifests, but does not write Nuendo/session binaries).
 - Persistence is local/browser-based only (no backend review-state service in this phase).
 - Some AAF compatibility adapter fallback remains for partial/unsupported graph shapes.
 
@@ -55,7 +56,8 @@ Still unsupported in direct parsing (currently fallback-prone):
 
 ## Next Recommended Work
 - **Post-2K**: continue shrinking fallback by decoding additional opaque OLE stream layouts and richer effect object classes.
-- **Phase 3C**: implement native writer/orchestration against the staging boundary while keeping planner and execution-prep responsibilities unchanged.
+- **Phase 3C**: complete deferred writer-input contract hardening + readiness/blocked handoff manifests while keeping exporter/execution-prep/staging/writer boundaries separate.
+- **Phase 3D**: implement native writer/orchestration against the handoff boundary.
 - Keep deterministic normalization + warning taxonomy improvements in lockstep with parser work.
 - Enter Phase 3 only after planning quality and review-state persistence are stable.
 
